@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sumrize Dashboard</title>
+
+  <link rel="icon" type="image/png" href="../assets/logo-black.png" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap" rel="stylesheet" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Outfit', 'ui-sans-serif', 'system-ui', 'sans-serif'] },
+          colors: {
+            brand: {
+              25: '#f8fbfd', 50: '#eaf4fb', 100: '#d4e8f7', 200: '#b3dbff',
+              300: '#7eb5e8', 400: '#4d6996', 500: '#26344a', 600: '#1c2738',
+              700: '#1c1f2c', 800: '#171a23', 900: '#101421', 950: '#0f0e0e'
+            },
+            gray: {
+              25: '#fcfcfd', 50: '#f9fafb', 100: '#f2f4f7', 200: '#e4e7ec',
+              300: '#d0d5dd', 400: '#98a2b3', 500: '#667085', 600: '#475467',
+              700: '#3c3f4c', 800: '#26344a', 900: '#1c1f2c', 950: '#0f0e0e'
+            },
+            error: {
+              50: '#fef3f2', 500: '#f04438', 600: '#d92d20'
+            },
+            sumrize: {
+              DEFAULT: '#FF4438',
+              hover: '#e63b30'
+            }
+          },
+          boxShadow: {
+            'theme-sm': '0px 1px 3px 0px rgba(16, 24, 40, 0.1), 0px 1px 2px 0px rgba(16, 24, 40, 0.06)',
+            'theme-md': '0px 4px 8px -2px rgba(16, 24, 40, 0.1), 0px 2px 4px -2px rgba(16, 24, 40, 0.06)'
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    body { font-family: 'Outfit', sans-serif; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    [x-cloak] { display: none !important; }
+  </style>
+
+  <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+</head>
+
+<body
+  x-data="{
+    sidebarToggle: false,
+    darkMode: false,
+    lang: 'en',
+    langOpen: false,
+    notifOpen: false,
+    profileOpen: false,
+    /* First-time empty state — toggle via demo control at page footer.
+       When false: hero CTA + connector picker inline + sample preview.
+       When true: filled workspace (greeting, summary, filter, cards). */
+    hasConnectors: true,
+    /* Sample preview tab switcher in empty state — 3 use case examples
+       (chat / email / calendar) to communicate broad product scope. */
+    sampleTab: 'chat',
+    /* Filled-state connector filter — group cards by product tool category.
+       Values: all (default) | chat | email. Future: calendar, docs. */
+    connectorTab: 'all',
+    languages: {
+      en: { label: 'English', flag: '🇬🇧' },
+      id: { label: 'Bahasa Indonesia', flag: '🇮🇩' }
+    },
+    t: {
+      en: { home: 'Workspace', rizz: 'Ask Rizz', analytics: 'Analytics', invoice: 'Invoice', referral: 'Referral', settings: 'Settings' },
+      id: { home: 'Workspace', rizz: 'Rizz', analytics: 'Analytics', invoice: 'Invoice', referral: 'Referral', settings: 'Pengaturan' }
+    },
+    init() {
+      this.darkMode = JSON.parse(localStorage.getItem('darkMode') || 'false');
+      this.lang = localStorage.getItem('lang') || 'en';
+      this.$watch('darkMode', v => localStorage.setItem('darkMode', JSON.stringify(v)));
+      this.$watch('lang', v => localStorage.setItem('lang', v));
+    }
+  }"
+  :class="{ 'dark bg-gray-900': darkMode }"
+  class="bg-gray-50 font-sans text-gray-700 dark:bg-gray-900 dark:text-gray-300"
+>
+  <!-- ===== Page Wrapper Start ===== -->
+  <div class="flex h-screen overflow-hidden">
+
+    <!-- ===== Sidebar Start ===== -->
+    <aside
+      :class="sidebarToggle ? 'translate-x-0 lg:w-[90px]' : '-translate-x-full w-[290px]'"
+      class="fixed left-0 top-0 z-50 flex h-screen flex-col overflow-y-hidden border-r border-gray-200 bg-white px-5 transition-all duration-300 ease-linear dark:border-gray-800 dark:bg-gray-900 lg:static lg:translate-x-0"
+    >
+      <!-- Brand + collapse toggle.
+           Expanded (lg): wordmark centered, toggle absolutely positioned at
+             the right edge so it doesn't bias the wordmark centering.
+           Collapsed (lg): wordmark hidden, compact "S" mark + toggle stack
+             vertically (lg:flex-col), both centered. -->
+      <!-- Sidebar brand only — toggle button moved to topbar as hamburger -->
+      <div class="flex items-center justify-center pt-8 pb-7">
+        <!-- Logo wordmark (visible when expanded / mobile drawer open) -->
+        <a href="index.html" class="flex items-center" :class="sidebarToggle ? 'lg:hidden' : ''">
+          <img src="../assets/logo-black.png" class="h-12 w-auto dark:hidden" alt="Sumrize" />
+          <img src="../assets/logo-white.png" class="hidden h-12 w-auto dark:block" alt="Sumrize" />
+        </a>
+        <!-- Compact brand mark (visible only when collapsed on lg) -->
+        <a href="index.html" class="hidden h-10 w-10 items-center justify-center rounded-xl bg-brand-500 text-base font-bold text-white shadow-theme-sm" :class="sidebarToggle ? 'lg:flex' : ''" aria-label="Sumrize">S</a>
+      </div>
+
+      <!-- Nav + footer (profile moved to topbar dropdown, TailAdmin-style) -->
+      <div class="no-scrollbar flex flex-1 flex-col justify-between overflow-y-auto">
+        <nav>
+          <h3
+            class="mb-4 text-xs font-semibold uppercase leading-5 tracking-wider text-gray-400"
+            :class="sidebarToggle ? 'lg:text-center' : ''"
+          >
+            <span :class="sidebarToggle ? 'lg:hidden' : ''">Menu</span>
+            <span class="hidden" :class="sidebarToggle ? 'lg:inline' : ''">•••</span>
+          </h3>
+          <ul class="flex flex-col gap-1">
+            <li>
+              <a
+                href="index.html"
+                class="group flex items-center gap-3 rounded-lg bg-brand-50 px-3 py-2 text-sm font-medium text-brand-500 dark:bg-brand-500/[0.12] dark:text-brand-400"
+                :class="sidebarToggle ? 'lg:justify-center' : ''"
+              >
+                <i data-lucide="home" class="h-5 w-5 flex-shrink-0"></i>
+                <span x-text="t[lang].home" :class="sidebarToggle ? 'lg:hidden' : ''"></span>
+              </a>
+            </li>
+            <li>
+              <a
+                href="rizz.html"
+                class="group flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-white/5 dark:hover:text-white"
+                :class="sidebarToggle ? 'lg:justify-center' : ''"
+              >
+                <i data-lucide="sparkles" class="h-5 w-5 flex-shrink-0"></i>
+                <span x-text="t[lang].rizz" :class="sidebarToggle ? 'lg:hidden' : ''"></span>
+              </a>
+            </li>
+            <li>
+              <a
+                href="analytics.html"
+                class="group flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-white/5 dark:hover:text-white"
+                :class="sidebarToggle ? 'lg:justify-center' : ''"
+              >
+                <i data-lucide="bar-chart-3" class="h-5 w-5 flex-shrink-0"></i>
+                <span x-text="t[lang].analytics" :class="sidebarToggle ? 'lg:hidden' : ''"></span>
+              </a>
+            </li>
+            <li>
+              <a
+                href="referral.html"
+                class="group flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-white/5 dark:hover:text-white"
+                :class="sidebarToggle ? 'lg:justify-center' : ''"
+              >
+                <i data-lucide="gift" class="h-5 w-5 flex-shrink-0"></i>
+                <span x-text="t[lang].referral" :class="sidebarToggle ? 'lg:hidden' : ''"></span>
+              </a>
+            </li>
+            <li>
+              <a
+                href="invoice.html"
+                class="group flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-white/5 dark:hover:text-white"
+                :class="sidebarToggle ? 'lg:justify-center' : ''"
+              >
+                <i data-lucide="file-text" class="h-5 w-5 flex-shrink-0"></i>
+                <span x-text="t[lang].invoice" :class="sidebarToggle ? 'lg:hidden' : ''"></span>
+              </a>
+            </li>
+          </ul>
+        </nav>
+
+        <div class="mt-6 mb-6">
+          <!-- Theme switch -->
+          <div
+            class="mb-4 flex items-center gap-1 rounded-full bg-gray-100 p-1 dark:bg-gray-800"
+            :class="sidebarToggle ? 'lg:flex-col lg:rounded-2xl' : ''"
+          >
+            <button
+              type="button"
+              @click="darkMode = true"
+              :class="darkMode ? 'bg-white text-gray-900 shadow-theme-sm dark:bg-gray-700 dark:text-white' : 'text-gray-500 dark:text-gray-400'"
+              class="flex flex-1 items-center justify-center gap-2 rounded-full px-3 py-1.5 text-xs font-medium transition"
+            >
+              <i data-lucide="moon" class="h-3.5 w-3.5 flex-shrink-0"></i>
+              <span :class="sidebarToggle ? 'lg:hidden' : ''">Dark</span>
+            </button>
+            <button
+              type="button"
+              @click="darkMode = false"
+              :class="!darkMode ? 'bg-white text-gray-900 shadow-theme-sm dark:bg-gray-700 dark:text-white' : 'text-gray-500 dark:text-gray-400'"
+              class="flex flex-1 items-center justify-center gap-2 rounded-full px-3 py-1.5 text-xs font-medium transition"
+            >
+              <i data-lucide="sun" class="h-3.5 w-3.5 flex-shrink-0"></i>
+              <span :class="sidebarToggle ? 'lg:hidden' : ''">Light</span>
+            </button>
+          </div>
+
+          <!-- Logout moved to topbar profile dropdown -->
+        </div>
+      </div>
+    </aside>
+    <!-- ===== Sidebar End ===== -->
+
+    <!-- ===== Mobile Backdrop ===== -->
+    <div
+      x-show="sidebarToggle"
+      @click="sidebarToggle = false"
+      x-transition.opacity
+      class="fixed inset-0 z-40 bg-gray-900/50 lg:hidden"
+      x-cloak
+    ></div>
+
+    <!-- ===== Content Area Start ===== -->
+    <div class="relative flex flex-1 flex-col overflow-x-hidden overflow-y-auto">
+      <main>
+        <div class="p-4 md:p-6">
+
+          <!-- ===== Topbar (Section 2) Start ===== -->
+          <section class="mb-6 flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
+            <div class="flex items-center gap-3">
+              <!-- Hamburger menu — always visible on all viewports, toggles sidebar -->
+              <button
+                type="button"
+                @click="sidebarToggle = !sidebarToggle"
+                class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-700 transition hover:bg-gray-50 dark:border-gray-800 dark:bg-white/[0.03] dark:text-gray-300 dark:hover:bg-white/5"
+                aria-label="Toggle menu"
+              >
+                <i data-lucide="menu" class="h-5 w-5" x-show="!sidebarToggle"></i>
+                <i data-lucide="x" class="h-5 w-5" x-show="sidebarToggle" x-cloak></i>
+              </button>
+
+              <div>
+                <h1 class="text-2xl font-semibold text-gray-800 dark:text-white md:text-3xl">
+                  <span x-show="hasConnectors" x-text="lang === 'id' ? 'Selamat datang kembali, Avew' : 'Welcome back, Avew'">Welcome back, Avew</span>
+                  <span x-show="!hasConnectors" x-cloak x-text="lang === 'id' ? 'Halo Avew, mulai dari sini' : 'Hi Avew, start here'">Hi Avew, start here</span>
+                  <span class="inline-block animate-pulse">👋</span>
+                </h1>
+                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                  <span x-show="hasConnectors" x-text="lang === 'id' ? 'Begini ringkasan workspace Anda hari ini.' : 'Here\'s your workspace at a glance today.'">Here's your workspace at a glance today.</span>
+                  <span x-show="!hasConnectors" x-cloak x-text="lang === 'id' ? 'Hubungkan grup chat pertama Anda — setup ~2 menit.' : 'Connect your first chat group — setup takes ~2 minutes.'">Connect your first chat group — setup takes ~2 minutes.</span>
+                </p>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-3 self-stretch md:self-auto">
+              <!-- Language switcher dropdown.
+                   `lang` and `langOpen` come from the body-level x-data so the
+                   choice persists across pages via localStorage. -->
+              <div class="relative" @click.outside="langOpen = false">
+                <button
+                  type="button"
+                  @click="langOpen = !langOpen"
+                  class="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 transition hover:bg-gray-50 dark:border-gray-800 dark:bg-white/[0.03] dark:text-gray-300 dark:hover:bg-white/5"
+                  aria-haspopup="listbox"
+                  :aria-expanded="langOpen.toString()"
+                >
+                  <i data-lucide="globe" class="h-4 w-4"></i>
+                  <span class="text-base leading-none" x-text="languages[lang].flag"></span>
+                  <i data-lucide="chevron-down" class="h-4 w-4 transition" :class="langOpen ? 'rotate-180' : ''"></i>
+                </button>
+
+                <div
+                  x-show="langOpen"
+                  x-cloak
+                  x-transition.opacity.duration.150ms
+                  class="absolute right-0 z-30 mt-2 w-56 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-theme-md dark:border-gray-800 dark:bg-gray-900"
+                  role="listbox"
+                >
+                  <template x-for="(meta, code) in languages" :key="code">
+                    <button
+                      type="button"
+                      @click="lang = code; langOpen = false"
+                      class="flex w-full items-center justify-between gap-3 px-4 py-2.5 text-sm transition"
+                      :class="lang === code ? 'bg-brand-50 font-medium text-brand-500 dark:bg-brand-500/[0.12] dark:text-brand-400' : 'text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-white/5'"
+                      role="option"
+                      :aria-selected="(lang === code).toString()"
+                    >
+                      <span class="flex items-center gap-3">
+                        <span class="text-lg leading-none" x-text="meta.flag"></span>
+                        <span x-text="meta.label"></span>
+                      </span>
+                      <!-- inline SVG so we don't depend on Lucide for x-for-rendered nodes -->
+                      <svg x-show="lang === code" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                      </svg>
+                    </button>
+                  </template>
+                </div>
+              </div>
+
+              <!-- Primary action: navigates to the dedicated picker page -->
+              <a
+                href="add-connector.html"
+                class="inline-flex items-center gap-2 rounded-full bg-sumrize px-5 py-2.5 text-sm font-semibold text-white shadow-theme-sm transition hover:bg-sumrize-hover focus:outline-none focus:ring-4 focus:ring-sumrize/30"
+              >
+                <i data-lucide="plus" class="h-4 w-4"></i>
+                <span x-text="lang === 'id' ? 'Tambah Konektor' : 'Add Connector'">Add Connector</span>
+              </a>
+
+              <!-- Notification dropdown — surfaces account/billing/referral events.
+                   Items link to relevant pages. NOT chat or summary content. -->
+              <div class="relative" @click.outside="notifOpen = false">
+                <button type="button" @click="notifOpen = !notifOpen" :aria-label="lang === 'id' ? 'Notifikasi' : 'Notifications'" class="relative flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-700 transition hover:bg-gray-50 dark:border-gray-800 dark:bg-white/[0.03] dark:text-gray-300 dark:hover:bg-white/5">
+                  <i data-lucide="bell" class="h-4 w-4"></i>
+                  <span class="absolute right-1.5 top-1.5 flex h-2 w-2" aria-hidden="true">
+                    <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-sumrize opacity-75"></span>
+                    <span class="relative inline-flex h-2 w-2 rounded-full bg-sumrize"></span>
+                  </span>
+                </button>
+                <div x-show="notifOpen" x-cloak x-transition.opacity.duration.150ms class="absolute right-0 z-30 mt-2 w-80 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-theme-md dark:border-gray-800 dark:bg-gray-900 sm:w-96">
+                  <header class="flex items-center justify-between border-b border-gray-100 px-4 py-3 dark:border-gray-800">
+                    <div class="flex items-center gap-2">
+                      <p class="text-sm font-semibold text-gray-900 dark:text-white" x-text="lang === 'id' ? 'Notifikasi' : 'Notifications'">Notifications</p>
+                      <span class="rounded-full bg-sumrize/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-sumrize">
+                        3 <span x-text="lang === 'id' ? 'baru' : 'new'">new</span>
+                      </span>
+                    </div>
+                    <button type="button" class="text-xs font-medium text-brand-500 transition hover:text-brand-600 dark:text-brand-400" x-text="lang === 'id' ? 'Tandai dibaca' : 'Mark all read'">Mark all read</button>
+                  </header>
+                  <div class="max-h-96 divide-y divide-gray-100 overflow-y-auto dark:divide-gray-800">
+                    <a href="analytics.html" class="block bg-brand-50/40 px-4 py-3 transition hover:bg-brand-50/60 dark:bg-brand-500/[0.04] dark:hover:bg-brand-500/[0.08]">
+                      <div class="flex items-start gap-3">
+                        <div class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-success-50 text-success-600 dark:bg-success-500/[0.15] dark:text-success-500">
+                          <i data-lucide="bar-chart-3" class="h-4 w-4"></i>
+                        </div>
+                        <div class="min-w-0 flex-1">
+                          <p class="text-sm text-gray-700 dark:text-gray-300">
+                            <strong class="font-semibold text-gray-900 dark:text-white" x-text="lang === 'id' ? 'Ringkasan mingguan siap dilihat' : 'Weekly insight is ready'">Weekly insight is ready</strong>
+                            <span x-text="lang === 'id' ? ' · 12 ringkasan + topik teratas' : ' · 12 summaries + top topics'"></span>
+                          </p>
+                          <p class="mt-0.5 text-xs text-gray-400" x-text="lang === 'id' ? 'Analytics · 30 menit lalu' : 'Analytics · 30 min ago'">Analytics · 30 min ago</p>
+                        </div>
+                        <span class="mt-1 inline-block h-2 w-2 flex-shrink-0 rounded-full bg-sumrize" aria-hidden="true"></span>
+                      </div>
+                    </a>
+                    <a href="referral.html" class="block bg-brand-50/40 px-4 py-3 transition hover:bg-brand-50/60 dark:bg-brand-500/[0.04] dark:hover:bg-brand-500/[0.08]">
+                      <div class="flex items-start gap-3">
+                        <div class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-brand-50 text-brand-500 dark:bg-brand-500/[0.15] dark:text-brand-400">
+                          <i data-lucide="user-plus" class="h-4 w-4"></i>
+                        </div>
+                        <div class="min-w-0 flex-1">
+                          <p class="text-sm text-gray-700 dark:text-gray-300">
+                            <strong class="font-semibold text-gray-900 dark:text-white">Andi N.</strong>
+                            <span x-text="lang === 'id' ? ' bergabung pakai kode referral Anda' : ' joined using your referral code'"></span>
+                          </p>
+                          <p class="mt-0.5 text-xs text-gray-400" x-text="lang === 'id' ? 'Referral · 5 menit lalu' : 'Referral · 5 min ago'">Referral · 5 min ago</p>
+                        </div>
+                        <span class="mt-1 inline-block h-2 w-2 flex-shrink-0 rounded-full bg-sumrize" aria-hidden="true"></span>
+                      </div>
+                    </a>
+                    <a href="referral.html" class="block bg-brand-50/40 px-4 py-3 transition hover:bg-brand-50/60 dark:bg-brand-500/[0.04] dark:hover:bg-brand-500/[0.08]">
+                      <div class="flex items-start gap-3">
+                        <div class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-warning-50 text-warning-500 dark:bg-warning-500/[0.15]">
+                          <i data-lucide="trophy" class="h-4 w-4"></i>
+                        </div>
+                        <div class="min-w-0 flex-1">
+                          <p class="text-sm text-gray-700 dark:text-gray-300">
+                            <span x-text="lang === 'id' ? '5 teman sudah bergabung — ' : '5 friends joined — '"></span>
+                            <strong class="font-semibold text-gray-900 dark:text-white" x-text="lang === 'id' ? 'Bronze tier siap diklaim' : 'Bronze tier ready to claim'">Bronze tier ready</strong>
+                          </p>
+                          <p class="mt-0.5 text-xs text-gray-400" x-text="lang === 'id' ? 'Referral · 1 jam lalu' : 'Referral · 1 hr ago'">Referral · 1 hr ago</p>
+                        </div>
+                        <span class="mt-1 inline-block h-2 w-2 flex-shrink-0 rounded-full bg-sumrize" aria-hidden="true"></span>
+                      </div>
+                    </a>
+                    <a href="settings.html" class="block bg-brand-50/40 px-4 py-3 transition hover:bg-brand-50/60 dark:bg-brand-500/[0.04] dark:hover:bg-brand-500/[0.08]">
+                      <div class="flex items-start gap-3">
+                        <div class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-sumrize/15 text-sumrize">
+                          <i data-lucide="clock" class="h-4 w-4"></i>
+                        </div>
+                        <div class="min-w-0 flex-1">
+                          <p class="text-sm text-gray-700 dark:text-gray-300">
+                            <strong class="font-semibold text-gray-900 dark:text-white" x-text="lang === 'id' ? 'Spark Trial berakhir 5 hari lagi' : 'Spark Trial ends in 5 days'">Spark Trial ends in 5 days</strong>
+                            <span x-text="lang === 'id' ? ' · upgrade untuk lanjut akses' : ' · upgrade to keep access'"></span>
+                          </p>
+                          <p class="mt-0.5 text-xs text-gray-400" x-text="lang === 'id' ? 'Langganan · 2 hari lalu' : 'Subscription · 2 days ago'">Subscription · 2 days ago</p>
+                        </div>
+                        <span class="mt-1 inline-block h-2 w-2 flex-shrink-0 rounded-full bg-sumrize" aria-hidden="true"></span>
+                      </div>
+                    </a>
+                    <a href="invoice.html" class="block px-4 py-3 transition hover:bg-gray-50 dark:hover:bg-white/[0.03]">
+                      <div class="flex items-start gap-3">
+                        <div class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-success-50 text-success-600 dark:bg-success-500/[0.15] dark:text-success-500">
+                          <i data-lucide="credit-card" class="h-4 w-4"></i>
+                        </div>
+                        <div class="min-w-0 flex-1">
+                          <p class="text-sm text-gray-600 dark:text-gray-400">
+                            <strong class="font-medium text-gray-800 dark:text-gray-200" x-text="lang === 'id' ? 'Pembayaran berhasil' : 'Payment successful'">Payment successful</strong>
+                            <span> · Rp 99.000</span>
+                          </p>
+                          <p class="mt-0.5 text-xs text-gray-400" x-text="lang === 'id' ? 'Tagihan · 3 hari lalu' : 'Billing · 3 days ago'">Billing · 3 days ago</p>
+                        </div>
+                      </div>
+                    </a>
+                    <a href="invoice.html" class="block px-4 py-3 transition hover:bg-gray-50 dark:hover:bg-white/[0.03]">
+                      <div class="flex items-start gap-3">
+                        <div class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-brand-50 text-brand-500 dark:bg-brand-500/[0.15] dark:text-brand-400">
+                          <i data-lucide="file-text" class="h-4 w-4"></i>
+                        </div>
+                        <div class="min-w-0 flex-1">
+                          <p class="text-sm text-gray-600 dark:text-gray-400" x-text="lang === 'id' ? 'Invoice baru INV-2026-005 sudah diterbitkan' : 'New invoice INV-2026-005 has been issued'">New invoice issued</p>
+                          <p class="mt-0.5 text-xs text-gray-400" x-text="lang === 'id' ? 'Tagihan · 5 hari lalu' : 'Billing · 5 days ago'">Billing · 5 days ago</p>
+                        </div>
+                      </div>
+                    </a>
+                  </div>
+                  <a href="#" class="block border-t border-gray-100 px-4 py-3 text-center text-sm font-semibold text-brand-500 transition hover:bg-gray-50 dark:border-gray-800 dark:text-brand-400 dark:hover:bg-white/[0.03]">
+                    <span x-text="lang === 'id' ? 'Lihat semua notifikasi' : 'View all notifications'">View all notifications</span>
+                  </a>
+                </div>
+              </div>
+
+              <!-- Profile dropdown (TailAdmin pattern: pill trigger w/ avatar + name + chevron,
+                   panel below shows name/email + menu items + sign out). -->
+              <div class="relative" @click.outside="profileOpen = false">
+                <button
+                  type="button"
+                  @click="profileOpen = !profileOpen"
+                  class="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white py-1 pl-1 pr-3 text-sm font-medium text-gray-700 transition hover:bg-gray-50 dark:border-gray-800 dark:bg-white/[0.03] dark:text-gray-300 dark:hover:bg-white/5"
+                  aria-haspopup="menu"
+                  :aria-expanded="profileOpen.toString()"
+                >
+                  <span class="flex h-8 w-8 items-center justify-center rounded-full bg-brand-500 text-xs font-semibold text-white">A</span>
+                  <span>Avew</span>
+                  <i data-lucide="chevron-down" class="h-4 w-4 transition" :class="profileOpen ? 'rotate-180' : ''"></i>
+                </button>
+
+                <div
+                  x-show="profileOpen"
+                  x-cloak
+                  x-transition.opacity.duration.150ms
+                  class="absolute right-0 z-30 mt-2 w-64 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-theme-md dark:border-gray-800 dark:bg-gray-900"
+                  role="menu"
+                >
+                  <!-- Identity block: name + plan badge + email -->
+                  <div class="border-b border-gray-100 px-4 py-3 dark:border-gray-800">
+                    <div class="flex items-center gap-2">
+                      <p class="text-sm font-semibold text-gray-900 dark:text-white">Avew</p>
+                      <span class="rounded-full bg-brand-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-brand-500 dark:bg-brand-500/[0.15] dark:text-brand-400">Spark</span>
+                    </div>
+                    <p class="mt-0.5 truncate text-xs text-gray-500 dark:text-gray-400">aseprojali@gmail.com</p>
+                  </div>
+
+                  <!-- Account menu -->
+                  <div class="py-1.5">
+                    <a href="settings.html" class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 transition hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-white/5">
+                      <i data-lucide="settings" class="h-4 w-4"></i>
+                      <span x-text="lang === 'id' ? 'Pengaturan' : 'Settings'">Settings</span>
+                    </a>
+                    <a href="#" class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 transition hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-white/5">
+                      <i data-lucide="info" class="h-4 w-4"></i>
+                      Support
+                    </a>
+                  </div>
+
+                  <!-- Sign out -->
+                  <div class="border-t border-gray-100 py-1.5 dark:border-gray-800">
+                    <a href="login.html" class="flex items-center gap-3 px-4 py-2 text-sm font-medium text-error-500 transition hover:bg-error-50 dark:hover:bg-error-500/10">
+                      <i data-lucide="log-out" class="h-4 w-4"></i>
+                      Sign out
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+          <!-- ===== Topbar (Section 2) End ===== -->
+
+          <!-- ===== FILLED STATE — user has 1+ connectors ===== -->
+          <div x-show="hasConnectors">
+
+          <!-- ===== Latest summary preview card =====
+               Surface the most recent summary so user can jump straight into
+               content instead of having to dig. Transforms the homepage from
+               "list view" to "launch pad." -->
+          <a href="rizz.html" class="group mb-6 flex flex-col gap-3 overflow-hidden rounded-2xl border border-gray-200 bg-white p-5 shadow-theme-sm transition hover:border-brand-500 hover:shadow-theme-md dark:border-gray-800 dark:bg-white/[0.03] dark:hover:border-brand-500 sm:flex-row sm:items-center sm:justify-between">
+            <div class="flex flex-1 items-start gap-3">
+              <div class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-brand-50 text-brand-500 dark:bg-brand-500/[0.15] dark:text-brand-400">
+                <i data-lucide="messages-square" class="h-5 w-5"></i>
+              </div>
+              <div class="min-w-0 flex-1">
+                <div class="mb-1 flex flex-wrap items-center gap-x-2 gap-y-1">
+                  <p class="text-[11px] font-semibold uppercase tracking-wider text-gray-400" x-text="lang === 'id' ? 'Ringkasan Terbaru' : 'Latest Summary'">Latest Summary</p>
+                  <span class="rounded-full bg-success-50 px-1.5 py-0.5 text-[10px] font-semibold text-success-600 dark:bg-success-500/[0.15] dark:text-success-500">
+                    <span class="mr-0.5 inline-block h-1.5 w-1.5 rounded-full bg-success-500"></span>
+                    <span x-text="lang === 'id' ? 'baru' : 'new'">new</span>
+                  </span>
+                </div>
+                <p class="text-sm font-semibold text-gray-900 dark:text-white">Komunitas Mobil BMW <span class="font-normal text-gray-400">· 2 <span x-text="lang === 'id' ? 'jam lalu' : 'hours ago'">hours ago</span></span></p>
+                <p class="mt-1 line-clamp-2 text-sm text-gray-500 dark:text-gray-400" x-text="lang === 'id' ? '“Persiapan kopdar Sabtu di Auto Bavarian, Kemang. Iuran konsumsi Rp 75K. 18 anggota konfirmasi, 5 belum balas. Bro Adit nawarin lokasinya + mekanik akan sharing maintenance tips Series 5...”' : '“Saturday meetup prep at Auto Bavarian, Kemang. Catering dues Rp 75K. 18 members confirmed, 5 pending. Bro Adit offered the venue + mechanic will share Series 5 maintenance tips...”'">"Persiapan kopdar Sabtu di Auto Bavarian..."</p>
+              </div>
+            </div>
+            <div class="inline-flex flex-shrink-0 items-center gap-1 self-start rounded-full bg-brand-50 px-3 py-1.5 text-xs font-semibold text-brand-500 transition group-hover:bg-brand-100 sm:self-auto dark:bg-brand-500/[0.12] dark:text-brand-400">
+              <span x-text="lang === 'id' ? 'Buka ringkasan' : 'Open summary'">Open summary</span>
+              <i data-lucide="arrow-right" class="h-3.5 w-3.5 transition group-hover:translate-x-0.5"></i>
+            </div>
+          </a>
+
+          <!-- ===== Filter Toolbar (Section 3) Start =====
+               Category-based pills (product tools): All / Chat / Email.
+               Click sets connectorTab; cards filter via x-show.
+               Pattern: pill active = `bg-brand-50 text-brand-500`,
+                        inactive   = `bg-white ring-1 ring-gray-200 text-gray-700`. -->
+          <section role="tablist" class="mb-6 flex flex-wrap items-center gap-3">
+            <!-- Filter pill: All -->
+            <button type="button" role="tab" :aria-selected="(connectorTab === 'all').toString()" @click="connectorTab = 'all'"
+              class="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition"
+              :class="connectorTab === 'all'
+                ? 'bg-brand-50 text-brand-500 dark:bg-brand-500/[0.12] dark:text-brand-400'
+                : 'bg-white text-gray-700 ring-1 ring-gray-200 hover:bg-gray-50 dark:bg-white/[0.03] dark:text-gray-300 dark:ring-gray-800 dark:hover:bg-white/[0.06]'">
+              <i data-lucide="layout-grid" class="h-4 w-4"></i>
+              <span x-text="lang === 'id' ? 'Semua' : 'All'">All</span>
+              <span class="ml-1 inline-flex h-5 min-w-[20px] items-center justify-center rounded-full px-1.5 text-xs font-semibold"
+                :class="connectorTab === 'all' ? 'bg-white/70 dark:bg-white/10' : 'bg-gray-100 dark:bg-white/10'">4</span>
+            </button>
+
+            <!-- Filter pill: Chat (WhatsApp + Discord + Slack) -->
+            <button type="button" role="tab" :aria-selected="(connectorTab === 'chat').toString()" @click="connectorTab = 'chat'"
+              class="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition"
+              :class="connectorTab === 'chat'
+                ? 'bg-brand-50 text-brand-500 dark:bg-brand-500/[0.12] dark:text-brand-400'
+                : 'bg-white text-gray-700 ring-1 ring-gray-200 hover:bg-gray-50 dark:bg-white/[0.03] dark:text-gray-300 dark:ring-gray-800 dark:hover:bg-white/[0.06]'">
+              <i data-lucide="messages-square" class="h-4 w-4"></i>
+              <span x-text="lang === 'id' ? 'Chat' : 'Chat'">Chat</span>
+              <span class="ml-1 inline-flex h-5 min-w-[20px] items-center justify-center rounded-full px-1.5 text-xs font-semibold"
+                :class="connectorTab === 'chat' ? 'bg-white/70 dark:bg-white/10' : 'bg-gray-100 dark:bg-white/10'">3</span>
+            </button>
+
+            <!-- Filter pill: Email (Gmail) -->
+            <button type="button" role="tab" :aria-selected="(connectorTab === 'email').toString()" @click="connectorTab = 'email'"
+              class="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition"
+              :class="connectorTab === 'email'
+                ? 'bg-brand-50 text-brand-500 dark:bg-brand-500/[0.12] dark:text-brand-400'
+                : 'bg-white text-gray-700 ring-1 ring-gray-200 hover:bg-gray-50 dark:bg-white/[0.03] dark:text-gray-300 dark:ring-gray-800 dark:hover:bg-white/[0.06]'">
+              <i data-lucide="mail" class="h-4 w-4"></i>
+              <span x-text="lang === 'id' ? 'Email' : 'Email'">Email</span>
+              <span class="ml-1 inline-flex h-5 min-w-[20px] items-center justify-center rounded-full px-1.5 text-xs font-semibold"
+                :class="connectorTab === 'email' ? 'bg-white/70 dark:bg-white/10' : 'bg-gray-100 dark:bg-white/10'">1</span>
+            </button>
+
+            <!-- Search reveal button -->
+            <button type="button" :aria-label="lang === 'id' ? 'Cari konektor' : 'Search connectors'" class="ml-auto flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-gray-500 transition hover:bg-gray-200 dark:bg-white/[0.05] dark:text-gray-400 dark:hover:bg-white/[0.08]">
+              <i data-lucide="search" class="h-4 w-4"></i>
+            </button>
+          </section>
+          <!-- ===== Filter Toolbar (Section 3) End ===== -->
+
+          <!-- Active category header — gives context which tools are shown -->
+          <p class="mb-4 text-xs text-gray-500 dark:text-gray-400" x-show="connectorTab !== 'all'" x-cloak>
+            <span x-show="connectorTab === 'chat'" x-text="lang === 'id' ? 'Konektor chat group · WhatsApp, Discord, Slack' : 'Chat group connectors · WhatsApp, Discord, Slack'"></span>
+            <span x-show="connectorTab === 'email'" x-text="lang === 'id' ? 'Konektor inbox email · Gmail' : 'Email inbox connectors · Gmail'"></span>
+          </p>
+
+          <!-- ===== Connector Cards Grid (Section 4) Start =====
+               Card layout = two-zone:
+                 (a) BODY  white/dark card surface, p-6 — badge top-left, gear top-right, title, subtitle
+                 (b) BAND  brand-50 footer split 2 columns, divided by brand-100 vertical line
+               Repeat <article> per connector — copy/paste-friendly. -->
+          <section class="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+
+            <!-- Connector card: WhatsApp / Komunitas Mobil BMW (MOST ACTIVE) -->
+            <article x-show="connectorTab === 'all' || connectorTab === 'chat'" class="overflow-hidden rounded-2xl border-2 border-brand-500 bg-white shadow-theme-sm ring-2 ring-brand-500/10 dark:bg-white/[0.03]">
+              <div class="p-6">
+                <header class="mb-6 flex items-start justify-between">
+                  <div class="flex flex-wrap items-center gap-1.5">
+                    <span class="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1 text-xs font-medium text-gray-700 ring-1 ring-gray-200 dark:bg-white dark:ring-transparent">
+                      <img src="../assets/whatsapp.webp" class="h-3.5 w-3.5" alt="" />
+                      <span x-text="lang === 'id' ? 'Grup WhatsApp' : 'WhatsApp Group'">WhatsApp Group</span>
+                    </span>
+                    <!-- "Most active" badge -->
+                    <span class="inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-sumrize/15 to-brand-500/15 px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-sumrize">
+                      <i data-lucide="flame" class="h-3 w-3"></i>
+                      <span x-text="lang === 'id' ? 'Paling aktif' : 'Most active'">Most active</span>
+                    </span>
+                  </div>
+                  <a href="connector-detail.html" :aria-label="lang === 'id' ? 'Pengaturan konektor' : 'Connector setting'" class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-gray-400 transition hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-white/5 dark:hover:text-white">
+                    <i data-lucide="settings" class="h-4 w-4"></i>
+                  </a>
+                </header>
+
+                <a href="connector-detail.html?id=whatsapp_bmw" class="group block -mx-2 -mt-1 rounded-lg px-2 pt-1 pb-2 transition hover:bg-gray-50 dark:hover:bg-white/[0.03]">
+                  <h2 class="mb-1 text-xl font-bold text-gray-900 transition group-hover:text-brand-500 dark:text-white dark:group-hover:text-brand-400">Komunitas Mobil BMW</h2>
+                  <p class="text-sm text-gray-500 dark:text-gray-400">Admin: Bro Adit · 48 <span x-text="lang === 'id' ? 'anggota' : 'members'">anggota</span></p>
+                </a>
+                <div class="mb-3"></div>
+
+                <!-- Activity meta -->
+                <p class="flex items-center gap-1.5 border-t border-gray-100 pt-3 text-xs text-gray-500 dark:border-gray-800 dark:text-gray-400">
+                  <span class="inline-block h-1.5 w-1.5 rounded-full bg-success-500"></span>
+                  <span x-text="lang === 'id' ? 'Aktif 2 jam lalu · 47 pesan baru' : 'Active 2h ago · 47 new messages'">Active 2h ago · 47 new messages</span>
+                </p>
+              </div>
+
+              <footer class="grid grid-cols-2 divide-x divide-brand-100 bg-brand-50 dark:divide-brand-500/20 dark:bg-brand-500/[0.08]">
+                <button type="button" class="flex items-center justify-center gap-2 px-4 py-3.5 text-sm font-medium text-brand-700 transition hover:bg-brand-100 dark:text-brand-300 dark:hover:bg-brand-500/[0.12]">
+                  <i data-lucide="sparkles" class="h-4 w-4"></i>
+                  <span x-text="lang === 'id' ? 'Ringkasan' : 'Summaries'">Summaries</span>
+                  <span class="rounded-full bg-sumrize/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-sumrize" x-text="lang === 'id' ? 'Baru' : 'New'">New</span>
+                </button>
+                <a href="rizz.html" class="flex items-center justify-center gap-2 px-4 py-3.5 text-sm font-medium text-brand-700 transition hover:bg-brand-100 dark:text-brand-300 dark:hover:bg-brand-500/[0.12]">
+                  <i data-lucide="message-circle" class="h-4 w-4"></i>
+                  <span x-text="lang === 'id' ? 'Tanya Rizz' : 'Ask Rizz'">Ask Rizz</span>
+                </a>
+              </footer>
+            </article>
+
+            <!-- Connector card: WhatsApp / Keluarga Besar -->
+            <article x-show="connectorTab === 'all' || connectorTab === 'chat'" class="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-theme-sm dark:border-gray-800 dark:bg-white/[0.03]">
+              <div class="p-6">
+                <header class="mb-6 flex items-start justify-between">
+                  <span class="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1 text-xs font-medium text-gray-700 ring-1 ring-gray-200 dark:bg-white dark:ring-transparent">
+                    <img src="../assets/whatsapp.webp" class="h-3.5 w-3.5" alt="" />
+                    <span x-text="lang === 'id' ? 'Grup WhatsApp' : 'WhatsApp Group'">WhatsApp Group</span>
+                  </span>
+                  <a href="connector-detail.html" :aria-label="lang === 'id' ? 'Pengaturan konektor' : 'Connector setting'" class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-gray-400 transition hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-white/5 dark:hover:text-white">
+                    <i data-lucide="settings" class="h-4 w-4"></i>
+                  </a>
+                </header>
+
+                <a href="connector-detail.html?id=whatsapp_keluarga" class="group block -mx-2 -mt-1 rounded-lg px-2 pt-1 pb-2 transition hover:bg-gray-50 dark:hover:bg-white/[0.03]">
+                  <h2 class="mb-1 text-xl font-bold text-gray-900 transition group-hover:text-brand-500 dark:text-white dark:group-hover:text-brand-400">Keluarga Besar</h2>
+                  <p class="text-sm text-gray-500 dark:text-gray-400">Trah Soemardjo · 24 <span x-text="lang === 'id' ? 'anggota' : 'members'">anggota</span></p>
+                </a>
+                <div class="mb-3"></div>
+
+                <!-- Activity meta -->
+                <p class="flex items-center gap-1.5 border-t border-gray-100 pt-3 text-xs text-gray-500 dark:border-gray-800 dark:text-gray-400">
+                  <span class="inline-block h-1.5 w-1.5 rounded-full bg-gray-400"></span>
+                  <span x-text="lang === 'id' ? 'Aktif 5 jam lalu · 12 pesan baru' : 'Active 5h ago · 12 new messages'">Active 5h ago · 12 new messages</span>
+                </p>
+              </div>
+
+              <footer class="grid grid-cols-2 divide-x divide-brand-100 bg-brand-50 dark:divide-brand-500/20 dark:bg-brand-500/[0.08]">
+                <button type="button" class="flex items-center justify-center gap-2 px-4 py-3.5 text-sm font-medium text-brand-700 transition hover:bg-brand-100 dark:text-brand-300 dark:hover:bg-brand-500/[0.12]">
+                  <i data-lucide="sparkles" class="h-4 w-4"></i>
+                  <span x-text="lang === 'id' ? 'Ringkasan' : 'Summaries'">Summaries</span>
+                </button>
+                <a href="rizz.html" class="flex items-center justify-center gap-2 px-4 py-3.5 text-sm font-medium text-brand-700 transition hover:bg-brand-100 dark:text-brand-300 dark:hover:bg-brand-500/[0.12]">
+                  <i data-lucide="message-circle" class="h-4 w-4"></i>
+                  <span x-text="lang === 'id' ? 'Tanya Rizz' : 'Ask Rizz'">Ask Rizz</span>
+                </a>
+              </footer>
+            </article>
+
+            <!-- Connector card: Discord / Tim Marketing -->
+            <article x-show="connectorTab === 'all' || connectorTab === 'chat'" class="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-theme-sm dark:border-gray-800 dark:bg-white/[0.03]">
+              <div class="p-6">
+                <header class="mb-6 flex items-start justify-between">
+                  <span class="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1 text-xs font-medium text-gray-700 ring-1 ring-gray-200 dark:bg-white dark:ring-transparent">
+                    <img src="../assets/discord.png" class="h-3.5 w-3.5" alt="" />
+                    Discord
+                  </span>
+                  <a href="connector-detail.html" :aria-label="lang === 'id' ? 'Pengaturan konektor' : 'Connector setting'" class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-gray-400 transition hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-white/5 dark:hover:text-white">
+                    <i data-lucide="settings" class="h-4 w-4"></i>
+                  </a>
+                </header>
+
+                <a href="connector-detail.html?id=discord_marketing" class="group block -mx-2 -mt-1 rounded-lg px-2 pt-1 pb-2 transition hover:bg-gray-50 dark:hover:bg-white/[0.03]">
+                  <h2 class="mb-1 text-xl font-bold text-gray-900 transition group-hover:text-brand-500 dark:text-white dark:group-hover:text-brand-400">Tim Marketing</h2>
+                  <p class="text-sm text-gray-500 dark:text-gray-400">Server: marketing-team · 8 <span x-text="lang === 'id' ? 'anggota' : 'members'">anggota</span></p>
+                </a>
+                <div class="mb-3"></div>
+
+                <!-- Activity meta -->
+                <p class="flex items-center gap-1.5 border-t border-gray-100 pt-3 text-xs text-gray-500 dark:border-gray-800 dark:text-gray-400">
+                  <span class="inline-block h-1.5 w-1.5 rounded-full bg-gray-400"></span>
+                  <span x-text="lang === 'id' ? 'Aktif 1 hari lalu · 8 pesan baru' : 'Active 1d ago · 8 new messages'">Active 1d ago · 8 new messages</span>
+                </p>
+              </div>
+
+              <footer class="grid grid-cols-2 divide-x divide-brand-100 bg-brand-50 dark:divide-brand-500/20 dark:bg-brand-500/[0.08]">
+                <button type="button" class="flex items-center justify-center gap-2 px-4 py-3.5 text-sm font-medium text-brand-700 transition hover:bg-brand-100 dark:text-brand-300 dark:hover:bg-brand-500/[0.12]">
+                  <i data-lucide="sparkles" class="h-4 w-4"></i>
+                  <span x-text="lang === 'id' ? 'Ringkasan' : 'Summaries'">Summaries</span>
+                </button>
+                <a href="rizz.html" class="flex items-center justify-center gap-2 px-4 py-3.5 text-sm font-medium text-brand-700 transition hover:bg-brand-100 dark:text-brand-300 dark:hover:bg-brand-500/[0.12]">
+                  <i data-lucide="message-circle" class="h-4 w-4"></i>
+                  <span x-text="lang === 'id' ? 'Tanya Rizz' : 'Ask Rizz'">Ask Rizz</span>
+                </a>
+              </footer>
+            </article>
+
+            <!-- Connector card: Gmail / Inbox Pribadi (EMAIL category) -->
+            <article x-show="connectorTab === 'all' || connectorTab === 'email'" x-cloak class="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-theme-sm dark:border-gray-800 dark:bg-white/[0.03]">
+              <div class="p-6">
+                <header class="mb-6 flex items-start justify-between">
+                  <span class="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1 text-xs font-medium text-gray-700 ring-1 ring-gray-200 dark:bg-white dark:ring-transparent">
+                    <img src="../assets/Gmail_Icon.png" class="h-3.5 w-3.5" alt="" />
+                    Gmail
+                  </span>
+                  <a href="connector-detail.html" :aria-label="lang === 'id' ? 'Pengaturan konektor' : 'Connector setting'" class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-gray-400 transition hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-white/5 dark:hover:text-white">
+                    <i data-lucide="settings" class="h-4 w-4"></i>
+                  </a>
+                </header>
+
+                <a href="connector-detail.html?id=gmail_personal" class="group block -mx-2 -mt-1 rounded-lg px-2 pt-1 pb-2 transition hover:bg-gray-50 dark:hover:bg-white/[0.03]">
+                  <h2 class="mb-1 text-xl font-bold text-gray-900 transition group-hover:text-brand-500 dark:text-white dark:group-hover:text-brand-400" x-text="lang === 'id' ? 'Inbox Pribadi' : 'Personal Inbox'">Personal Inbox</h2>
+                  <p class="text-sm text-gray-500 dark:text-gray-400">aseprojali@gmail.com</p>
+                </a>
+                <div class="mb-3"></div>
+
+                <!-- Activity meta -->
+                <p class="flex items-center gap-1.5 border-t border-gray-100 pt-3 text-xs text-gray-500 dark:border-gray-800 dark:text-gray-400">
+                  <span class="inline-block h-1.5 w-1.5 rounded-full bg-success-500"></span>
+                  <span x-text="lang === 'id' ? 'Sinkron 12 menit lalu · 5 penting dari 47' : 'Synced 12m ago · 5 important of 47'">Synced 12m ago · 5 important of 47</span>
+                </p>
+              </div>
+
+              <footer class="grid grid-cols-2 divide-x divide-brand-100 bg-brand-50 dark:divide-brand-500/20 dark:bg-brand-500/[0.08]">
+                <button type="button" class="flex items-center justify-center gap-2 px-4 py-3.5 text-sm font-medium text-brand-700 transition hover:bg-brand-100 dark:text-brand-300 dark:hover:bg-brand-500/[0.12]">
+                  <i data-lucide="sparkles" class="h-4 w-4"></i>
+                  <span x-text="lang === 'id' ? 'Ringkasan' : 'Summaries'">Summaries</span>
+                </button>
+                <a href="rizz.html" class="flex items-center justify-center gap-2 px-4 py-3.5 text-sm font-medium text-brand-700 transition hover:bg-brand-100 dark:text-brand-300 dark:hover:bg-brand-500/[0.12]">
+                  <i data-lucide="message-circle" class="h-4 w-4"></i>
+                  <span x-text="lang === 'id' ? 'Tanya Rizz' : 'Ask Rizz'">Ask Rizz</span>
+                </a>
+              </footer>
+            </article>
+
+          </section>
+          <!-- ===== Connector Cards Grid (Section 4) End ===== -->
+
+          </div>
+          <!-- ===== FILLED STATE END ===== -->
+
+          <!-- ===== EMPTY STATE — first-time user, 0 connectors =====
+               Conversion-focused: 1 clear CTA, inline connector picker,
+               sample preview proving value, trust line. Replaces filled
+               state when hasConnectors === false. -->
+          <div x-show="!hasConnectors" x-cloak>
+
+            <!-- Hero CTA + categorized connector picker.
+                 Outcome-driven copy + 4 categories (1 active tile-grid +
+                 3 slim soon-rows) to signal broad product scope without bloat. -->
+            <section class="mb-6 overflow-hidden rounded-2xl border-2 border-brand-500 bg-white shadow-theme-sm dark:bg-white/[0.03]">
+              <!-- Hero text + sumrize gradient header — outcome-focused copy -->
+              <div class="bg-gradient-to-br from-sumrize/[0.06] via-white to-brand-500/[0.06] p-6 text-center dark:from-sumrize/[0.1] dark:via-gray-900 dark:to-brand-500/[0.1] md:p-8">
+                <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-sumrize to-brand-500 text-white shadow-theme-md">
+                  <i data-lucide="sparkles" class="h-7 w-7"></i>
+                </div>
+                <h2 class="mb-2 text-xl font-bold text-gray-900 dark:text-white md:text-2xl" x-text="lang === 'id' ? 'Mulai dari mana?' : 'Where do you want to start?'">Where do you want to start?</h2>
+                <p class="mx-auto mb-2 max-w-lg text-sm text-gray-600 dark:text-gray-300" x-text="lang === 'id' ? 'Hubungkan sumber yang ingin Rizz pantau — chat group, inbox email, atau kalender. Setiap pagi, ringkasan jelas di tangan Anda.' : 'Connect any source you want Rizz to watch — chat group, email inbox, or calendar. Every morning, a clear briefing in your hands.'">Connect any source you want Rizz to watch — chat group, email inbox, or calendar. Every morning, a clear briefing in your hands.</p>
+                <p class="inline-flex items-center gap-1.5 text-[11px] font-medium text-success-600 dark:text-success-500">
+                  <i data-lucide="shield-check" class="h-3.5 w-3.5"></i>
+                  <span x-text="lang === 'id' ? 'Data tetap aman di tempatnya · Sumrize cuma indeks metadata' : 'Your data stays where it lives · Sumrize only indexes metadata'">Your data stays where it lives · Sumrize only indexes metadata</span>
+                </p>
+              </div>
+
+              <!-- ===== Categorized connector picker =====
+                   Category 1 (Chat) = full tile grid, 3 active + 1 soon.
+                   Categories 2-4 (Email/Calendar/Docs) = slim text rows. -->
+
+              <!-- Chat & Komunitas: 4-tile grid with active platforms -->
+              <div class="border-t border-gray-200 p-5 dark:border-gray-800 md:p-6">
+                <p class="mb-3 inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                  <i data-lucide="message-circle" class="h-3.5 w-3.5"></i>
+                  <span x-text="lang === 'id' ? 'Chat & Komunitas' : 'Chat & Community'">Chat & Community</span>
+                </p>
+                <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
+
+                  <!-- WhatsApp (most-popular badge, active) -->
+                  <a href="onboard-whatsapp.html" class="group relative flex flex-col items-center justify-center gap-3 rounded-xl border border-gray-200 bg-white p-5 transition hover:-translate-y-0.5 hover:border-brand-500 hover:bg-brand-50/40 hover:shadow-theme-sm dark:border-gray-700 dark:bg-white/[0.02] dark:hover:border-brand-500 dark:hover:bg-brand-500/[0.08]">
+                    <span class="absolute right-2 top-2 rounded-full bg-sumrize px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white" x-text="lang === 'id' ? 'Paling laku' : 'Popular'">Popular</span>
+                    <img src="../assets/whatsapp.webp" class="h-10 w-10" alt="" />
+                    <span class="text-sm font-medium text-gray-700 group-hover:text-gray-900 dark:text-gray-300 dark:group-hover:text-white">WhatsApp</span>
+                  </a>
+
+                  <!-- Discord (active) -->
+                  <button type="button" class="group flex flex-col items-center justify-center gap-3 rounded-xl border border-gray-200 bg-white p-5 transition hover:-translate-y-0.5 hover:border-brand-500 hover:bg-brand-50/40 hover:shadow-theme-sm dark:border-gray-700 dark:bg-white/[0.02] dark:hover:border-brand-500 dark:hover:bg-brand-500/[0.08]">
+                    <img src="../assets/discord.png" class="h-10 w-10 object-contain" alt="" />
+                    <span class="text-sm font-medium text-gray-700 group-hover:text-gray-900 dark:text-gray-300 dark:group-hover:text-white">Discord</span>
+                  </button>
+
+                  <!-- Slack (active) -->
+                  <button type="button" class="group flex flex-col items-center justify-center gap-3 rounded-xl border border-gray-200 bg-white p-5 transition hover:-translate-y-0.5 hover:border-brand-500 hover:bg-brand-50/40 hover:shadow-theme-sm dark:border-gray-700 dark:bg-white/[0.02] dark:hover:border-brand-500 dark:hover:bg-brand-500/[0.08]">
+                    <img src="../assets/slack.png" class="h-10 w-10 object-contain" alt="" />
+                    <span class="text-sm font-medium text-gray-700 group-hover:text-gray-900 dark:text-gray-300 dark:group-hover:text-white">Slack</span>
+                  </button>
+
+                  <!-- Telegram (soon) -->
+                  <button type="button" disabled class="relative flex cursor-not-allowed flex-col items-center justify-center gap-3 rounded-xl border border-gray-200 bg-gray-50 p-5 opacity-60 dark:border-gray-800 dark:bg-white/[0.02]">
+                    <span class="absolute right-2 top-2 rounded-full bg-gray-200 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-gray-600 dark:bg-gray-700 dark:text-gray-300" x-text="lang === 'id' ? 'Segera' : 'Soon'">Soon</span>
+                    <img src="../assets/telegram.png" class="h-10 w-10 object-contain" alt="" />
+                    <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Telegram</span>
+                  </button>
+
+                </div>
+              </div>
+
+              <!-- Email & Inbox: slim row (soon-only) -->
+              <div class="flex flex-col gap-2 border-t border-gray-200 px-5 py-4 dark:border-gray-800 md:flex-row md:items-center md:justify-between md:px-6">
+                <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
+                  <p class="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                    <i data-lucide="mail" class="h-3.5 w-3.5"></i>
+                    <span x-text="lang === 'id' ? 'Email & Inbox' : 'Email & Inbox'">Email & Inbox</span>
+                  </p>
+                  <span class="text-gray-300 dark:text-gray-700">·</span>
+                  <span class="inline-flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400">
+                    <img src="../assets/Gmail_Icon.png" class="h-4 w-4 opacity-60" alt="" />
+                    Gmail
+                  </span>
+                  <span class="inline-flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400">
+                    <i data-lucide="mail" class="h-3.5 w-3.5 opacity-60"></i>
+                    Outlook
+                  </span>
+                </div>
+                <span class="self-start rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-gray-500 md:self-auto dark:bg-white/10 dark:text-gray-400" x-text="lang === 'id' ? 'Segera hadir' : 'Coming soon'">Coming soon</span>
+              </div>
+
+              <!-- Calendar & Jadwal: slim row (soon-only) -->
+              <div class="flex flex-col gap-2 border-t border-gray-200 px-5 py-4 dark:border-gray-800 md:flex-row md:items-center md:justify-between md:px-6">
+                <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
+                  <p class="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                    <i data-lucide="calendar" class="h-3.5 w-3.5"></i>
+                    <span x-text="lang === 'id' ? 'Calendar & Jadwal' : 'Calendar & Schedule'">Calendar & Schedule</span>
+                  </p>
+                  <span class="text-gray-300 dark:text-gray-700">·</span>
+                  <span class="inline-flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400">
+                    <i data-lucide="calendar-days" class="h-3.5 w-3.5 opacity-60"></i>
+                    Google Calendar
+                  </span>
+                  <span class="inline-flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400">
+                    <i data-lucide="calendar-days" class="h-3.5 w-3.5 opacity-60"></i>
+                    Outlook Calendar
+                  </span>
+                </div>
+                <span class="self-start rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-gray-500 md:self-auto dark:bg-white/10 dark:text-gray-400" x-text="lang === 'id' ? 'Segera hadir' : 'Coming soon'">Coming soon</span>
+              </div>
+
+              <!-- Docs & Notes: slim row (soon-only) -->
+              <div class="flex flex-col gap-2 border-t border-gray-200 px-5 py-4 dark:border-gray-800 md:flex-row md:items-center md:justify-between md:px-6">
+                <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
+                  <p class="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                    <i data-lucide="file-text" class="h-3.5 w-3.5"></i>
+                    <span x-text="lang === 'id' ? 'Docs & Notes' : 'Docs & Notes'">Docs & Notes</span>
+                  </p>
+                  <span class="text-gray-300 dark:text-gray-700">·</span>
+                  <span class="inline-flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400">
+                    <img src="../assets/notion.webp" class="h-4 w-4 opacity-60" alt="" />
+                    Notion
+                  </span>
+                  <span class="inline-flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400">
+                    <i data-lucide="file-text" class="h-3.5 w-3.5 opacity-60"></i>
+                    Google Docs
+                  </span>
+                </div>
+                <span class="self-start rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-gray-500 md:self-auto dark:bg-white/10 dark:text-gray-400" x-text="lang === 'id' ? 'Segera hadir' : 'Coming soon'">Coming soon</span>
+              </div>
+            </section>
+
+            <!-- Sample summary preview with 3-tab switcher.
+                 User can flip through chat / email / calendar use cases to
+                 see concrete value for each broader product scope. -->
+            <section class="mb-6 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-theme-sm dark:border-gray-800 dark:bg-white/[0.03]">
+              <header class="flex flex-col gap-3 border-b border-gray-100 px-5 py-3 dark:border-gray-800 sm:flex-row sm:items-center sm:justify-between">
+                <p class="inline-flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-white">
+                  <i data-lucide="eye" class="h-4 w-4 text-gray-400"></i>
+                  <span x-text="lang === 'id' ? 'Begini yang akan Anda terima setiap hari' : 'Here\'s what Rizz delivers every day'">Here's what Rizz delivers every day</span>
+                </p>
+                <span class="self-start rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-gray-500 sm:self-auto dark:bg-white/10 dark:text-gray-400" x-text="lang === 'id' ? 'Contoh' : 'Sample'">Sample</span>
+              </header>
+
+              <!-- Tab switcher: chat / email / calendar -->
+              <div role="tablist" class="flex flex-wrap gap-1 border-b border-gray-100 px-5 py-2 dark:border-gray-800">
+                <button type="button" role="tab" :aria-selected="(sampleTab === 'chat').toString()" @click="sampleTab = 'chat'" class="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition" :class="sampleTab === 'chat' ? 'bg-brand-50 text-brand-500 dark:bg-brand-500/[0.15] dark:text-brand-400' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/[0.05] dark:hover:text-gray-200'">
+                  <i data-lucide="message-circle" class="h-3.5 w-3.5"></i>
+                  <span x-text="lang === 'id' ? 'Chat' : 'Chat'">Chat</span>
+                </button>
+                <button type="button" role="tab" :aria-selected="(sampleTab === 'email').toString()" @click="sampleTab = 'email'" class="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition" :class="sampleTab === 'email' ? 'bg-brand-50 text-brand-500 dark:bg-brand-500/[0.15] dark:text-brand-400' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/[0.05] dark:hover:text-gray-200'">
+                  <i data-lucide="mail" class="h-3.5 w-3.5"></i>
+                  <span x-text="lang === 'id' ? 'Email' : 'Email'">Email</span>
+                </button>
+                <button type="button" role="tab" :aria-selected="(sampleTab === 'calendar').toString()" @click="sampleTab = 'calendar'" class="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition" :class="sampleTab === 'calendar' ? 'bg-brand-50 text-brand-500 dark:bg-brand-500/[0.15] dark:text-brand-400' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/[0.05] dark:hover:text-gray-200'">
+                  <i data-lucide="calendar" class="h-3.5 w-3.5"></i>
+                  <span x-text="lang === 'id' ? 'Calendar' : 'Calendar'">Calendar</span>
+                </button>
+              </div>
+
+              <!-- Chat sample (default) -->
+              <div x-show="sampleTab === 'chat'" class="p-5 text-sm text-gray-700 dark:text-gray-300">
+                <p class="mb-2 text-base font-bold text-gray-900 dark:text-white" x-text="lang === 'id' ? 'Ringkasan — Komunitas Mobil BMW' : 'Summary — BMW Community'">Summary — BMW Community</p>
+                <p class="mb-3 text-xs text-gray-500 dark:text-gray-400">13 Mei 2026, 09:12 — 22:48</p>
+                <ul class="space-y-1.5 pl-1">
+                  <li class="flex gap-2"><span class="select-none text-gray-400">•</span><span x-text="lang === 'id' ? 'Bro Adit nawarin Bengkel Auto Bavarian, Kemang sebagai lokasi kopdar Sabtu 19:00.' : 'Bro Adit offered Auto Bavarian workshop, Kemang as the Saturday 19:00 meetup venue.'">Bro Adit offered Auto Bavarian workshop, Kemang as the Saturday 19:00 meetup venue.</span></li>
+                  <li class="flex gap-2"><span class="select-none text-gray-400">•</span><span x-text="lang === 'id' ? 'Iuran konsumsi Rp 75.000/orang, transfer ke BCA an. Mas Reza.' : 'Catering dues Rp 75,000/person, transfer to BCA Mas Reza.'">Catering dues Rp 75,000/person, transfer to BCA Mas Reza.</span></li>
+                  <li class="flex gap-2"><span class="select-none text-gray-400">•</span><span x-text="lang === 'id' ? '18 anggota konfirmasi hadir, 5 belum balas.' : '18 members confirmed, 5 haven\'t replied.'">18 members confirmed, 5 haven't replied.</span></li>
+                </ul>
+              </div>
+
+              <!-- Email sample (Gmail inbox digest) -->
+              <div x-show="sampleTab === 'email'" x-cloak class="p-5 text-sm text-gray-700 dark:text-gray-300">
+                <p class="mb-2 text-base font-bold text-gray-900 dark:text-white" x-text="lang === 'id' ? 'Ringkasan Inbox Pagi — Gmail' : 'Morning Inbox Briefing — Gmail'">Morning Inbox Briefing — Gmail</p>
+                <p class="mb-3 text-xs text-gray-500 dark:text-gray-400" x-text="lang === 'id' ? '13 Mei 2026, 06:30 · 5 penting dari 47 email' : '13 May 2026, 06:30 · 5 important of 47 emails'">13 May 2026, 06:30 · 5 important of 47 emails</p>
+                <ul class="space-y-1.5 pl-1">
+                  <li class="flex gap-2"><span class="select-none text-gray-400">•</span><span><strong class="font-semibold text-gray-900 dark:text-white">Klien Acme Corp</strong> — <span x-text="lang === 'id' ? 'minta call review proposal Senin. Deadline jawab Sabtu.' : 'requests proposal review call Monday. Reply deadline Saturday.'">requests proposal review call Monday. Reply deadline Saturday.</span></span></li>
+                  <li class="flex gap-2"><span class="select-none text-gray-400">•</span><span><strong class="font-semibold text-gray-900 dark:text-white" x-text="lang === 'id' ? 'Tim Marketing' : 'Marketing Team'">Marketing Team</strong> — <span x-text="lang === 'id' ? 'deck kampanye Q3 selesai, butuh feedback final Anda.' : 'Q3 campaign deck finalized, awaiting your final feedback.'">Q3 campaign deck finalized, awaiting your final feedback.</span></span></li>
+                  <li class="flex gap-2"><span class="select-none text-gray-400">•</span><span><strong class="font-semibold text-gray-900 dark:text-white">Newsletter Stratechery</strong> — <span x-text="lang === 'id' ? 'artikel baru tentang AI workspace.' : 'new article on AI workspace.'">new article on AI workspace.</span></span></li>
+                </ul>
+              </div>
+
+              <!-- Calendar sample (daily meeting briefing) -->
+              <div x-show="sampleTab === 'calendar'" x-cloak class="p-5 text-sm text-gray-700 dark:text-gray-300">
+                <p class="mb-2 text-base font-bold text-gray-900 dark:text-white" x-text="lang === 'id' ? 'Jadwal Anda Hari Ini' : 'Your Schedule Today'">Your Schedule Today</p>
+                <p class="mb-3 text-xs text-gray-500 dark:text-gray-400" x-text="lang === 'id' ? 'Selasa, 13 Mei 2026 · 3 meeting · briefing siap di setiap meeting' : 'Tuesday, 13 May 2026 · 3 meetings · briefing ready for each'">Tuesday, 13 May 2026 · 3 meetings · briefing ready for each</p>
+                <ul class="space-y-1.5 pl-1">
+                  <li class="flex gap-2"><span class="select-none text-gray-400">•</span><span><strong class="font-semibold text-gray-900 dark:text-white">09:30 <span x-text="lang === 'id' ? 'Standup Tim' : 'Team Standup'">Team Standup</span></strong> — <span x-text="lang === 'id' ? 'siap update milestone Q2 ke Alfyan.' : 'prep Q2 milestone update for Alfyan.'">prep Q2 milestone update for Alfyan.</span></span></li>
+                  <li class="flex gap-2"><span class="select-none text-gray-400">•</span><span><strong class="font-semibold text-gray-900 dark:text-white">13:00 <span x-text="lang === 'id' ? 'Demo Client Acme Corp' : 'Client Demo Acme Corp'">Client Demo Acme Corp</span></strong> — <span x-text="lang === 'id' ? 're-check proposal, bawa Rio sebagai support.' : 'recheck proposal, bring Rio as support.'">recheck proposal, bring Rio as support.</span></span></li>
+                  <li class="flex gap-2"><span class="select-none text-gray-400">•</span><span><strong class="font-semibold text-gray-900 dark:text-white">16:00 <span x-text="lang === 'id' ? '1-on-1 dengan Mas Reza' : '1-on-1 with Mas Reza'">1-on-1 with Mas Reza</span></strong> — <span x-text="lang === 'id' ? 'agenda: review hiring engineer.' : 'agenda: engineer hiring review.'">agenda: engineer hiring review.</span></span></li>
+                </ul>
+              </div>
+
+              <!-- Footer delivery promise — agnostic ("channel pilihan Anda") -->
+              <div class="flex items-center justify-center gap-2 border-t border-gray-100 bg-gray-50/50 px-5 py-3 text-xs text-gray-500 dark:border-gray-800 dark:bg-white/[0.02] dark:text-gray-400">
+                <i data-lucide="send" class="h-3.5 w-3.5"></i>
+                <span x-text="lang === 'id' ? 'Otomatis dikirim ke channel pilihan Anda setiap pagi' : 'Auto-sent to your channel of choice every morning'">Auto-sent to your channel of choice every morning</span>
+              </div>
+            </section>
+
+          </div>
+          <!-- ===== EMPTY STATE END ===== -->
+
+          <!-- Mockup demo control: toggle empty vs filled. Production: remove. -->
+          <div class="mt-6 flex items-center justify-center gap-2 text-xs text-gray-400">
+            <i data-lucide="eye" class="h-3.5 w-3.5"></i>
+            <button type="button" @click="hasConnectors = !hasConnectors" class="underline-offset-2 hover:text-gray-600 hover:underline dark:hover:text-gray-300">
+              <span x-show="hasConnectors" x-text="lang === 'id' ? 'Lihat sebagai user baru (belum ada konektor)' : 'View as new user (no connectors)'">View as new user (no connectors)</span>
+              <span x-show="!hasConnectors" x-cloak x-text="lang === 'id' ? 'Lihat dengan 4 konektor terhubung' : 'View with 4 connectors connected'">View with 4 connectors connected</span>
+            </button>
+          </div>
+
+        </div>
+      </main>
+    </div>
+    <!-- ===== Content Area End ===== -->
+
+  </div>
+  <!-- ===== Page Wrapper End ===== -->
+
+
+  <script>
+    // Render Lucide icons after DOM ready. Re-run after Alpine toggles to catch
+    // the icon that's revealed by x-show on the collapse button.
+    document.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+      document.addEventListener('alpine:initialized', () => lucide.createIcons());
+    });
+  </script>
+</body>
+</html>

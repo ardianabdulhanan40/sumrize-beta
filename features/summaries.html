@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sumrize — Rangkuman Otomatis</title>
+
+  <link rel="icon" type="image/png" href="../assets/logo-black.png" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap" rel="stylesheet" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Outfit', 'ui-sans-serif', 'system-ui', 'sans-serif'] },
+          colors: {
+            brand: {
+              25: '#f8fbfd', 50: '#eaf4fb', 100: '#d4e8f7', 200: '#b3dbff',
+              300: '#7eb5e8', 400: '#4d6996', 500: '#26344a', 600: '#1c2738',
+              700: '#1c1f2c', 800: '#171a23', 900: '#101421', 950: '#0f0e0e'
+            },
+            gray: {
+              25: '#fcfcfd', 50: '#f9fafb', 100: '#f2f4f7', 200: '#e4e7ec',
+              300: '#d0d5dd', 400: '#98a2b3', 500: '#667085', 600: '#475467',
+              700: '#3c3f4c', 800: '#26344a', 900: '#1c1f2c', 950: '#0f0e0e'
+            },
+            success: { 50: '#ecfdf3', 500: '#12b76a', 600: '#039855' },
+            warning: { 50: '#fffaeb', 500: '#f79009' },
+            error: { 50: '#fef3f2', 500: '#f04438', 600: '#d92d20' },
+            sumrize: { DEFAULT: '#FF4438', hover: '#e63b30' }
+          },
+          boxShadow: {
+            'theme-sm': '0px 1px 3px 0px rgba(16, 24, 40, 0.1), 0px 1px 2px 0px rgba(16, 24, 40, 0.06)',
+            'theme-md': '0px 4px 8px -2px rgba(16, 24, 40, 0.1), 0px 2px 4px -2px rgba(16, 24, 40, 0.06)',
+            'theme-lg': '0px 12px 16px -4px rgba(16, 24, 40, 0.08), 0px 4px 6px -2px rgba(16, 24, 40, 0.03)'
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    body { font-family: 'Outfit', sans-serif; }
+    [x-cloak] { display: none !important; }
+  </style>
+
+  <script defer src="https://unpkg.com/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
+  <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+</head>
+
+<body
+  x-data="{
+    darkMode: false,
+    lang: 'id',
+    langOpen: false,
+    featuresOpen: false,
+    mobileNav: false,
+    currentFeature: 'summaries',
+    languages: {
+      en: { label: 'English', flag: '🇬🇧' },
+      id: { label: 'Bahasa Indonesia', flag: '🇮🇩' }
+    },
+    init() {
+      this.darkMode = JSON.parse(localStorage.getItem('darkMode') || 'false');
+      this.lang = localStorage.getItem('lang') || 'id';
+      this.$watch('darkMode', v => localStorage.setItem('darkMode', JSON.stringify(v)));
+      this.$watch('lang', v => localStorage.setItem('lang', v));
+    }
+  }"
+  :class="{ 'dark': darkMode }"
+  class="bg-white font-sans text-gray-700 antialiased dark:bg-gray-900 dark:text-gray-300"
+>
+
+  <!-- ===== MARKETING NAV (shared) ===== -->
+  <header class="sticky top-0 z-50 border-b border-gray-100 bg-white/90 backdrop-blur dark:border-gray-800 dark:bg-gray-900/90">
+    <nav class="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center gap-8">
+        <a href="../index.html" class="flex items-center">
+          <img src="../assets/logo-black.png" alt="Sumrize" class="h-7 dark:hidden" />
+          <img src="../assets/logo-white.png" alt="Sumrize" class="hidden h-7 dark:block" />
+        </a>
+        <div class="hidden items-center gap-1 lg:flex">
+          <div class="relative" @mouseenter="featuresOpen = true" @mouseleave="featuresOpen = false">
+            <button @click="featuresOpen = !featuresOpen" class="flex items-center gap-1 rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800" :class="featuresOpen ? 'bg-gray-50 dark:bg-gray-800' : ''">
+              <span x-text="lang === 'id' ? 'Fitur' : 'Features'">Fitur</span>
+              <i data-lucide="chevron-down" class="h-4 w-4 transition-transform" :class="featuresOpen ? 'rotate-180' : ''"></i>
+            </button>
+            <div x-show="featuresOpen" x-cloak x-transition.opacity.duration.150ms class="absolute left-0 top-full w-[640px] pt-3">
+              <div class="grid grid-cols-2 gap-1 rounded-2xl border border-gray-100 bg-white p-3 shadow-theme-lg dark:border-gray-800 dark:bg-gray-800">
+                <a href="summaries.html" class="group flex gap-3 rounded-xl p-3 transition hover:bg-brand-50 dark:hover:bg-gray-700" :class="currentFeature === 'summaries' ? 'bg-brand-50 dark:bg-gray-700' : ''">
+                  <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-50 text-brand-500 group-hover:bg-white dark:bg-gray-700 dark:text-brand-200 dark:group-hover:bg-gray-600"><i data-lucide="message-square-text" class="h-5 w-5"></i></span>
+                  <span><span class="block text-sm font-semibold text-gray-800 dark:text-white" x-text="lang === 'id' ? 'Rangkuman Otomatis' : 'Smart Summaries'">Rangkuman Otomatis</span><span class="mt-0.5 block text-xs leading-relaxed text-gray-500 dark:text-gray-400" x-text="lang === 'id' ? 'Grup chat berisik jadi ringkasan rapi.' : 'Noisy group chats into clean recaps.'">Grup chat berisik jadi ringkasan rapi.</span></span>
+                </a>
+                <a href="rizz.html" class="group flex gap-3 rounded-xl p-3 transition hover:bg-brand-50 dark:hover:bg-gray-700" :class="currentFeature === 'rizz' ? 'bg-brand-50 dark:bg-gray-700' : ''">
+                  <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-50 text-brand-500 group-hover:bg-white dark:bg-gray-700 dark:text-brand-200 dark:group-hover:bg-gray-600"><i data-lucide="sparkles" class="h-5 w-5"></i></span>
+                  <span><span class="block text-sm font-semibold text-gray-800 dark:text-white">Ask Rizz</span><span class="mt-0.5 block text-xs leading-relaxed text-gray-500 dark:text-gray-400" x-text="lang === 'id' ? 'Asisten AI yang ingat semua obrolanmu.' : 'An AI assistant that remembers it all.'">Asisten AI yang ingat semua obrolanmu.</span></span>
+                </a>
+                <a href="connectors.html" class="group flex gap-3 rounded-xl p-3 transition hover:bg-brand-50 dark:hover:bg-gray-700" :class="currentFeature === 'connectors' ? 'bg-brand-50 dark:bg-gray-700' : ''">
+                  <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-50 text-brand-500 group-hover:bg-white dark:bg-gray-700 dark:text-brand-200 dark:group-hover:bg-gray-600"><i data-lucide="plug" class="h-5 w-5"></i></span>
+                  <span><span class="block text-sm font-semibold text-gray-800 dark:text-white">Connectors</span><span class="mt-0.5 block text-xs leading-relaxed text-gray-500 dark:text-gray-400" x-text="lang === 'id' ? 'Hubungkan WhatsApp, Discord, Slack, & lainnya.' : 'Connect WhatsApp, Discord, Slack & more.'">Hubungkan WhatsApp, Discord, Slack, & lainnya.</span></span>
+                </a>
+                <a href="analytics.html" class="group flex gap-3 rounded-xl p-3 transition hover:bg-brand-50 dark:hover:bg-gray-700" :class="currentFeature === 'analytics' ? 'bg-brand-50 dark:bg-gray-700' : ''">
+                  <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-50 text-brand-500 group-hover:bg-white dark:bg-gray-700 dark:text-brand-200 dark:group-hover:bg-gray-600"><i data-lucide="bar-chart-3" class="h-5 w-5"></i></span>
+                  <span><span class="block text-sm font-semibold text-gray-800 dark:text-white">Analytics</span><span class="mt-0.5 block text-xs leading-relaxed text-gray-500 dark:text-gray-400" x-text="lang === 'id' ? 'Pahami aktivitas & insight workspace-mu.' : 'Understand your workspace activity.'">Pahami aktivitas & insight workspace-mu.</span></span>
+                </a>
+              </div>
+            </div>
+          </div>
+          <a href="../docs/Sumrize_UseCase_Reimbursement.html" class="rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800">Use Cases</a>
+          <a href="../dashboard/pricing.html" class="rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800" x-text="lang === 'id' ? 'Harga' : 'Pricing'">Harga</a>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <div class="relative hidden sm:block" @click.outside="langOpen = false">
+          <button @click="langOpen = !langOpen" class="flex items-center gap-1.5 rounded-lg px-2.5 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800">
+            <span x-text="languages[lang].flag"></span><span class="uppercase" x-text="lang"></span><i data-lucide="chevron-down" class="h-3.5 w-3.5"></i>
+          </button>
+          <div x-show="langOpen" x-cloak x-transition.opacity class="absolute right-0 mt-1 w-44 rounded-xl border border-gray-100 bg-white p-1 shadow-theme-md dark:border-gray-800 dark:bg-gray-800">
+            <template x-for="(meta, code) in languages" :key="code">
+              <button @click="lang = code; langOpen = false" class="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm hover:bg-gray-50 dark:hover:bg-gray-700" :class="lang === code ? 'font-semibold text-brand-500 dark:text-brand-200' : 'text-gray-600 dark:text-gray-300'"><span x-text="meta.flag"></span><span x-text="meta.label"></span></button>
+            </template>
+          </div>
+        </div>
+        <a href="../dashboard/login.html" class="hidden rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800 sm:block">Login</a>
+        <a href="../dashboard/login.html" class="rounded-lg bg-sumrize px-4 py-2 text-sm font-semibold text-white shadow-theme-sm transition hover:bg-sumrize-hover" x-text="lang === 'id' ? 'Coba Gratis' : 'Try Free'">Coba Gratis</a>
+        <button @click="mobileNav = !mobileNav" class="ml-1 rounded-lg p-2 text-gray-600 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800 lg:hidden">
+          <i data-lucide="menu" x-show="!mobileNav" class="h-5 w-5"></i><i data-lucide="x" x-show="mobileNav" x-cloak class="h-5 w-5"></i>
+        </button>
+      </div>
+    </nav>
+    <div x-show="mobileNav" x-cloak x-transition class="border-t border-gray-100 bg-white px-4 py-3 dark:border-gray-800 dark:bg-gray-900 lg:hidden">
+      <a href="summaries.html" class="block rounded-lg px-2 py-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-800" x-text="lang === 'id' ? 'Rangkuman Otomatis' : 'Smart Summaries'">Rangkuman Otomatis</a>
+      <a href="rizz.html" class="block rounded-lg px-2 py-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-800">Ask Rizz</a>
+      <a href="connectors.html" class="block rounded-lg px-2 py-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-800">Connectors</a>
+      <a href="analytics.html" class="block rounded-lg px-2 py-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-800">Analytics</a>
+      <div class="my-2 border-t border-gray-100 dark:border-gray-800"></div>
+      <a href="../docs/Sumrize_UseCase_Reimbursement.html" class="block rounded-lg px-2 py-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-800">Use Cases</a>
+      <a href="../dashboard/pricing.html" class="block rounded-lg px-2 py-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-800" x-text="lang === 'id' ? 'Harga' : 'Pricing'">Harga</a>
+      <a href="../dashboard/login.html" class="block rounded-lg px-2 py-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-800">Login</a>
+    </div>
+  </header>
+
+  <!-- ===== BREADCRUMB ===== -->
+  <div class="border-b border-gray-100 bg-gray-50 dark:border-gray-800 dark:bg-gray-900/60">
+    <div class="mx-auto max-w-7xl px-4 py-3 text-sm sm:px-6 lg:px-8">
+      <a href="../index.html" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200" x-text="lang === 'id' ? 'Fitur' : 'Features'">Fitur</a>
+      <span class="mx-2 text-gray-300">›</span>
+      <span class="font-medium text-brand-500 dark:text-brand-200" x-text="lang === 'id' ? 'Rangkuman Otomatis' : 'Smart Summaries'">Rangkuman Otomatis</span>
+    </div>
+  </div>
+
+  <main>
+    <!-- ===== HERO ===== -->
+    <section class="relative overflow-hidden">
+      <div class="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-brand-50 to-white dark:from-gray-800 dark:to-gray-900"></div>
+      <div class="mx-auto grid max-w-7xl items-center gap-12 px-4 py-16 sm:px-6 lg:grid-cols-2 lg:px-8 lg:py-20">
+        <div>
+          <span class="inline-flex items-center gap-2 rounded-lg bg-brand-50 px-3 py-1.5 text-sm font-semibold text-brand-500 dark:bg-gray-800 dark:text-brand-200"><i data-lucide="message-square-text" class="h-4 w-4"></i> <span x-text="lang === 'id' ? 'Rangkuman Otomatis' : 'Smart Summaries'">Rangkuman Otomatis</span></span>
+          <h1 class="mt-5 text-4xl font-extrabold leading-tight tracking-tight text-gray-900 dark:text-white sm:text-5xl" x-text="lang === 'id' ? 'Ratusan pesan, jadi beberapa poin penting.' : 'Hundreds of messages, down to a few key points.'">Ratusan pesan, jadi beberapa poin penting.</h1>
+          <p class="mt-5 max-w-lg text-lg text-gray-600 dark:text-gray-300" x-text="lang === 'id' ? 'Sumrize membaca grup chat yang berisik dan mengubahnya jadi rangkuman terstruktur: keputusan, tugas, dan tenggat — otomatis setiap hari.' : 'Sumrize reads your noisy group chats and turns them into structured recaps: decisions, tasks, and deadlines — automatically, every day.'">Sumrize membaca grup chat yang berisik dan mengubahnya jadi rangkuman terstruktur: keputusan, tugas, dan tenggat — otomatis setiap hari.</p>
+          <div class="mt-8 flex flex-wrap gap-3">
+            <a href="../dashboard/login.html" class="inline-flex items-center gap-2 rounded-xl bg-sumrize px-6 py-3 text-base font-semibold text-white shadow-theme-md transition hover:bg-sumrize-hover"><span x-text="lang === 'id' ? 'Coba Gratis' : 'Try Free'">Coba Gratis</span><i data-lucide="arrow-right" class="h-5 w-5"></i></a>
+            <a href="../dashboard/index.html" class="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-6 py-3 text-base font-semibold text-gray-700 transition hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200" x-text="lang === 'id' ? 'Lihat Demo' : 'See Demo'">Lihat Demo</a>
+          </div>
+        </div>
+        <!-- MOCKUP: chat thread -> summary -->
+        <div class="mx-auto max-w-md rounded-3xl border border-gray-200 bg-white p-4 shadow-theme-lg dark:border-gray-700 dark:bg-gray-800">
+          <div class="flex items-center gap-3 border-b border-gray-100 pb-3 dark:border-gray-700">
+            <img src="../assets/whatsapp.webp" alt="WhatsApp" class="h-9 w-9 rounded-full" />
+            <div><p class="text-sm font-semibold text-gray-800 dark:text-white">Grup Proyek Beta</p><p class="text-xs text-gray-400">186 pesan baru hari ini</p></div>
+          </div>
+          <div class="space-y-2 py-3">
+            <div class="max-w-[80%] rounded-2xl rounded-tl-sm bg-gray-100 px-3 py-2 text-xs text-gray-600 dark:bg-gray-700 dark:text-gray-300">Demo client mundur ke Kamis ya</div>
+            <div class="ml-auto max-w-[80%] rounded-2xl rounded-tr-sm bg-[#dcf8c6] px-3 py-2 text-xs text-gray-700">Oke, aku update slide-nya</div>
+            <div class="max-w-[80%] rounded-2xl rounded-tl-sm bg-gray-100 px-3 py-2 text-xs text-gray-600 dark:bg-gray-700 dark:text-gray-300">Budget QA disetujui 5jt</div>
+            <div class="max-w-[80%] rounded-2xl rounded-tl-sm bg-gray-100 px-3 py-2 text-xs text-gray-400 dark:bg-gray-700">+181 pesan lainnya…</div>
+          </div>
+          <div class="rounded-2xl border border-brand-200 bg-brand-50 p-4 dark:border-gray-600 dark:bg-gray-900">
+            <div class="mb-2 flex items-center gap-2"><span class="flex h-6 w-6 items-center justify-center rounded-md bg-sumrize text-white"><i data-lucide="sparkles" class="h-3.5 w-3.5"></i></span><p class="text-xs font-bold uppercase tracking-wide text-brand-500 dark:text-brand-200">Rangkuman Harian</p></div>
+            <ul class="space-y-1.5 text-xs text-gray-700 dark:text-gray-200">
+              <li class="flex gap-2"><i data-lucide="check" class="mt-0.5 h-3.5 w-3.5 shrink-0 text-success-500"></i><span>Demo client digeser ke <b>Kamis</b></span></li>
+              <li class="flex gap-2"><i data-lucide="check" class="mt-0.5 h-3.5 w-3.5 shrink-0 text-success-500"></i><span>Budget QA <b>disetujui (Rp 5jt)</b></span></li>
+              <li class="flex gap-2"><i data-lucide="user" class="mt-0.5 h-3.5 w-3.5 shrink-0 text-brand-400"></i><span>Tugas: update slide → <b>Andi</b></span></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== BENEFIT CARDS ===== -->
+    <section class="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+      <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <div class="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
+          <span class="flex h-11 w-11 items-center justify-center rounded-xl bg-brand-50 text-brand-500 dark:bg-gray-700 dark:text-brand-200"><i data-lucide="zap" class="h-5 w-5"></i></span>
+          <h3 class="mt-4 text-base font-semibold text-gray-800 dark:text-white" x-text="lang === 'id' ? 'Hemat waktu' : 'Save time'">Hemat waktu</h3>
+          <p class="mt-1.5 text-sm text-gray-500 dark:text-gray-400" x-text="lang === 'id' ? 'Tak perlu scroll ratusan pesan tiap pagi.' : 'No more scrolling hundreds of messages each morning.'">Tak perlu scroll ratusan pesan tiap pagi.</p>
+        </div>
+        <div class="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
+          <span class="flex h-11 w-11 items-center justify-center rounded-xl bg-brand-50 text-brand-500 dark:bg-gray-700 dark:text-brand-200"><i data-lucide="list-checks" class="h-5 w-5"></i></span>
+          <h3 class="mt-4 text-base font-semibold text-gray-800 dark:text-white" x-text="lang === 'id' ? 'Terstruktur' : 'Structured'">Terstruktur</h3>
+          <p class="mt-1.5 text-sm text-gray-500 dark:text-gray-400" x-text="lang === 'id' ? 'Keputusan, tugas, dan tenggat dipisah otomatis.' : 'Decisions, tasks, and deadlines split automatically.'">Keputusan, tugas, dan tenggat dipisah otomatis.</p>
+        </div>
+        <div class="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
+          <span class="flex h-11 w-11 items-center justify-center rounded-xl bg-brand-50 text-brand-500 dark:bg-gray-700 dark:text-brand-200"><i data-lucide="clock" class="h-5 w-5"></i></span>
+          <h3 class="mt-4 text-base font-semibold text-gray-800 dark:text-white" x-text="lang === 'id' ? 'Otomatis & terjadwal' : 'Automatic & scheduled'">Otomatis & terjadwal</h3>
+          <p class="mt-1.5 text-sm text-gray-500 dark:text-gray-400" x-text="lang === 'id' ? 'Atur jadwal rangkuman harian atau saat dibutuhkan.' : 'Set a daily schedule or summarize on demand.'">Atur jadwal rangkuman harian atau saat dibutuhkan.</p>
+        </div>
+        <div class="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
+          <span class="flex h-11 w-11 items-center justify-center rounded-xl bg-brand-50 text-brand-500 dark:bg-gray-700 dark:text-brand-200"><i data-lucide="shield-check" class="h-5 w-5"></i></span>
+          <h3 class="mt-4 text-base font-semibold text-gray-800 dark:text-white" x-text="lang === 'id' ? 'Aman' : 'Secure'">Aman</h3>
+          <p class="mt-1.5 text-sm text-gray-500 dark:text-gray-400" x-text="lang === 'id' ? 'Terenkripsi end-to-end, hanya channel yang kamu pilih.' : 'End-to-end encrypted, only channels you choose.'">Terenkripsi end-to-end, hanya channel yang kamu pilih.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== ALTERNATING FEATURE BLOCKS ===== -->
+    <section class="space-y-20 bg-gray-50 py-20 dark:bg-gray-800/40">
+      <!-- block 1 -->
+      <div class="mx-auto grid max-w-7xl items-center gap-12 px-4 sm:px-6 lg:grid-cols-2 lg:px-8">
+        <div>
+          <h2 class="text-2xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-3xl" x-text="lang === 'id' ? 'Poin penting, bukan transkrip' : 'Key points, not transcripts'">Poin penting, bukan transkrip</h2>
+          <p class="mt-4 text-gray-600 dark:text-gray-300" x-text="lang === 'id' ? 'Sumrize tidak sekadar memotong teks. Ia memahami konteks obrolan dan menyaring apa yang benar-benar penting.' : 'Sumrize does not just trim text. It understands the conversation and filters what actually matters.'">Sumrize tidak sekadar memotong teks. Ia memahami konteks obrolan dan menyaring apa yang benar-benar penting.</p>
+          <ul class="mt-5 space-y-2.5">
+            <li class="flex gap-2 text-gray-700 dark:text-gray-200"><i data-lucide="check-circle-2" class="mt-0.5 h-5 w-5 shrink-0 text-success-500"></i><span x-text="lang === 'id' ? 'Pisahkan keputusan, tugas, dan info' : 'Separate decisions, tasks, and info'">Pisahkan keputusan, tugas, dan info</span></li>
+            <li class="flex gap-2 text-gray-700 dark:text-gray-200"><i data-lucide="check-circle-2" class="mt-0.5 h-5 w-5 shrink-0 text-success-500"></i><span x-text="lang === 'id' ? 'Sorot siapa bertanggung jawab atas apa' : 'Highlight who is responsible for what'">Sorot siapa bertanggung jawab atas apa</span></li>
+            <li class="flex gap-2 text-gray-700 dark:text-gray-200"><i data-lucide="check-circle-2" class="mt-0.5 h-5 w-5 shrink-0 text-success-500"></i><span x-text="lang === 'id' ? 'Tandai tenggat & angka penting' : 'Flag deadlines & key numbers'">Tandai tenggat & angka penting</span></li>
+          </ul>
+        </div>
+        <div class="rounded-2xl border border-gray-200 bg-white p-6 shadow-theme-md dark:border-gray-700 dark:bg-gray-800">
+          <p class="text-xs font-bold uppercase tracking-wide text-brand-500 dark:text-brand-200">Rangkuman • Grup Finance</p>
+          <div class="mt-4 space-y-3">
+            <div class="rounded-xl bg-success-50 p-3 dark:bg-gray-900"><p class="text-xs font-semibold text-success-600">KEPUTUSAN</p><p class="mt-1 text-sm text-gray-700 dark:text-gray-200">Vendor catering diganti ke PT Rasa.</p></div>
+            <div class="rounded-xl bg-brand-50 p-3 dark:bg-gray-900"><p class="text-xs font-semibold text-brand-500 dark:text-brand-200">TUGAS</p><p class="mt-1 text-sm text-gray-700 dark:text-gray-200">Budi kirim PO sebelum Jumat.</p></div>
+            <div class="rounded-xl bg-warning-50 p-3 dark:bg-gray-900"><p class="text-xs font-semibold text-warning-500">TENGGAT</p><p class="mt-1 text-sm text-gray-700 dark:text-gray-200">Pembayaran termin 1: 30 Mei.</p></div>
+          </div>
+        </div>
+      </div>
+      <!-- block 2 (reversed) -->
+      <div class="mx-auto grid max-w-7xl items-center gap-12 px-4 sm:px-6 lg:grid-cols-2 lg:px-8">
+        <div class="order-2 rounded-2xl border border-gray-200 bg-white p-6 shadow-theme-md dark:border-gray-700 dark:bg-gray-800 lg:order-1">
+          <p class="text-xs font-bold uppercase tracking-wide text-gray-400" x-text="lang === 'id' ? 'Jadwal Rangkuman' : 'Summary Schedule'">Jadwal Rangkuman</p>
+          <div class="mt-4 space-y-2">
+            <div class="flex items-center justify-between rounded-xl border border-gray-100 px-4 py-3 dark:border-gray-700"><span class="text-sm text-gray-700 dark:text-gray-200">Grup Kantor</span><span class="rounded-md bg-success-50 px-2 py-0.5 text-xs font-medium text-success-600">07:00 tiap hari</span></div>
+            <div class="flex items-center justify-between rounded-xl border border-gray-100 px-4 py-3 dark:border-gray-700"><span class="text-sm text-gray-700 dark:text-gray-200">Grup Proyek Beta</span><span class="rounded-md bg-brand-50 px-2 py-0.5 text-xs font-medium text-brand-500 dark:bg-gray-700 dark:text-brand-200" x-text="lang === 'id' ? 'saat diminta' : 'on demand'">saat diminta</span></div>
+            <div class="flex items-center justify-between rounded-xl border border-gray-100 px-4 py-3 dark:border-gray-700"><span class="text-sm text-gray-700 dark:text-gray-200">Komunitas Discord</span><span class="rounded-md bg-success-50 px-2 py-0.5 text-xs font-medium text-success-600">18:00 tiap hari</span></div>
+          </div>
+        </div>
+        <div class="order-1 lg:order-2">
+          <h2 class="text-2xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-3xl" x-text="lang === 'id' ? 'Kamu yang atur ritmenya' : 'You set the rhythm'">Kamu yang atur ritmenya</h2>
+          <p class="mt-4 text-gray-600 dark:text-gray-300" x-text="lang === 'id' ? 'Rangkuman pagi sebelum kerja, malam sebelum tidur, atau cukup saat kamu minta. Setiap channel bisa punya jadwalnya sendiri.' : 'A morning recap before work, an evening one before bed, or just when you ask. Each channel can have its own schedule.'">Rangkuman pagi sebelum kerja, malam sebelum tidur, atau cukup saat kamu minta. Setiap channel bisa punya jadwalnya sendiri.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== TESTIMONIAL ===== -->
+    <section class="mx-auto max-w-3xl px-4 py-20 text-center sm:px-6 lg:px-8">
+      <i data-lucide="quote" class="mx-auto h-8 w-8 text-brand-200"></i>
+      <p class="mt-5 text-2xl font-medium leading-relaxed text-gray-800 dark:text-white" x-text="lang === 'id' ? '“Dulu aku habiskan 30 menit tiap pagi baca grup kerja. Sekarang cukup baca satu rangkuman Sumrize sambil ngopi.”' : '“I used to spend 30 minutes every morning reading work groups. Now I just read one Sumrize recap over coffee.”'">“Dulu aku habiskan 30 menit tiap pagi baca grup kerja. Sekarang cukup baca satu rangkuman Sumrize sambil ngopi.”</p>
+      <div class="mt-6 flex items-center justify-center gap-3">
+        <span class="flex h-11 w-11 items-center justify-center rounded-full bg-brand-500 font-semibold text-white">RA</span>
+        <div class="text-left"><p class="text-sm font-semibold text-gray-800 dark:text-white">Rama A.</p><p class="text-xs text-gray-500 dark:text-gray-400" x-text="lang === 'id' ? 'Project Manager' : 'Project Manager'">Project Manager</p></div>
+      </div>
+    </section>
+
+    <!-- ===== FAQ ===== -->
+    <section class="bg-gray-50 py-20 dark:bg-gray-800/40">
+      <div class="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8" x-data="{ open: 0 }">
+        <h2 class="text-center text-3xl font-bold tracking-tight text-gray-900 dark:text-white" x-text="lang === 'id' ? 'Pertanyaan tentang Rangkuman' : 'Questions about Summaries'">Pertanyaan tentang Rangkuman</h2>
+        <div class="mt-10 space-y-3">
+          <template x-for="(faq, i) in (lang === 'id' ? [
+            { q: 'Seberapa akurat rangkumannya?', a: 'Sumrize menyaring konteks dan menyertakan tautan ke pesan asli, jadi kamu selalu bisa cek sumbernya.' },
+            { q: 'Bisa rangkum grup yang sangat ramai?', a: 'Bisa. Sumrize dirancang untuk grup dengan ratusan hingga ribuan pesan per hari.' },
+            { q: 'Apakah pesan lama ikut dirangkum?', a: 'Saat pertama terhubung kamu bisa pilih merangkum riwayat, lalu seterusnya berjalan otomatis.' },
+            { q: 'Dalam bahasa apa rangkumannya?', a: 'Mengikuti bahasa percakapan — Bahasa Indonesia, Inggris, atau campuran sekalipun.' }
+          ] : [
+            { q: 'How accurate are the summaries?', a: 'Sumrize filters context and links back to the original messages, so you can always verify the source.' },
+            { q: 'Can it summarize very busy groups?', a: 'Yes. Sumrize is built for groups with hundreds to thousands of messages a day.' },
+            { q: 'Does it summarize old messages too?', a: 'On first connect you can choose to summarize history, then it runs automatically from there.' },
+            { q: 'What language are summaries in?', a: 'It follows the conversation — Indonesian, English, or even a mix.' }
+          ])" :key="i">
+            <div class="overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
+              <button @click="open === i ? open = null : open = i" class="flex w-full items-center justify-between gap-4 px-5 py-4 text-left">
+                <span class="font-semibold text-gray-800 dark:text-white" x-text="faq.q"></span>
+                <i data-lucide="chevron-down" class="h-5 w-5 shrink-0 text-gray-400 transition-transform" :class="open === i ? 'rotate-180' : ''"></i>
+              </button>
+              <div x-show="open === i" x-collapse.duration.200ms x-cloak class="px-5 pb-4 text-sm text-gray-600 dark:text-gray-300" x-text="faq.a"></div>
+            </div>
+          </template>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== FINAL CTA ===== -->
+    <section class="px-4 py-20 sm:px-6 lg:px-8">
+      <div class="mx-auto max-w-5xl overflow-hidden rounded-3xl bg-gradient-to-br from-sumrize to-sumrize-hover px-8 py-16 text-center shadow-theme-lg sm:px-16">
+        <h2 class="text-3xl font-extrabold tracking-tight text-white sm:text-4xl" x-text="lang === 'id' ? 'Coba rangkuman pertamamu hari ini' : 'Try your first summary today'">Coba rangkuman pertamamu hari ini</h2>
+        <p class="mx-auto mt-4 max-w-xl text-lg text-white/90" x-text="lang === 'id' ? 'Gratis untuk dicoba, tanpa kartu kredit.' : 'Free to try, no credit card.'">Gratis untuk dicoba, tanpa kartu kredit.</p>
+        <a href="../dashboard/login.html" class="mt-8 inline-flex items-center gap-2 rounded-xl bg-white px-6 py-3 text-base font-semibold text-sumrize transition hover:bg-gray-100"><span x-text="lang === 'id' ? 'Mulai Sekarang' : 'Start Now'">Mulai Sekarang</span><i data-lucide="arrow-right" class="h-5 w-5"></i></a>
+      </div>
+    </section>
+
+    <!-- ===== RELATED FEATURES ===== -->
+    <section class="mx-auto max-w-7xl px-4 pb-20 sm:px-6 lg:px-8">
+      <h2 class="text-center text-xl font-bold text-gray-900 dark:text-white" x-text="lang === 'id' ? 'Fitur lainnya' : 'Other features'">Fitur lainnya</h2>
+      <div class="mt-8 grid gap-6 sm:grid-cols-3">
+        <a href="rizz.html" class="group rounded-2xl border border-gray-200 bg-white p-6 transition hover:border-brand-200 hover:shadow-theme-md dark:border-gray-700 dark:bg-gray-800"><span class="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-50 text-brand-500 dark:bg-gray-700 dark:text-brand-200"><i data-lucide="sparkles" class="h-5 w-5"></i></span><h3 class="mt-4 font-semibold text-gray-800 dark:text-white">Ask Rizz</h3><p class="mt-1 text-sm text-gray-500 dark:text-gray-400" x-text="lang === 'id' ? 'Tanya apa pun tentang obrolanmu.' : 'Ask anything about your chats.'">Tanya apa pun tentang obrolanmu.</p></a>
+        <a href="connectors.html" class="group rounded-2xl border border-gray-200 bg-white p-6 transition hover:border-brand-200 hover:shadow-theme-md dark:border-gray-700 dark:bg-gray-800"><span class="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-50 text-brand-500 dark:bg-gray-700 dark:text-brand-200"><i data-lucide="plug" class="h-5 w-5"></i></span><h3 class="mt-4 font-semibold text-gray-800 dark:text-white">Connectors</h3><p class="mt-1 text-sm text-gray-500 dark:text-gray-400" x-text="lang === 'id' ? 'Hubungkan semua channelmu.' : 'Connect all your channels.'">Hubungkan semua channelmu.</p></a>
+        <a href="analytics.html" class="group rounded-2xl border border-gray-200 bg-white p-6 transition hover:border-brand-200 hover:shadow-theme-md dark:border-gray-700 dark:bg-gray-800"><span class="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-50 text-brand-500 dark:bg-gray-700 dark:text-brand-200"><i data-lucide="bar-chart-3" class="h-5 w-5"></i></span><h3 class="mt-4 font-semibold text-gray-800 dark:text-white">Analytics</h3><p class="mt-1 text-sm text-gray-500 dark:text-gray-400" x-text="lang === 'id' ? 'Insight aktivitas workspace.' : 'Workspace activity insights.'">Insight aktivitas workspace.</p></a>
+      </div>
+    </section>
+  </main>
+
+  <!-- ===== FOOTER (shared) ===== -->
+  <footer class="bg-brand-950 text-gray-400">
+    <div class="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
+      <div class="grid gap-10 md:grid-cols-4">
+        <div class="md:col-span-1">
+          <img src="../assets/logo-white.png" alt="Sumrize" class="h-7" />
+          <p class="mt-4 max-w-xs text-sm text-gray-400" x-text="lang === 'id' ? 'Cross-Channel Knowledge Hub. Karena hidup terlalu singkat buat scroll grup chat.' : 'Cross-Channel Knowledge Hub. Because life is too short to scroll group chats.'">Cross-Channel Knowledge Hub. Karena hidup terlalu singkat buat scroll grup chat.</p>
+        </div>
+        <div>
+          <p class="text-sm font-semibold text-white" x-text="lang === 'id' ? 'Produk' : 'Product'">Produk</p>
+          <ul class="mt-4 space-y-2.5 text-sm">
+            <li><a href="summaries.html" class="hover:text-white" x-text="lang === 'id' ? 'Rangkuman Otomatis' : 'Smart Summaries'">Rangkuman Otomatis</a></li>
+            <li><a href="rizz.html" class="hover:text-white">Ask Rizz</a></li>
+            <li><a href="connectors.html" class="hover:text-white">Connectors</a></li>
+            <li><a href="analytics.html" class="hover:text-white">Analytics</a></li>
+          </ul>
+        </div>
+        <div>
+          <p class="text-sm font-semibold text-white" x-text="lang === 'id' ? 'Perusahaan' : 'Company'">Perusahaan</p>
+          <ul class="mt-4 space-y-2.5 text-sm">
+            <li><a href="../docs/Sumrize_UseCase_Reimbursement.html" class="hover:text-white">Use Cases</a></li>
+            <li><a href="../dashboard/pricing.html" class="hover:text-white" x-text="lang === 'id' ? 'Harga' : 'Pricing'">Harga</a></li>
+            <li><a href="../dashboard/login.html" class="hover:text-white">Login</a></li>
+          </ul>
+        </div>
+        <div>
+          <p class="text-sm font-semibold text-white">Legal</p>
+          <ul class="mt-4 space-y-2.5 text-sm">
+            <li><a href="#" class="hover:text-white" x-text="lang === 'id' ? 'Kebijakan Privasi' : 'Privacy Policy'">Kebijakan Privasi</a></li>
+            <li><a href="#" class="hover:text-white" x-text="lang === 'id' ? 'Ketentuan Layanan' : 'Terms of Service'">Ketentuan Layanan</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="mt-12 border-t border-white/10 pt-6 text-center text-xs text-gray-500">© 2026 Sumrize · <span x-text="lang === 'id' ? 'Dibuat dengan ❤️ di Indonesia' : 'Made with ❤️ in Indonesia'">Dibuat dengan ❤️ di Indonesia</span></div>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => lucide.createIcons());
+    document.addEventListener('alpine:initialized', () => lucide.createIcons());
+  </script>
+</body>
+</html>

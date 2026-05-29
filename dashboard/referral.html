@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Referral · Sumrize Dashboard</title>
 
-  <link rel="icon" type="image/png" href="./assets/logo-black.png" />
+  <link rel="icon" type="image/png" href="../assets/logo-black.png" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -151,8 +151,8 @@
       <!-- Sidebar brand only — toggle button moved to topbar as hamburger -->
       <div class="flex items-center justify-center pt-8 pb-7">
         <a href="index.html" class="flex items-center" :class="sidebarToggle ? 'lg:hidden' : ''">
-          <img src="./assets/logo-black.png" class="h-12 w-auto dark:hidden" alt="Sumrize" />
-          <img src="./assets/logo-white.png" class="hidden h-12 w-auto dark:block" alt="Sumrize" />
+          <img src="../assets/logo-black.png" class="h-12 w-auto dark:hidden" alt="Sumrize" />
+          <img src="../assets/logo-white.png" class="hidden h-12 w-auto dark:block" alt="Sumrize" />
         </a>
         <a href="index.html" class="hidden h-10 w-10 items-center justify-center rounded-xl bg-brand-500 text-base font-bold text-white shadow-theme-sm" :class="sidebarToggle ? 'lg:flex' : ''" aria-label="Sumrize">S</a>
       </div>
@@ -384,16 +384,16 @@
                   <div class="flex items-center gap-2">
                     <span class="text-[11px] text-gray-400 dark:text-gray-500" x-text="lang === 'id' ? 'Share:' : 'Share:'">Share:</span>
                     <a :href="'https://wa.me/?text=' + encodeURIComponent('Cobain Sumrize, AI summary buat group chat. Pakai kode ' + referralCode + ': https://' + referralUrl)" target="_blank" rel="noopener" :title="lang === 'id' ? 'Bagikan via WhatsApp' : 'Share via WhatsApp'" class="flex h-8 w-8 items-center justify-center rounded-full transition hover:bg-success-50 dark:hover:bg-success-500/10">
-                      <img src="./assets/whatsapp.webp" class="h-5 w-5" alt="WhatsApp" />
+                      <img src="../assets/whatsapp.webp" class="h-5 w-5" alt="WhatsApp" />
                     </a>
                     <a :href="'https://t.me/share/url?url=' + encodeURIComponent('https://' + referralUrl) + '&text=' + encodeURIComponent('Cobain Sumrize! Kode: ' + referralCode)" target="_blank" rel="noopener" :title="lang === 'id' ? 'Bagikan via Telegram' : 'Share via Telegram'" class="flex h-8 w-8 items-center justify-center rounded-full transition hover:bg-brand-50 dark:hover:bg-brand-500/10">
-                      <img src="./assets/telegram.png" class="h-5 w-5 object-contain" alt="Telegram" />
+                      <img src="../assets/telegram.png" class="h-5 w-5 object-contain" alt="Telegram" />
                     </a>
                     <a :href="'https://twitter.com/intent/tweet?text=' + encodeURIComponent('Sumrize AI summary buat group chat. Pakai kode ' + referralCode + ': https://' + referralUrl)" target="_blank" rel="noopener" :title="lang === 'id' ? 'Bagikan via X/Twitter' : 'Share via X/Twitter'" class="flex h-8 w-8 items-center justify-center rounded-full transition hover:bg-gray-100 dark:hover:bg-white/5">
                       <svg class="h-4 w-4 text-gray-900 dark:text-white" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
                     </a>
                     <a :href="'mailto:?subject=' + encodeURIComponent('Coba Sumrize') + '&body=' + encodeURIComponent('Pakai kode ' + referralCode + ' di https://' + referralUrl)" :title="lang === 'id' ? 'Bagikan via Email' : 'Share via Email'" class="flex h-8 w-8 items-center justify-center rounded-full transition hover:bg-error-50 dark:hover:bg-error-500/10">
-                      <img src="./assets/Gmail_Icon.png" class="h-5 w-5 object-contain" alt="Email" />
+                      <img src="../assets/Gmail_Icon.png" class="h-5 w-5 object-contain" alt="Email" />
                     </a>
                   </div>
                 </div>

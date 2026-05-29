@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Connect WhatsApp Group · Sumrize</title>
 
-  <link rel="icon" type="image/png" href="./assets/logo-black.png" />
+  <link rel="icon" type="image/png" href="../assets/logo-black.png" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -131,8 +131,8 @@
   <!-- ===== Minimal top chrome (no sidebar — focused onboarding flow) ===== -->
   <header class="flex items-center justify-between border-b border-gray-100 bg-white/80 px-4 py-4 backdrop-blur-sm dark:border-gray-800 dark:bg-gray-900/80 md:px-6">
     <a href="index.html" class="flex items-center gap-3">
-      <img src="./assets/logo-black.png" class="h-9 w-auto dark:hidden" alt="Sumrize" />
-      <img src="./assets/logo-white.png" class="hidden h-9 w-auto dark:block" alt="Sumrize" />
+      <img src="../assets/logo-black.png" class="h-9 w-auto dark:hidden" alt="Sumrize" />
+      <img src="../assets/logo-white.png" class="hidden h-9 w-auto dark:block" alt="Sumrize" />
     </a>
 
     <div class="flex items-center gap-3">
@@ -208,7 +208,7 @@
     <!-- ===== STEP 1: Group Link ===== -->
     <section x-show="step === 1" class="rounded-2xl border border-gray-200 bg-white p-6 shadow-theme-sm dark:border-gray-800 dark:bg-white/[0.03] md:p-8">
       <div class="mb-6 flex items-start gap-4">
-        <img src="./assets/whatsapp.webp" class="h-12 w-12 flex-shrink-0" alt="" />
+        <img src="../assets/whatsapp.webp" class="h-12 w-12 flex-shrink-0" alt="" />
         <div>
           <h1 class="text-xl font-semibold text-gray-900 dark:text-white md:text-2xl" x-text="lang === 'id' ? 'Hubungkan grup WhatsApp Anda' : 'Connect your WhatsApp group'">Connect your WhatsApp group</h1>
           <p class="mt-1 text-sm text-gray-500 dark:text-gray-400" x-text="lang === 'id' ? 'Salin link undangan dari grup yang ingin Anda summary. AI Sumrize akan join sebagai member dan mulai meringkas obrolan.' : 'Paste the invite link of the group you want summarized. The Sumrize AI joins as a member and starts summarizing.'">Paste the invite link of the group.</p>

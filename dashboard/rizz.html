@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Rizz AI · Sumrize Dashboard</title>
 
-  <link rel="icon" type="image/png" href="./assets/logo-black.png" />
+  <link rel="icon" type="image/png" href="../assets/logo-black.png" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -156,9 +156,9 @@
        (All connectors) search is gated behind Spark. */
     freeScope: 'bmw',
     freeScopes: {
-      bmw:       { en: 'BMW Community',    id: 'Komunitas Mobil BMW', icon: './assets/whatsapp.webp', source: 'WhatsApp', messages: 487 },
-      keluarga:  { en: 'Extended Family',  id: 'Keluarga Besar',      icon: './assets/whatsapp.webp', source: 'WhatsApp', messages: 587 },
-      marketing: { en: 'Marketing Team',   id: 'Tim Marketing',       icon: './assets/discord.png',   source: 'Discord',  messages: 348 }
+      bmw:       { en: 'BMW Community',    id: 'Komunitas Mobil BMW', icon: '../assets/whatsapp.webp', source: 'WhatsApp', messages: 487 },
+      keluarga:  { en: 'Extended Family',  id: 'Keluarga Besar',      icon: '../assets/whatsapp.webp', source: 'WhatsApp', messages: 587 },
+      marketing: { en: 'Marketing Team',   id: 'Tim Marketing',       icon: '../assets/discord.png',   source: 'Discord',  messages: 348 }
     },
     /* Spark-only filters */
     filters: { connector: 'all', type: 'any', sender: 'any', dateRange: '30d' },
@@ -210,8 +210,8 @@
       <!-- Sidebar brand only — toggle button moved to topbar as hamburger -->
       <div class="flex items-center justify-center pt-8 pb-7">
         <a href="index.html" class="flex items-center" :class="sidebarToggle ? 'lg:hidden' : ''">
-          <img src="./assets/logo-black.png" class="h-12 w-auto dark:hidden" alt="Sumrize" />
-          <img src="./assets/logo-white.png" class="hidden h-12 w-auto dark:block" alt="Sumrize" />
+          <img src="../assets/logo-black.png" class="h-12 w-auto dark:hidden" alt="Sumrize" />
+          <img src="../assets/logo-white.png" class="hidden h-12 w-auto dark:block" alt="Sumrize" />
         </a>
         <a href="index.html" class="hidden h-10 w-10 items-center justify-center rounded-xl bg-brand-500 text-base font-bold text-white shadow-theme-sm" :class="sidebarToggle ? 'lg:flex' : ''" aria-label="Sumrize">S</a>
       </div>
@@ -734,15 +734,15 @@
                         <span x-text="lang === 'id' ? 'Semua connector' : 'All connectors'">All connectors</span>
                       </button>
                       <button type="button" @click="filters.connector = 'Komunitas Mobil BMW'; filterOpen.connector = false" class="flex w-full items-center gap-3 px-4 py-2 text-sm transition" :class="filters.connector === 'Komunitas Mobil BMW' ? 'bg-brand-50 text-brand-500 dark:bg-brand-500/[0.12]' : 'text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-white/5'">
-                        <img src="./assets/whatsapp.webp" class="h-4 w-4 rounded-full" alt="" />
+                        <img src="../assets/whatsapp.webp" class="h-4 w-4 rounded-full" alt="" />
                         <span x-text="lang === 'id' ? 'Komunitas Mobil BMW' : 'BMW Community'">BMW Community</span>
                       </button>
                       <button type="button" @click="filters.connector = 'Keluarga Besar'; filterOpen.connector = false" class="flex w-full items-center gap-3 px-4 py-2 text-sm transition" :class="filters.connector === 'Keluarga Besar' ? 'bg-brand-50 text-brand-500 dark:bg-brand-500/[0.12]' : 'text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-white/5'">
-                        <img src="./assets/whatsapp.webp" class="h-4 w-4 rounded-full" alt="" />
+                        <img src="../assets/whatsapp.webp" class="h-4 w-4 rounded-full" alt="" />
                         <span x-text="lang === 'id' ? 'Keluarga Besar' : 'Extended Family'">Extended Family</span>
                       </button>
                       <button type="button" @click="filters.connector = 'Tim Marketing'; filterOpen.connector = false" class="flex w-full items-center gap-3 px-4 py-2 text-sm transition" :class="filters.connector === 'Tim Marketing' ? 'bg-brand-50 text-brand-500 dark:bg-brand-500/[0.12]' : 'text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-white/5'">
-                        <img src="./assets/discord.png" class="h-4 w-4 rounded-full" alt="" />
+                        <img src="../assets/discord.png" class="h-4 w-4 rounded-full" alt="" />
                         <span x-text="lang === 'id' ? 'Tim Marketing' : 'Marketing Team'">Marketing Team</span>
                       </button>
                     </div>

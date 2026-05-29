@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pengaturan · Sumrize Dashboard</title>
+  <title>Tambah Konektor · Sumrize Dashboard</title>
 
-  <link rel="icon" type="image/png" href="./assets/logo-black.png" />
+  <link rel="icon" type="image/png" href="../assets/logo-black.png" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -28,6 +28,12 @@
               25: '#fcfcfd', 50: '#f9fafb', 100: '#f2f4f7', 200: '#e4e7ec',
               300: '#d0d5dd', 400: '#98a2b3', 500: '#667085', 600: '#475467',
               700: '#3c3f4c', 800: '#26344a', 900: '#1c1f2c', 950: '#0f0e0e'
+            },
+            success: {
+              50: '#ecfdf3', 500: '#12b76a', 600: '#039855'
+            },
+            warning: {
+              50: '#fffaeb', 500: '#f79009'
             },
             error: {
               50: '#fef3f2', 500: '#f04438', 600: '#d92d20'
@@ -65,6 +71,9 @@
     langOpen: false,
     notifOpen: false,
     profileOpen: false,
+    /* Filter tab — group connectors by product-tool category.
+       Values: all (default) | chat | email | calendar | docs | meetings. */
+    connectorTab: 'all',
     languages: {
       en: { label: 'English', flag: '🇬🇧' },
       id: { label: 'Bahasa Indonesia', flag: '🇮🇩' }
@@ -86,7 +95,7 @@
   <!-- ===== Page Wrapper Start ===== -->
   <div class="flex h-screen overflow-hidden">
 
-    <!-- ===== Sidebar (shared with index.html — Pengaturan active here) ===== -->
+    <!-- ===== Sidebar — Workspace highlighted since user came from there ===== -->
     <aside
       :class="sidebarToggle ? 'translate-x-0 lg:w-[90px]' : '-translate-x-full w-[290px]'"
       class="fixed left-0 top-0 z-50 flex h-screen flex-col overflow-y-hidden border-r border-gray-200 bg-white px-5 transition-all duration-300 ease-linear dark:border-gray-800 dark:bg-gray-900 lg:static lg:translate-x-0"
@@ -94,10 +103,9 @@
       <!-- Sidebar brand only — toggle button moved to topbar as hamburger -->
       <div class="flex items-center justify-center pt-8 pb-7">
         <a href="index.html" class="flex items-center" :class="sidebarToggle ? 'lg:hidden' : ''">
-          <img src="./assets/logo-black.png" class="h-12 w-auto dark:hidden" alt="Sumrize" />
-          <img src="./assets/logo-white.png" class="hidden h-12 w-auto dark:block" alt="Sumrize" />
+          <img src="../assets/logo-black.png" class="h-12 w-auto dark:hidden" alt="Sumrize" />
+          <img src="../assets/logo-white.png" class="hidden h-12 w-auto dark:block" alt="Sumrize" />
         </a>
-        <!-- Compact brand mark (collapsed on lg only) -->
         <a href="index.html" class="hidden h-10 w-10 items-center justify-center rounded-xl bg-brand-500 text-base font-bold text-white shadow-theme-sm" :class="sidebarToggle ? 'lg:flex' : ''" aria-label="Sumrize">S</a>
       </div>
 
@@ -109,7 +117,7 @@
           </h3>
           <ul class="flex flex-col gap-1">
             <li>
-              <a href="index.html" class="group flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-white/5 dark:hover:text-white" :class="sidebarToggle ? 'lg:justify-center' : ''">
+              <a href="index.html" class="group flex items-center gap-3 rounded-lg bg-brand-50 px-3 py-2 text-sm font-medium text-brand-500 dark:bg-brand-500/[0.12] dark:text-brand-400" :class="sidebarToggle ? 'lg:justify-center' : ''">
                 <i data-lucide="home" class="h-5 w-5 flex-shrink-0"></i>
                 <span x-text="t[lang].home" :class="sidebarToggle ? 'lg:hidden' : ''"></span>
               </a>
@@ -152,8 +160,6 @@
               <span :class="sidebarToggle ? 'lg:hidden' : ''">Light</span>
             </button>
           </div>
-
-          <!-- Logout moved to topbar profile dropdown -->
         </div>
       </div>
     </aside>
@@ -166,25 +172,26 @@
       <main>
         <div class="p-4 md:p-6">
 
-          <!-- ===== Page Header (Settings) ===== -->
+          <!-- ===== Page Header ===== -->
           <section class="mb-6 flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
             <div class="flex items-center gap-3">
+              <!-- Mobile hamburger -->
               <!-- Hamburger menu — always visible on all viewports, toggles sidebar -->
               <button type="button" @click="sidebarToggle = !sidebarToggle" class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-700 transition hover:bg-gray-50 dark:border-gray-800 dark:bg-white/[0.03] dark:text-gray-300 dark:hover:bg-white/5" aria-label="Toggle menu">
                 <i data-lucide="menu" class="h-5 w-5" x-show="!sidebarToggle"></i>
                 <i data-lucide="x" class="h-5 w-5" x-show="sidebarToggle" x-cloak></i>
               </button>
 
-              <div>
-                <h1 class="text-2xl font-semibold text-gray-800 dark:text-white md:text-3xl">Account Settings</h1>
-                <p class="mt-1 max-w-2xl text-sm text-gray-500 dark:text-gray-400">
-                  Manage your profile details, linked sign-in methods, and current subscription without changing the live page flow.
-                </p>
+              <div class="flex items-center gap-2">
+                <a href="index.html" :aria-label="lang === 'id' ? 'Kembali' : 'Back'" class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg text-gray-500 transition hover:bg-gray-100 hover:text-brand-500 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-brand-400">
+                  <i data-lucide="arrow-left" class="h-5 w-5"></i>
+                </a>
+                <h1 class="text-2xl font-semibold text-gray-800 dark:text-white md:text-3xl" x-text="lang === 'id' ? 'Tambah Konektor' : 'Add a Connector'">Add a Connector</h1>
               </div>
             </div>
 
             <div class="flex items-center gap-3 self-stretch md:self-auto">
-              <!-- Language switcher (re-used from index.html) -->
+              <!-- Language switcher -->
               <div class="relative" @click.outside="langOpen = false">
                 <button type="button" @click="langOpen = !langOpen" class="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 transition hover:bg-gray-50 dark:border-gray-800 dark:bg-white/[0.03] dark:text-gray-300 dark:hover:bg-white/5" aria-haspopup="listbox" :aria-expanded="langOpen.toString()">
                   <i data-lucide="globe" class="h-4 w-4"></i>
@@ -284,31 +291,6 @@
                         <span class="mt-1 inline-block h-2 w-2 flex-shrink-0 rounded-full bg-sumrize" aria-hidden="true"></span>
                       </div>
                     </a>
-                    <a href="invoice.html" class="block px-4 py-3 transition hover:bg-gray-50 dark:hover:bg-white/[0.03]">
-                      <div class="flex items-start gap-3">
-                        <div class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-success-50 text-success-600 dark:bg-success-500/[0.15] dark:text-success-500">
-                          <i data-lucide="credit-card" class="h-4 w-4"></i>
-                        </div>
-                        <div class="min-w-0 flex-1">
-                          <p class="text-sm text-gray-600 dark:text-gray-400">
-                            <strong class="font-medium text-gray-800 dark:text-gray-200" x-text="lang === 'id' ? 'Pembayaran berhasil' : 'Payment successful'">Payment successful</strong>
-                            <span> · Rp 99.000</span>
-                          </p>
-                          <p class="mt-0.5 text-xs text-gray-400" x-text="lang === 'id' ? 'Tagihan · 3 hari lalu' : 'Billing · 3 days ago'">Billing · 3 days ago</p>
-                        </div>
-                      </div>
-                    </a>
-                    <a href="invoice.html" class="block px-4 py-3 transition hover:bg-gray-50 dark:hover:bg-white/[0.03]">
-                      <div class="flex items-start gap-3">
-                        <div class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-brand-50 text-brand-500 dark:bg-brand-500/[0.15] dark:text-brand-400">
-                          <i data-lucide="file-text" class="h-4 w-4"></i>
-                        </div>
-                        <div class="min-w-0 flex-1">
-                          <p class="text-sm text-gray-600 dark:text-gray-400" x-text="lang === 'id' ? 'Invoice baru INV-2026-005 sudah diterbitkan' : 'New invoice INV-2026-005 has been issued'">New invoice issued</p>
-                          <p class="mt-0.5 text-xs text-gray-400" x-text="lang === 'id' ? 'Tagihan · 5 hari lalu' : 'Billing · 5 days ago'">Billing · 5 days ago</p>
-                        </div>
-                      </div>
-                    </a>
                   </div>
                   <a href="#" class="block border-t border-gray-100 px-4 py-3 text-center text-sm font-semibold text-brand-500 transition hover:bg-gray-50 dark:border-gray-800 dark:text-brand-400 dark:hover:bg-white/[0.03]">
                     <span x-text="lang === 'id' ? 'Lihat semua notifikasi' : 'View all notifications'">View all notifications</span>
@@ -316,7 +298,7 @@
                 </div>
               </div>
 
-              <!-- Profile dropdown (shared pattern with index.html) -->
+              <!-- Profile dropdown -->
               <div class="relative" @click.outside="profileOpen = false">
                 <button
                   type="button"
@@ -346,14 +328,14 @@
                     </a>
                     <a href="#" class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 transition hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-white/5">
                       <i data-lucide="info" class="h-4 w-4"></i>
-                      Support
+                      <span x-text="lang === 'id' ? 'Bantuan' : 'Support'">Support</span>
                     </a>
                   </div>
 
                   <div class="border-t border-gray-100 py-1.5 dark:border-gray-800">
                     <a href="login.html" class="flex items-center gap-3 px-4 py-2 text-sm font-medium text-error-500 transition hover:bg-error-50 dark:hover:bg-error-500/10">
                       <i data-lucide="log-out" class="h-4 w-4"></i>
-                      Sign out
+                      <span x-text="lang === 'id' ? 'Keluar' : 'Sign out'">Sign out</span>
                     </a>
                   </div>
                 </div>
@@ -361,145 +343,203 @@
             </div>
           </section>
 
-          <!-- Cards capped at max-w-4xl so the page header above stays
-               full-width like Beranda. -->
-          <div class="max-w-4xl">
+          <!-- ===== Connector picker — Tab filter + unified tile grid =====
+               Full width (no max-w) to match the page header / workspace pattern.
+               Responsive grid handles narrow viewports via grid-cols-2 → 3 → 4 → 6. -->
+          <div class="space-y-5">
 
-          <!-- ===== Subscription Card =====
-               brand-500 border flags this as the primary summary card.
-               Layout = (a) header w/ label chip + date + plan pill,
-                        (b) 2-col stat grid for Plan & Billing,
-                        (c) subtle divider footer for the destructive action. -->
-          <section class="mb-6 rounded-2xl border border-brand-500 bg-white shadow-theme-md dark:bg-white/[0.03]">
-            <div class="p-5 md:p-6">
-              <header class="mb-5 flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
-                <div class="flex-1">
-                  <div class="mb-2.5 inline-flex items-center gap-2 rounded-lg bg-brand-50 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-brand-500 dark:bg-brand-500/[0.15] dark:text-brand-400">
-                    <i data-lucide="calendar-days" class="h-3.5 w-3.5"></i>
-                    Active Period
-                  </div>
-                  <h2 class="text-lg font-semibold leading-tight text-gray-900 dark:text-white md:text-xl">
-                    27 Apr 2026 14:20 — 27 May 2026 14:20
-                  </h2>
-                </div>
-                <span class="inline-flex flex-shrink-0 items-center gap-1.5 rounded-full bg-brand-500 px-3.5 py-1.5 text-xs font-bold uppercase tracking-wide text-white shadow-theme-sm">
-                  <i data-lucide="sparkles" class="h-3.5 w-3.5"></i>
-                  Spark
-                </span>
-              </header>
-
-              <!-- Stat grid: Current Plan & Billing -->
-              <div class="mb-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
-                <div class="rounded-xl border border-gray-200 bg-gray-50 p-3.5 dark:border-gray-800 dark:bg-white/[0.02]">
-                  <div class="mb-1.5 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-gray-400">
-                    <i data-lucide="layers" class="h-3.5 w-3.5"></i>
-                    Current Plan
-                  </div>
-                  <p class="text-sm font-semibold text-gray-900 dark:text-white">
-                    Spark <span class="font-normal text-gray-500 dark:text-gray-400">(SPARK_IDR_MONTHLY)</span>
-                  </p>
-                </div>
-                <div class="rounded-xl border border-gray-200 bg-gray-50 p-3.5 dark:border-gray-800 dark:bg-white/[0.02]">
-                  <div class="mb-1.5 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-gray-400">
-                    <i data-lucide="credit-card" class="h-3.5 w-3.5"></i>
-                    Billing
-                  </div>
-                  <p class="text-sm font-semibold text-gray-900 dark:text-white">
-                    Monthly <span class="font-normal text-gray-500 dark:text-gray-400">· 99,000 IDR</span>
-                  </p>
-                </div>
-              </div>
-
-              <!-- Cancel Subscription: full-width outline-style destructive action,
-                   inside the card body (matches original placement, less aggressive
-                   than a solid red button). -->
-              <button type="button" class="flex w-full items-center justify-center gap-2 rounded-xl border border-error-500/30 bg-error-500/[0.04] px-4 py-2.5 text-sm font-medium text-error-500 transition hover:bg-error-500/10 dark:bg-error-500/[0.06]">
-                <i data-lucide="ban" class="h-4 w-4"></i>
-                Cancel Subscription
+            <!-- ===== Filter tabs (matches workspace pattern) =====
+                 Click a pill to filter the tile grid by product-tool category.
+                 6 tabs: Semua / Chat / Email / Calendar / Docs / Meetings. -->
+            <section role="tablist" class="flex flex-wrap items-center gap-2">
+              <button type="button" role="tab" :aria-selected="(connectorTab === 'all').toString()" @click="connectorTab = 'all'"
+                class="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition"
+                :class="connectorTab === 'all'
+                  ? 'bg-brand-50 text-brand-500 dark:bg-brand-500/[0.12] dark:text-brand-400'
+                  : 'bg-white text-gray-700 ring-1 ring-gray-200 hover:bg-gray-50 dark:bg-white/[0.03] dark:text-gray-300 dark:ring-gray-800 dark:hover:bg-white/[0.06]'">
+                <i data-lucide="layout-grid" class="h-4 w-4"></i>
+                <span x-text="lang === 'id' ? 'Semua' : 'All'">All</span>
+                <span class="ml-0.5 inline-flex h-5 min-w-[20px] items-center justify-center rounded-full px-1.5 text-xs font-semibold"
+                  :class="connectorTab === 'all' ? 'bg-white/70 dark:bg-white/10' : 'bg-gray-100 dark:bg-white/10'">12</span>
               </button>
-            </div>
-          </section>
 
-          <!-- ===== Profile Form Card =====
-               Two-zone pattern, mirrors Connector cards on Beranda:
-                 (a) body  — inputs (Full Name) + read-only stat cards (Email,
-                             WhatsApp) + Google Sign-in panel
-                 (b) band  — brand-50 footer with centered Save Changes button -->
-          <section class="overflow-hidden rounded-2xl border border-brand-500 bg-white shadow-theme-md dark:bg-white/[0.03]">
-            <form class="space-y-5 p-5 md:p-6" onsubmit="event.preventDefault()">
-
-              <!-- Full Name (icon-prefixed input) -->
-              <div>
-                <label for="full-name" class="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">Full Name</label>
-                <div class="relative">
-                  <i data-lucide="user" class="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400"></i>
-                  <input
-                    id="full-name"
-                    type="text"
-                    value="Avew"
-                    class="w-full rounded-xl border border-gray-200 bg-white py-3 pl-12 pr-4 text-sm text-gray-900 placeholder-gray-400 transition focus:border-brand-500 focus:outline-none focus:ring-4 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
-                  />
-                </div>
-              </div>
-
-              <!-- Email + WhatsApp (read-only display cards w/ icon badges) -->
-              <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <!-- Email -->
-                <div class="rounded-xl border border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-white/[0.02]">
-                  <div class="mb-3 flex items-center gap-3">
-                    <div class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-brand-50 text-brand-500 dark:bg-brand-500/[0.15] dark:text-brand-400">
-                      <i data-lucide="mail" class="h-4 w-4"></i>
-                    </div>
-                    <p class="text-[11px] font-semibold uppercase tracking-wider text-gray-400">Email Address</p>
-                  </div>
-                  <p class="mb-2 break-all text-base font-medium text-gray-900 dark:text-white">aseprojali@gmail.com</p>
-                  <p class="text-xs text-gray-500 dark:text-gray-400">Set automatically when you link Google below.</p>
-                </div>
-
-                <!-- WhatsApp -->
-                <div class="rounded-xl border border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-white/[0.02]">
-                  <div class="mb-3 flex items-center gap-3">
-                    <div class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600 dark:bg-emerald-500/[0.15] dark:text-emerald-400">
-                      <i data-lucide="phone" class="h-4 w-4"></i>
-                    </div>
-                    <p class="text-[11px] font-semibold uppercase tracking-wider text-gray-400">WhatsApp Number</p>
-                  </div>
-                  <p class="mb-2 text-base font-medium text-gray-900 dark:text-white">6285294316666</p>
-                  <p class="text-xs text-gray-500 dark:text-gray-400">Your WhatsApp number cannot be changed.</p>
-                </div>
-              </div>
-
-              <!-- Google Sign-in panel: framed sub-section with icon header -->
-              <div class="rounded-xl border border-gray-200 bg-gray-50/60 p-5 dark:border-gray-800 dark:bg-white/[0.02]">
-                <div class="mb-3 flex items-center gap-3">
-                  <div class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-white shadow-theme-sm dark:bg-gray-800">
-                    <i data-lucide="link-2" class="h-4 w-4 text-brand-500"></i>
-                  </div>
-                  <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300">Google Sign-in</h3>
-                </div>
-                <p class="mb-4 text-sm text-gray-500 dark:text-gray-400">
-                  Link your Google account to enable <strong class="font-semibold text-gray-700 dark:text-gray-300">Continue with Google</strong> after you registered with WhatsApp OTP.
-                </p>
-                <button type="button" class="inline-flex items-center gap-3 rounded-xl border border-gray-200 bg-white px-5 py-2.5 text-sm font-medium text-gray-700 shadow-theme-sm transition hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700">
-                  <svg class="h-5 w-5" viewBox="0 0 24 24" aria-hidden="true">
-                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-                  </svg>
-                  Link Google account
-                </button>
-              </div>
-            </form>
-
-            <!-- (b) Footer band: Save Changes (slim band, right-aligned button) -->
-            <footer class="flex items-center justify-end bg-brand-50 px-5 py-3 dark:bg-brand-500/[0.08]">
-              <button type="submit" form="" class="inline-flex items-center gap-2 rounded-full bg-sumrize px-5 py-2 text-sm font-semibold text-white shadow-theme-sm transition hover:bg-sumrize-hover focus:outline-none focus:ring-4 focus:ring-sumrize/30">
-                <i data-lucide="save" class="h-4 w-4"></i>
-                Save Changes
+              <button type="button" role="tab" :aria-selected="(connectorTab === 'chat').toString()" @click="connectorTab = 'chat'"
+                class="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition"
+                :class="connectorTab === 'chat'
+                  ? 'bg-brand-50 text-brand-500 dark:bg-brand-500/[0.12] dark:text-brand-400'
+                  : 'bg-white text-gray-700 ring-1 ring-gray-200 hover:bg-gray-50 dark:bg-white/[0.03] dark:text-gray-300 dark:ring-gray-800 dark:hover:bg-white/[0.06]'">
+                <i data-lucide="messages-square" class="h-4 w-4"></i>
+                <span>Chat</span>
+                <span class="ml-0.5 inline-flex h-5 min-w-[20px] items-center justify-center rounded-full px-1.5 text-xs font-semibold"
+                  :class="connectorTab === 'chat' ? 'bg-white/70 dark:bg-white/10' : 'bg-gray-100 dark:bg-white/10'">4</span>
               </button>
-            </footer>
-          </section>
+
+              <button type="button" role="tab" :aria-selected="(connectorTab === 'email').toString()" @click="connectorTab = 'email'"
+                class="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition"
+                :class="connectorTab === 'email'
+                  ? 'bg-brand-50 text-brand-500 dark:bg-brand-500/[0.12] dark:text-brand-400'
+                  : 'bg-white text-gray-700 ring-1 ring-gray-200 hover:bg-gray-50 dark:bg-white/[0.03] dark:text-gray-300 dark:ring-gray-800 dark:hover:bg-white/[0.06]'">
+                <i data-lucide="mail" class="h-4 w-4"></i>
+                <span>Email</span>
+                <span class="ml-0.5 inline-flex h-5 min-w-[20px] items-center justify-center rounded-full px-1.5 text-xs font-semibold"
+                  :class="connectorTab === 'email' ? 'bg-white/70 dark:bg-white/10' : 'bg-gray-100 dark:bg-white/10'">2</span>
+              </button>
+
+              <button type="button" role="tab" :aria-selected="(connectorTab === 'calendar').toString()" @click="connectorTab = 'calendar'"
+                class="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition"
+                :class="connectorTab === 'calendar'
+                  ? 'bg-brand-50 text-brand-500 dark:bg-brand-500/[0.12] dark:text-brand-400'
+                  : 'bg-white text-gray-700 ring-1 ring-gray-200 hover:bg-gray-50 dark:bg-white/[0.03] dark:text-gray-300 dark:ring-gray-800 dark:hover:bg-white/[0.06]'">
+                <i data-lucide="calendar" class="h-4 w-4"></i>
+                <span x-text="lang === 'id' ? 'Kalender' : 'Calendar'">Calendar</span>
+                <span class="ml-0.5 inline-flex h-5 min-w-[20px] items-center justify-center rounded-full px-1.5 text-xs font-semibold"
+                  :class="connectorTab === 'calendar' ? 'bg-white/70 dark:bg-white/10' : 'bg-gray-100 dark:bg-white/10'">2</span>
+              </button>
+
+              <button type="button" role="tab" :aria-selected="(connectorTab === 'docs').toString()" @click="connectorTab = 'docs'"
+                class="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition"
+                :class="connectorTab === 'docs'
+                  ? 'bg-brand-50 text-brand-500 dark:bg-brand-500/[0.12] dark:text-brand-400'
+                  : 'bg-white text-gray-700 ring-1 ring-gray-200 hover:bg-gray-50 dark:bg-white/[0.03] dark:text-gray-300 dark:ring-gray-800 dark:hover:bg-white/[0.06]'">
+                <i data-lucide="file-text" class="h-4 w-4"></i>
+                <span x-text="lang === 'id' ? 'Dokumen' : 'Docs'">Docs</span>
+                <span class="ml-0.5 inline-flex h-5 min-w-[20px] items-center justify-center rounded-full px-1.5 text-xs font-semibold"
+                  :class="connectorTab === 'docs' ? 'bg-white/70 dark:bg-white/10' : 'bg-gray-100 dark:bg-white/10'">2</span>
+              </button>
+
+              <button type="button" role="tab" :aria-selected="(connectorTab === 'meetings').toString()" @click="connectorTab = 'meetings'"
+                class="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition"
+                :class="connectorTab === 'meetings'
+                  ? 'bg-brand-50 text-brand-500 dark:bg-brand-500/[0.12] dark:text-brand-400'
+                  : 'bg-white text-gray-700 ring-1 ring-gray-200 hover:bg-gray-50 dark:bg-white/[0.03] dark:text-gray-300 dark:ring-gray-800 dark:hover:bg-white/[0.06]'">
+                <i data-lucide="video" class="h-4 w-4"></i>
+                <span x-text="lang === 'id' ? 'Meeting' : 'Meetings'">Meetings</span>
+                <span class="ml-0.5 inline-flex h-5 min-w-[20px] items-center justify-center rounded-full px-1.5 text-xs font-semibold"
+                  :class="connectorTab === 'meetings' ? 'bg-white/70 dark:bg-white/10' : 'bg-gray-100 dark:bg-white/10'">2</span>
+              </button>
+            </section>
+
+            <!-- Trust line (slim inline strip) -->
+            <p class="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400">
+              <i data-lucide="shield-check" class="h-3.5 w-3.5 text-success-600 dark:text-success-500"></i>
+              <span x-text="lang === 'id' ? 'Rizz indeks metadata — konten asli tidak disimpan.' : 'Rizz indexes metadata — your raw content stays private.'">Rizz indexes metadata — your raw content stays private.</span>
+            </p>
+
+            <!-- ===== Unified tile grid — filtered by connectorTab =====
+                 Order: Chat actives first, then Chat soon, then other categories.
+                 Active tile pattern   = white surface, brand-500 hover, clickable
+                 Inactive tile pattern = gray-50, opacity-60, "Soon" badge top-right
+                 Responsive breakpoints: mobile 2 · sm 3 · lg 4 · xl 5
+                 content-start + min-h: consistent grid height across tab switches. -->
+            <section class="grid grid-cols-2 content-start gap-3 sm:grid-cols-3 sm:min-h-[420px] lg:grid-cols-4 lg:min-h-[420px] xl:grid-cols-5 xl:min-h-[360px]">
+
+              <!-- CHAT — Active: WhatsApp Group -->
+              <a x-show="connectorTab === 'all' || connectorTab === 'chat'" href="onboard-whatsapp.html" class="group flex flex-col items-center justify-center gap-3 rounded-xl border border-gray-200 bg-white p-5 transition hover:-translate-y-0.5 hover:border-brand-500 hover:bg-brand-50/40 hover:shadow-theme-sm dark:border-gray-800 dark:bg-white/[0.02] dark:hover:border-brand-500 dark:hover:bg-brand-500/[0.08]">
+                <img src="../assets/whatsapp.webp" class="h-10 w-10" alt="" />
+                <span class="text-center text-sm font-medium text-gray-700 group-hover:text-gray-900 dark:text-gray-300 dark:group-hover:text-white">WhatsApp</span>
+              </a>
+              <!-- CHAT — Active: Discord -->
+              <button x-show="connectorTab === 'all' || connectorTab === 'chat'" type="button" class="group flex flex-col items-center justify-center gap-3 rounded-xl border border-gray-200 bg-white p-5 transition hover:-translate-y-0.5 hover:border-brand-500 hover:bg-brand-50/40 hover:shadow-theme-sm dark:border-gray-800 dark:bg-white/[0.02] dark:hover:border-brand-500 dark:hover:bg-brand-500/[0.08]">
+                <img src="../assets/discord.png" class="h-10 w-10 object-contain" alt="" />
+                <span class="text-sm font-medium text-gray-700 group-hover:text-gray-900 dark:text-gray-300 dark:group-hover:text-white">Discord</span>
+              </button>
+              <!-- CHAT — Active: Slack -->
+              <button x-show="connectorTab === 'all' || connectorTab === 'chat'" type="button" class="group flex flex-col items-center justify-center gap-3 rounded-xl border border-gray-200 bg-white p-5 transition hover:-translate-y-0.5 hover:border-brand-500 hover:bg-brand-50/40 hover:shadow-theme-sm dark:border-gray-800 dark:bg-white/[0.02] dark:hover:border-brand-500 dark:hover:bg-brand-500/[0.08]">
+                <img src="../assets/slack.png" class="h-10 w-10 object-contain" alt="" />
+                <span class="text-sm font-medium text-gray-700 group-hover:text-gray-900 dark:text-gray-300 dark:group-hover:text-white">Slack</span>
+              </button>
+              <!-- CHAT — Soon: Telegram -->
+              <button x-show="connectorTab === 'all' || connectorTab === 'chat'" type="button" disabled class="relative flex cursor-not-allowed flex-col items-center justify-center gap-3 rounded-xl border border-gray-200 bg-gray-50 p-5 opacity-60 dark:border-gray-800 dark:bg-white/[0.02]">
+                <span class="absolute right-2 top-2 rounded-full bg-gray-200 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-gray-600 dark:bg-gray-700 dark:text-gray-300" x-text="lang === 'id' ? 'Segera' : 'Soon'">Soon</span>
+                <img src="../assets/telegram.png" class="h-10 w-10 object-contain" alt="" />
+                <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Telegram</span>
+              </button>
+
+              <!-- EMAIL — Soon: Gmail -->
+              <button x-show="connectorTab === 'all' || connectorTab === 'email'" type="button" disabled class="relative flex cursor-not-allowed flex-col items-center justify-center gap-3 rounded-xl border border-gray-200 bg-gray-50 p-5 opacity-60 dark:border-gray-800 dark:bg-white/[0.02]">
+                <span class="absolute right-2 top-2 rounded-full bg-gray-200 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-gray-600 dark:bg-gray-700 dark:text-gray-300" x-text="lang === 'id' ? 'Segera' : 'Soon'">Soon</span>
+                <img src="../assets/Gmail_Icon.png" class="h-10 w-10 object-contain" alt="" />
+                <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Gmail</span>
+              </button>
+              <!-- EMAIL — Soon: Outlook -->
+              <button x-show="connectorTab === 'all' || connectorTab === 'email'" type="button" disabled class="relative flex cursor-not-allowed flex-col items-center justify-center gap-3 rounded-xl border border-gray-200 bg-gray-50 p-5 opacity-60 dark:border-gray-800 dark:bg-white/[0.02]">
+                <span class="absolute right-2 top-2 rounded-full bg-gray-200 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-gray-600 dark:bg-gray-700 dark:text-gray-300" x-text="lang === 'id' ? 'Segera' : 'Soon'">Soon</span>
+                <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-white text-gray-500 ring-1 ring-gray-200 dark:bg-white/[0.06] dark:ring-gray-700">
+                  <i data-lucide="mail" class="h-5 w-5"></i>
+                </div>
+                <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Outlook</span>
+              </button>
+
+              <!-- CALENDAR — Soon: Google Calendar -->
+              <button x-show="connectorTab === 'all' || connectorTab === 'calendar'" type="button" disabled class="relative flex cursor-not-allowed flex-col items-center justify-center gap-3 rounded-xl border border-gray-200 bg-gray-50 p-5 opacity-60 dark:border-gray-800 dark:bg-white/[0.02]">
+                <span class="absolute right-2 top-2 rounded-full bg-gray-200 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-gray-600 dark:bg-gray-700 dark:text-gray-300" x-text="lang === 'id' ? 'Segera' : 'Soon'">Soon</span>
+                <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-white text-gray-500 ring-1 ring-gray-200 dark:bg-white/[0.06] dark:ring-gray-700">
+                  <i data-lucide="calendar-days" class="h-5 w-5"></i>
+                </div>
+                <span class="text-center text-sm font-medium leading-tight text-gray-500 dark:text-gray-400">Google Calendar</span>
+              </button>
+              <!-- CALENDAR — Soon: Outlook Calendar -->
+              <button x-show="connectorTab === 'all' || connectorTab === 'calendar'" type="button" disabled class="relative flex cursor-not-allowed flex-col items-center justify-center gap-3 rounded-xl border border-gray-200 bg-gray-50 p-5 opacity-60 dark:border-gray-800 dark:bg-white/[0.02]">
+                <span class="absolute right-2 top-2 rounded-full bg-gray-200 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-gray-600 dark:bg-gray-700 dark:text-gray-300" x-text="lang === 'id' ? 'Segera' : 'Soon'">Soon</span>
+                <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-white text-gray-500 ring-1 ring-gray-200 dark:bg-white/[0.06] dark:ring-gray-700">
+                  <i data-lucide="calendar" class="h-5 w-5"></i>
+                </div>
+                <span class="text-center text-sm font-medium leading-tight text-gray-500 dark:text-gray-400">Outlook Calendar</span>
+              </button>
+
+              <!-- DOCS — Soon: Notion -->
+              <button x-show="connectorTab === 'all' || connectorTab === 'docs'" type="button" disabled class="relative flex cursor-not-allowed flex-col items-center justify-center gap-3 rounded-xl border border-gray-200 bg-gray-50 p-5 opacity-60 dark:border-gray-800 dark:bg-white/[0.02]">
+                <span class="absolute right-2 top-2 rounded-full bg-gray-200 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-gray-600 dark:bg-gray-700 dark:text-gray-300" x-text="lang === 'id' ? 'Segera' : 'Soon'">Soon</span>
+                <img src="../assets/notion.webp" class="h-10 w-10 object-contain" alt="" />
+                <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Notion</span>
+              </button>
+              <!-- DOCS — Soon: Google Docs -->
+              <button x-show="connectorTab === 'all' || connectorTab === 'docs'" type="button" disabled class="relative flex cursor-not-allowed flex-col items-center justify-center gap-3 rounded-xl border border-gray-200 bg-gray-50 p-5 opacity-60 dark:border-gray-800 dark:bg-white/[0.02]">
+                <span class="absolute right-2 top-2 rounded-full bg-gray-200 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-gray-600 dark:bg-gray-700 dark:text-gray-300" x-text="lang === 'id' ? 'Segera' : 'Soon'">Soon</span>
+                <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-white text-gray-500 ring-1 ring-gray-200 dark:bg-white/[0.06] dark:ring-gray-700">
+                  <i data-lucide="file-text" class="h-5 w-5"></i>
+                </div>
+                <span class="text-center text-sm font-medium leading-tight text-gray-500 dark:text-gray-400">Google Docs</span>
+              </button>
+
+              <!-- MEETINGS — Soon: Zoom -->
+              <button x-show="connectorTab === 'all' || connectorTab === 'meetings'" type="button" disabled class="relative flex cursor-not-allowed flex-col items-center justify-center gap-3 rounded-xl border border-gray-200 bg-gray-50 p-5 opacity-60 dark:border-gray-800 dark:bg-white/[0.02]">
+                <span class="absolute right-2 top-2 rounded-full bg-gray-200 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-gray-600 dark:bg-gray-700 dark:text-gray-300" x-text="lang === 'id' ? 'Segera' : 'Soon'">Soon</span>
+                <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-white text-gray-500 ring-1 ring-gray-200 dark:bg-white/[0.06] dark:ring-gray-700">
+                  <i data-lucide="video" class="h-5 w-5"></i>
+                </div>
+                <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Zoom</span>
+              </button>
+              <!-- MEETINGS — Soon: Google Meet -->
+              <button x-show="connectorTab === 'all' || connectorTab === 'meetings'" type="button" disabled class="relative flex cursor-not-allowed flex-col items-center justify-center gap-3 rounded-xl border border-gray-200 bg-gray-50 p-5 opacity-60 dark:border-gray-800 dark:bg-white/[0.02]">
+                <span class="absolute right-2 top-2 rounded-full bg-gray-200 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-gray-600 dark:bg-gray-700 dark:text-gray-300" x-text="lang === 'id' ? 'Segera' : 'Soon'">Soon</span>
+                <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-white text-gray-500 ring-1 ring-gray-200 dark:bg-white/[0.06] dark:ring-gray-700">
+                  <i data-lucide="users" class="h-5 w-5"></i>
+                </div>
+                <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Google Meet</span>
+              </button>
+
+            </section>
+
+            <!-- ===== Request CTA — substantial 3-zone layout: icon + text + button =====
+                 Mobile: stacked vertical. sm+: horizontal with button right-aligned.
+                 Tone: kolaboratif, bukan kekurangan dari sisi user. -->
+            <section class="flex flex-col items-start gap-4 rounded-2xl border border-dashed border-gray-300 bg-gray-50/50 p-5 dark:border-gray-700 dark:bg-white/[0.02] sm:flex-row sm:items-center sm:p-6">
+              <div class="flex flex-1 items-center gap-4">
+                <div class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-brand-50 text-brand-500 dark:bg-brand-500/[0.15] dark:text-brand-400">
+                  <i data-lucide="send" class="h-5 w-5"></i>
+                </div>
+                <div class="min-w-0 flex-1">
+                  <p class="text-base font-semibold text-gray-900 dark:text-white" x-text="lang === 'id' ? 'Ingin terhubung dengan tools lain?' : 'Want to connect a different tool?'">Want to connect a different tool?</p>
+                  <p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400" x-text="lang === 'id' ? 'Kami catat dan prioritaskan platform yang paling banyak diminta.' : 'We log every request and prioritize the most-asked integrations.'">We log every request and prioritize the most-asked integrations.</p>
+                </div>
+              </div>
+              <a href="mailto:request@sumrize.me" class="inline-flex w-full flex-shrink-0 items-center justify-center gap-2 rounded-full border border-brand-500 bg-white px-5 py-2.5 text-sm font-semibold text-brand-500 transition hover:bg-brand-50 dark:bg-white/[0.03] dark:hover:bg-brand-500/[0.1] sm:w-auto">
+                <span x-text="lang === 'id' ? 'Beri tahu tim Sumrize' : 'Let the Sumrize team know'">Let the Sumrize team know</span>
+                <i data-lucide="arrow-right" class="h-4 w-4"></i>
+              </a>
+            </section>
+
           </div>
 
         </div>
