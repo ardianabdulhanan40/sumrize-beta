@@ -49,7 +49,9 @@
         }
 
         /* === DESKTOP SHELL V3 RULES === */
-        .dashboard-desktop-only-v3 { display: block; }
+        .dashboard-desktop-only-v3 {
+            display: block;
+        }
 
         .dashboard-shell-v3 {
             display: grid;
@@ -827,13 +829,16 @@
             }
 
             .workflow-popup {
-                padding: 8px;
+                padding: 12px 10px !important;
+                align-items: flex-end !important;
+                /* Memastikan modal menempel rapi atau di tengah dengan aman */
             }
 
             .workflow-shell {
-                flex-direction: column;
-                height: 96vh;
-                border-radius: 20px;
+                height: 90vh !important;
+                max-height: 90vh !important;
+                border-radius: 24px 24px 0 0 !important;
+                /* Gaya sheet dari bawah jika diinginkan, atau border penuh */
             }
 
             .mobile-rail-toggle {
@@ -841,11 +846,11 @@
             }
 
             .workflow-settings-rail {
-                width: 100%;
-                max-height: none;
+                width: 100% !important;
+                padding: 20px 16px 16px 16px !important;
+                /* Padding atas ditingkatkan jadi 20px agar tidak mentok */
+                gap: 14px;
                 flex-shrink: 0;
-                padding: 14px 16px;
-                gap: 12px;
                 border-right: 0;
                 border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             }
@@ -865,6 +870,37 @@
                 gap: 12px;
             }
         }
+
+        /* Styling Wrapper Dropdown Select agar panah tidak mepet */
+        .custom-select-wrapper {
+            position: relative;
+            width: 100%;
+        }
+
+        .custom-select-wrapper select.custom-input-box {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            padding-right: 40px;
+            /* Beri ruang agar teks tidak menabrak ikon panah */
+            cursor: pointer;
+        }
+
+        .custom-select-wrapper::after {
+            content: "\f078";
+            /* Kode ikon FontAwesome untuk chevron-down */
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            position: absolute;
+            right: 16px;
+            /* Jarak menjorok ke dalam dari border kanan */
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 12px;
+            color: #94a3b8;
+            pointer-events: none;
+            /* Agar klik tetap tembus ke elemen select di bawahnya */
+        }
     </style>
 </head>
 
@@ -875,10 +911,12 @@
             <button type="button" class="mobile-dashboard-menu-btn-v3" id="mobileMenuBtn">
                 <i class="fa-solid fa-bars"></i>
             </button>
-            <a href="/"><img src="https://app.sumrize.me/assets/img/logo/logo-white.png" height="34" alt="Sumrize"></a>
+            <a href="/"><img src="https://app.sumrize.me/assets/img/logo/logo-white.png" height="34"
+                    alt="Sumrize"></a>
         </div>
         <div class="d-flex align-items-center gap-2">
-            <button type="button" class="dashboard-add-btn-v2" style="min-height: 38px; padding: 0 14px; font-size: 13px;" onclick="openWorkflowModal()">
+            <button type="button" class="dashboard-add-btn-v2"
+                style="min-height: 38px; padding: 0 14px; font-size: 13px;" onclick="openWorkflowModal()">
                 <i class="fa-solid fa-plus"></i> Tambah
             </button>
         </div>
@@ -936,10 +974,12 @@
 
                     <!-- Theme Switcher -->
                     <div class="dashboard-theme-switch-v3">
-                        <button type="button" class="dashboard-theme-btn-v2 is-active" id="btnThemeDark" onclick="applyTheme('dark')">
+                        <button type="button" class="dashboard-theme-btn-v2 is-active" id="btnThemeDark"
+                            onclick="applyTheme('dark')">
                             <i class="fa-solid fa-moon"></i> Gelap
                         </button>
-                        <button type="button" class="dashboard-theme-btn-v2" id="btnThemeLight" onclick="applyTheme('light')">
+                        <button type="button" class="dashboard-theme-btn-v2" id="btnThemeLight"
+                            onclick="applyTheme('light')">
                             <i class="fa-solid fa-sun"></i> Terang
                         </button>
                     </div>
@@ -952,7 +992,8 @@
             <section class="dashboard-navbar-v3">
                 <div class="dashboard-navbar-v3-copy-block">
                     <h1>Your Automation</h1>
-                    <p style="color: #a6a9b6; margin: 4px 0 0; font-size: 14px;">Atur disposisi chat dan pemicu respons cerdas antar percakapan WhatsApp</p>
+                    <p style="color: #a6a9b6; margin: 4px 0 0; font-size: 14px;">Atur disposisi chat dan pemicu respons
+                        cerdas antar percakapan WhatsApp</p>
                 </div>
 
                 <div class="dashboard-navbar-v3-actions">
@@ -974,7 +1015,7 @@
                     <div class="automation-card-body">
                         <div class="automation-card-meta-row">
                             <span class="badge-active-tag">Active</span>
-                            
+
                         </div>
                         <h3 class="automation-card-title">Ticket Solver</h3>
 
@@ -1000,7 +1041,7 @@
                     <div class="automation-card-body">
                         <div class="automation-card-meta-row">
                             <span class="badge-active-tag">Active</span>
-                            
+
                         </div>
                         <h3 class="automation-card-title">Billing Escalate</h3>
 
@@ -1026,7 +1067,7 @@
                     <div class="automation-card-body">
                         <div class="automation-card-meta-row">
                             <span class="badge-active-tag">Active</span>
-                            
+
                         </div>
                         <h3 class="automation-card-title">Daily AI Broadcast</h3>
 
@@ -1057,42 +1098,55 @@
             <aside class="workflow-settings-rail" id="settingsRail">
                 <div class="d-flex justify-content-between align-items-center">
                     <h3 style="font-size: 20px; font-weight: 700; margin: 0;">New Automation</h3>
-                    <button type="button" onclick="closeWorkflowModal()" class="border-0 bg-transparent text-white" style="font-size: 18px;">
+                    <button type="button" onclick="closeWorkflowModal()" class="border-0 bg-transparent text-white"
+                        style="font-size: 18px;">
                         <i class="fa-solid fa-xmark"></i>
                     </button>
                 </div>
 
                 <!-- Toggle Lipat/Buka di Layar HP -->
                 <button type="button" class="mobile-rail-toggle" onclick="toggleRailCollapse()">
-                    <span id="railToggleText"><i class="fa-solid fa-eye-slash mr-1"></i> Sembunyikan Detail Form</span>
+                    <span id="railToggleText"><i class="fa-solid fa-eye-slash mr-1"></i> Sembunyikan Detail
+                        Form</span>
                     <i class="fa-solid fa-chevron-down" id="railToggleIcon"></i>
                 </button>
 
                 <div class="rail-collapsible-content" id="railContent">
                     <div class="form-group-field mb-3">
-                        <label style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: #a6a9b6;">Automation Name</label>
-                        <input type="text" id="autoNameInput" class="custom-input-box" value="Ticket Solver" placeholder="Nama alur">
+                        <label
+                            style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: #a6a9b6;">Automation
+                            Name</label>
+                        <input type="text" id="autoNameInput" class="custom-input-box" value="Ticket Solver"
+                            placeholder="Nama alur">
                     </div>
 
                     <div class="form-group-field mb-3">
-                        <label style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: #a6a9b6;">Description</label>
+                        <label
+                            style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: #a6a9b6;">Description</label>
                         <textarea id="autoDescInput" class="custom-input-box" rows="2" placeholder="Deskripsi alur...">Forward chat kendala ke tim support</textarea>
                     </div>
 
                     <div class="form-group-field mb-3">
-                        <label style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: #a6a9b6;">Automation Type</label>
+                        <label
+                            style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: #a6a9b6;">Automation
+                            Type</label>
                         <div class="pill-toggle-switch">
-                            <button type="button" class="pill-toggle-btn active" id="typeTriggerBtn" onclick="switchType('trigger')">Trigger</button>
-                            <button type="button" class="pill-toggle-btn" id="typeTimeBtn" onclick="switchType('time')">Time</button>
+                            <button type="button" class="pill-toggle-btn active" id="typeTriggerBtn"
+                                onclick="switchType('trigger')">Trigger</button>
+                            <button type="button" class="pill-toggle-btn" id="typeTimeBtn"
+                                onclick="switchType('time')">Time</button>
                         </div>
                     </div>
 
                     <!-- Tombol Action dengan Jarak Renggang Proporsional -->
                     <div class="d-flex justify-content-between pt-3" style="gap: 12px;">
-                        <button type="button" onclick="closeWorkflowModal()" class="btn btn-secondary flex-fill mr-2" style="border-radius: 12px; font-size: 13px; min-height: 44px;">
+                        <button type="button" onclick="closeWorkflowModal()"
+                            class="btn btn-secondary flex-fill mr-2"
+                            style="border-radius: 12px; font-size: 13px; min-height: 44px;">
                             Batalkan
                         </button>
-                        <button type="button" id="btnSaveWorkflow" class="btn btn-primary flex-fill ml-2" style="border-radius: 12px; font-size: 13px; min-height: 44px; background: #ff4438 !important; border: 0;">
+                        <button type="button" id="btnSaveWorkflow" class="btn btn-primary flex-fill ml-2"
+                            style="border-radius: 12px; font-size: 13px; min-height: 44px; background: #ff4438 !important; border: 0;">
                             Simpan
                         </button>
                     </div>
@@ -1104,40 +1158,51 @@
                 <!-- CARD: ORIGIN -->
                 <div class="workflow-step-card">
                     <div class="d-flex justify-content-between align-items-center pb-2 border-bottom border-secondary">
-                        <span class="step-label origin"><i class="fa-solid fa-circle mr-1" style="font-size: 8px;"></i> Origin</span>
+                        <span class="step-label origin"><i class="fa-solid fa-circle mr-1"
+                                style="font-size: 8px;"></i> Origin</span>
                         <span style="font-size: 11px; color: #7f95ba;">Pemicu Awal</span>
                     </div>
 
-                    <div class="form-group-field">
-                        <label style="font-size: 12px; color: #a6a9b6;">Pilih Connector / Grup</label>
-                        <select id="originConnectorSelect" class="custom-input-box">
-                            <option value="Marketing Team">Marketing Team</option>
-                            <option value="Customer Support">Customer Support</option>
-                            <option value="Discord General">Discord General</option>
-                        </select>
+                    <div class="form-group-field" id="targetConnectorBlock">
+                        <label style="font-size: 12px; color: #a6a9b6;">Pilih Connector / Grup Tujuan</label>
+                        <div class="custom-select-wrapper">
+                            <select id="actionConnectorSelect" class="custom-input-box"
+                                onchange="onActionGroupChange()">
+                                <option value="Product Team">Product Team</option>
+                                <option value="Dev Ticket Support">Dev Ticket Support</option>
+                                <option value="Engineering Desk">Engineering Desk</option>
+                            </select>
+                        </div>
                     </div>
 
                     <!-- KONTEN ORIGIN JIKA TIPE TRIGGER -->
                     <div id="originTriggerContainer" class="d-flex flex-column gap-3">
                         <div class="form-group-field">
                             <label style="font-size: 12px; color: #a6a9b6;">Trigger</label>
-                            <select id="originTriggerSelect" class="custom-input-box" onchange="renderOriginDecisions()">
-                                <option value="keyword">Ketika kata kunci disebutkan</option>
-                                <option value="summary">Ketika ringkasan dibuat</option>
-                                <option value="received">Ketika pesan diterima</option>
-                                <option value="rizz">Ketika Rizz disebut</option>
-                                <option value="sender">Ketika orang tertentu mengirim pesan</option>
-                            </select>
+                            <div class="custom-select-wrapper">
+                                <select id="originTriggerSelect" class="custom-input-box"
+                                    onchange="renderOriginDecisions()">
+                                    <option value="keyword">Ketika kata kunci disebutkan</option>
+                                    <option value="summary">Ketika ringkasan dibuat</option>
+                                    <option value="received">Ketika pesan diterima</option>
+                                    <option value="rizz">Ketika Rizz disebut</option>
+                                    <option value="sender">Ketika orang tertentu mengirim pesan</option>
+                                </select>
+                            </div>
                         </div>
 
                         <!-- Filter Kata Kunci -->
                         <div id="originKeywordsBlock">
                             <label style="font-size: 11px; color: #7f95ba;">Kata Kunci (Ketik lalu Enter)</label>
-                            <input type="text" id="tagInputBox" class="custom-input-box" style="padding: 8px 12px; font-size: 13px;" placeholder="Tambah kata kunci...">
+                            <input type="text" id="tagInputBox" class="custom-input-box"
+                                style="padding: 8px 12px; font-size: 13px;" placeholder="Tambah kata kunci...">
                             <div class="d-flex flex-wrap gap-1 mt-2" id="keywordsChipsHolder" style="gap: 4px;">
-                                <span class="tag-chip-pill">bug <i class="fa-solid fa-xmark" onclick="removeTag(this)"></i></span>
-                                <span class="tag-chip-pill">masalah <i class="fa-solid fa-xmark" onclick="removeTag(this)"></i></span>
-                                <span class="tag-chip-pill">kendala <i class="fa-solid fa-xmark" onclick="removeTag(this)"></i></span>
+                                <span class="tag-chip-pill">bug <i class="fa-solid fa-xmark"
+                                        onclick="removeTag(this)"></i></span>
+                                <span class="tag-chip-pill">masalah <i class="fa-solid fa-xmark"
+                                        onclick="removeTag(this)"></i></span>
+                                <span class="tag-chip-pill">kendala <i class="fa-solid fa-xmark"
+                                        onclick="removeTag(this)"></i></span>
                             </div>
                         </div>
 
@@ -1145,7 +1210,8 @@
                         <div id="originSendersBlock" style="display: none;">
                             <div class="d-flex justify-content-between align-items-center mb-1">
                                 <label style="font-size: 11px; color: #7f95ba; margin: 0;">Pilih Anggota Group</label>
-                                <span id="selectedMemberCount" style="font-size: 11px; color: #48bb78; font-weight: 700;">2 dipilih</span>
+                                <span id="selectedMemberCount"
+                                    style="font-size: 11px; color: #48bb78; font-weight: 700;">2 dipilih</span>
                             </div>
                             <small style="color: #6b7280; font-size: 11px; display: block; margin-bottom: 8px;">
                                 Klik nama anggota untuk memilih atau membatalkan pilihan.
@@ -1160,12 +1226,14 @@
                             <div class="form-group-field">
                                 <label style="font-size: 12px; color: #a6a9b6;">Set Waktu Jam Eksekusi (HH:MM)</label>
                                 <div class="time-hhmm-row">
-                                    <input type="time" id="inputTimeSpecific" class="time-input-native" value="09:00" step="3600">
-                                    <span style="font-size: 13px; font-weight: 700; color: #7f95ba;">WIB (Setiap Hari)</span>
+                                    <input type="time" id="inputTimeSpecific" class="time-input-native"
+                                        value="09:00" step="3600">
+                                    <span style="font-size: 13px; font-weight: 700; color: #7f95ba;">WIB (Setiap
+                                        Hari)</span>
                                 </div>
                             </div>
 
-                            
+
                             <small style="color: #7f95ba; font-size: 11px; line-height: 1.4;">
                                 Otomasi akan dijalankan otomatis tepat pada jam yang Anda tentukan sekali dalam 24 jam.
                             </small>
@@ -1179,7 +1247,8 @@
                 <!-- CARD: ACTION -->
                 <div class="workflow-step-card">
                     <div class="d-flex justify-content-between align-items-center pb-2 border-bottom border-secondary">
-                        <span class="step-label action"><i class="fa-solid fa-circle mr-1" style="font-size: 8px;"></i> Action</span>
+                        <span class="step-label action"><i class="fa-solid fa-circle mr-1"
+                                style="font-size: 8px;"></i> Action</span>
                         <span style="font-size: 11px; color: #7f95ba;">Tindakan</span>
                     </div>
 
@@ -1187,41 +1256,50 @@
                     <div class="form-group-field">
                         <label style="font-size: 12px; color: #a6a9b6;">Kirim Ke</label>
                         <div class="pill-toggle-switch">
-                            <button type="button" class="pill-toggle-btn active" id="btnSendGroup" onclick="setTargetScope('group')">Ke Group</button>
-                            <button type="button" class="pill-toggle-btn" id="btnSendMe" onclick="setTargetScope('me')">Ke Saya</button>
+                            <button type="button" class="pill-toggle-btn active" id="btnSendGroup"
+                                onclick="setTargetScope('group')">Ke Group</button>
+                            <button type="button" class="pill-toggle-btn" id="btnSendMe"
+                                onclick="setTargetScope('me')">Ke Saya</button>
                         </div>
                     </div>
 
-                    <!-- Dropdown Grup Connector Tujuan (Hanya muncul jika Ke Group) -->
                     <div class="form-group-field" id="targetConnectorBlock">
                         <label style="font-size: 12px; color: #a6a9b6;">Pilih Connector / Grup Tujuan</label>
-                        <select id="actionConnectorSelect" class="custom-input-box" onchange="onActionGroupChange()">
-                            <option value="Product Team">Product Team</option>
-                            <option value="Dev Ticket Support">Dev Ticket Support</option>
-                            <option value="Engineering Desk">Engineering Desk</option>
-                        </select>
+                        <div class="custom-select-wrapper">
+                            <select id="actionConnectorSelect" class="custom-input-box"
+                                onchange="onActionGroupChange()">
+                                <option value="Product Team">Product Team</option>
+                                <option value="Dev Ticket Support">Dev Ticket Support</option>
+                                <option value="Engineering Desk">Engineering Desk</option>
+                            </select>
+                        </div>
                     </div>
 
                     <!-- Pilihan Format Pesan -->
                     <div class="form-group-field">
                         <label style="font-size: 12px; color: #a6a9b6;">Pesan yang Dikirim</label>
-                        <select id="actionPayloadType" class="custom-input-box" onchange="renderActionDecisions()">
-                            <option value="original">Teruskan Pesan Asli</option>
-                            <option value="custom" selected>Teruskan dengan Pesan</option>
-                            <option value="rizz">Jawaban dari Rizz</option>
-                        </select>
+                        <div class="custom-select-wrapper">
+                            <select id="actionPayloadType" class="custom-input-box"
+                                onchange="renderActionDecisions()">
+                                <option value="original">Teruskan Pesan Asli</option>
+                                <option value="custom" selected>Teruskan dengan Pesan</option>
+                                <option value="rizz">Jawaban dari Rizz</option>
+                            </select>
+                        </div>
                     </div>
 
                     <!-- Konten Pesan Tambahan & Mention Dinamis -->
                     <div id="actionCustomMsgBlock" class="form-group-field">
                         <label style="font-size: 11px; color: #7f95ba;">Pesan Tambahan</label>
-                        <textarea id="actionCustomText" class="custom-input-box" rows="2" style="font-size: 13px;" placeholder="Tulis pesan tambahan...">Tolong segera dicek kendala ini.</textarea>
+                        <textarea id="actionCustomText" class="custom-input-box" rows="2" style="font-size: 13px;"
+                            placeholder="Tulis pesan tambahan...">Tolong segera dicek kendala ini.</textarea>
 
                         <!-- Mention Anggota: Hanya ada jika Ke Group -->
                         <div id="actionMentionWrapper" class="mt-2">
                             <div class="d-flex justify-content-between align-items-center mb-1">
                                 <label style="font-size: 11px; color: #7f95ba; margin: 0;">Mention Anggota Grup</label>
-                                <span id="selectedMentionCount" style="font-size: 11px; color: #48bb78; font-weight: 700;">0 dipilih</span>
+                                <span id="selectedMentionCount"
+                                    style="font-size: 11px; color: #48bb78; font-weight: 700;">0 dipilih</span>
                             </div>
                             <small style="color: #6b7280; font-size: 11px; display: block; margin-bottom: 8px;">
                                 Pilih anggota dari grup tujuan untuk di-mention saat pesan diteruskan.
@@ -1239,7 +1317,8 @@
         <div class="workflow-shell" style="max-width: 540px; height: auto; flex-direction: column; padding: 22px;">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h3 id="logTitleText" style="font-size: 18px; margin: 0; font-weight: 700;">Delivery Log</h3>
-                <button type="button" onclick="closeLogModal()" class="text-white border-0 bg-transparent"><i class="fa-solid fa-xmark"></i></button>
+                <button type="button" onclick="closeLogModal()" class="text-white border-0 bg-transparent"><i
+                        class="fa-solid fa-xmark"></i></button>
             </div>
             <div class="d-flex flex-column gap-2" style="font-size: 13px; color: #a6a9b6;">
                 <div class="p-2 border-bottom border-secondary d-flex justify-content-between align-items-center">
@@ -1352,13 +1431,36 @@
         }
 
         // Database & Logika Anggota Pengirim (Origin)
-        const groupMembersData = [
-            { id: '1', name: 'Jamal', selected: true },
-            { id: '2', name: 'Rahmat', selected: true },
-            { id: '3', name: 'Alfyan', selected: false },
-            { id: '4', name: 'Nahel', selected: false },
-            { id: '5', name: 'Dafinaa', selected: false },
-            { id: '6', name: 'Pak Rian', selected: false }
+        const groupMembersData = [{
+                id: '1',
+                name: 'Jamal',
+                selected: true
+            },
+            {
+                id: '2',
+                name: 'Rahmat',
+                selected: true
+            },
+            {
+                id: '3',
+                name: 'Alfyan',
+                selected: false
+            },
+            {
+                id: '4',
+                name: 'Nahel',
+                selected: false
+            },
+            {
+                id: '5',
+                name: 'Dafinaa',
+                selected: false
+            },
+            {
+                id: '6',
+                name: 'Pak Rian',
+                selected: false
+            }
         ];
 
         function renderGroupMembers() {
@@ -1390,22 +1492,63 @@
 
         // Database & Logika Mention Anggota (Action)
         const groupMembersDatabase = {
-            'Product Team': [
-                { id: 'p1', name: 'Jamal', selected: true },
-                { id: 'p2', name: 'Rahmat', selected: false },
-                { id: 'p3', name: 'Alfyan', selected: false },
-                { id: 'p4', name: 'Dian', selected: false }
+            'Product Team': [{
+                    id: 'p1',
+                    name: 'Jamal',
+                    selected: true
+                },
+                {
+                    id: 'p2',
+                    name: 'Rahmat',
+                    selected: false
+                },
+                {
+                    id: 'p3',
+                    name: 'Alfyan',
+                    selected: false
+                },
+                {
+                    id: 'p4',
+                    name: 'Dian',
+                    selected: false
+                }
             ],
-            'Dev Ticket Support': [
-                { id: 'd1', name: 'Budi Santoso', selected: false },
-                { id: 'd2', name: 'Bayu DevOps', selected: false },
-                { id: 'd3', name: 'Gilang Backend', selected: true },
-                { id: 'd4', name: 'Andi QA', selected: false }
+            'Dev Ticket Support': [{
+                    id: 'd1',
+                    name: 'Budi Santoso',
+                    selected: false
+                },
+                {
+                    id: 'd2',
+                    name: 'Bayu DevOps',
+                    selected: false
+                },
+                {
+                    id: 'd3',
+                    name: 'Gilang Backend',
+                    selected: true
+                },
+                {
+                    id: 'd4',
+                    name: 'Andi QA',
+                    selected: false
+                }
             ],
-            'Engineering Desk': [
-                { id: 'e1', name: 'Farhan Architect', selected: false },
-                { id: 'e2', name: 'Rico System', selected: false },
-                { id: 'e3', name: 'Pak Taufan', selected: true }
+            'Engineering Desk': [{
+                    id: 'e1',
+                    name: 'Farhan Architect',
+                    selected: false
+                },
+                {
+                    id: 'e2',
+                    name: 'Rico System',
+                    selected: false
+                },
+                {
+                    id: 'e3',
+                    name: 'Pak Taufan',
+                    selected: true
+                }
             ]
         };
 
@@ -1500,7 +1643,8 @@
         document.getElementById('btnSaveWorkflow').addEventListener('click', function() {
             const name = document.getElementById('autoNameInput').value || 'Workflow Otomatis';
             const origin = document.getElementById('originConnectorSelect').value;
-            const target = (activeTargetScope === 'group') ? document.getElementById('actionConnectorSelect').value : 'Ke Saya (Direct)';
+            const target = (activeTargetScope === 'group') ? document.getElementById('actionConnectorSelect')
+                .value : 'Ke Saya (Direct)';
 
             let triggerLabel = '';
             if (currentType === 'time') {
