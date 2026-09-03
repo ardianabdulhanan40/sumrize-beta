@@ -1,0 +1,91 @@
+<!-- ===== Floating Sidebar Component ===== -->
+<aside
+  x-data="{
+    activeMenu: window.location.pathname.split('/').pop() || 'index.html',
+  }"
+  :class="sidebarToggle ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'"
+  class="fixed inset-y-4 left-4 z-50 flex w-60 flex-col justify-between rounded-[28px] border border-[#232b3b]/70 bg-[#141923] p-5 shadow-2xl transition-transform duration-300 select-none lg:static lg:h-[calc(100vh-2rem)] lg:my-4 lg:translate-x-0 lg:shadow-none"
+>
+  <div>
+    <!-- Logo -->
+    <div class="mb-6 flex items-center gap-2.5 px-3.5">
+      <img src="../assets/logo-black.png" alt="Sumrize" class="h-6 w-6 flex-shrink-0 invert" />
+      <span class="text-lg font-semibold tracking-tight text-white">sumrize</span>
+    </div>
+
+    <!-- Section Label -->
+    <p class="mb-4 px-3.5 text-[11px] font-bold tracking-widest text-gray-500 uppercase">
+      Menu
+    </p>
+
+    <!-- Navigation Items -->
+    <nav class="space-y-1.5">
+      <a
+        href="index.html"
+        :class="activeMenu === 'index.html' || activeMenu === ''
+          ? 'bg-[#222a3a] text-white shadow-sm'
+          : 'text-gray-400 hover:text-gray-200 hover:bg-white/[0.04]'"
+        class="flex items-center gap-3.5 rounded-2xl px-4 py-3 text-sm font-medium transition-colors duration-150"
+      >
+        <i data-lucide="home" class="h-4 w-4 flex-shrink-0"></i>
+        <span x-text="lang === 'id' ? 'Beranda' : 'Home'">Beranda</span>
+      </a>
+
+      <a
+        href="rizz.html"
+        :class="activeMenu === 'rizz.html'
+          ? 'bg-[#222a3a] text-white shadow-sm'
+          : 'text-gray-400 hover:text-gray-200 hover:bg-white/[0.04]'"
+        class="flex items-center gap-3.5 rounded-2xl px-4 py-3 text-sm font-medium transition-colors duration-150"
+      >
+        <i data-lucide="sparkles" class="h-4 w-4 flex-shrink-0"></i>
+        <span x-text="lang === 'id' ? 'Rizz' : 'Ask Rizz'">Ask Rizz</span>
+      </a>
+
+      <a
+        href="referral.html"
+        :class="activeMenu === 'referral.html'
+          ? 'bg-[#222a3a] text-white shadow-sm'
+          : 'text-gray-400 hover:text-gray-200 hover:bg-white/[0.04]'"
+        class="flex items-center gap-3.5 rounded-2xl px-4 py-3 text-sm font-medium transition-colors duration-150"
+      >
+        <i data-lucide="gift" class="h-4 w-4 flex-shrink-0"></i>
+        <span x-text="lang === 'id' ? 'Referral' : 'Referral'">Referral</span>
+      </a>
+
+      <a
+        href="invoice.html"
+        :class="activeMenu === 'invoice.html'
+          ? 'bg-[#222a3a] text-white shadow-sm'
+          : 'text-gray-400 hover:text-gray-200 hover:bg-white/[0.04]'"
+        class="flex items-center gap-3.5 rounded-2xl px-4 py-3 text-sm font-medium transition-colors duration-150"
+      >
+        <i data-lucide="file-text" class="h-4 w-4 flex-shrink-0"></i>
+        <span x-text="lang === 'id' ? 'Invoice' : 'Invoice'">Invoice</span>
+      </a>
+    </nav>
+  </div>
+
+  <!-- Theme Switcher Pill -->
+  <div class="flex items-center rounded-full border border-[#1e2638] bg-[#0d121a] p-1.5">
+    <button
+      type="button"
+      @click="darkMode = true"
+      :class="darkMode ? 'bg-[#1b2333] text-white shadow' : 'text-gray-400 hover:text-gray-200'"
+      class="flex flex-1 items-center justify-center gap-2 rounded-full py-2 text-xs font-semibold transition"
+    >
+      <i data-lucide="moon" class="h-3.5 w-3.5"></i>
+      <span x-text="lang === 'id' ? 'Gelap' : 'Dark'">Gelap</span>
+    </button>
+
+    <button
+      type="button"
+      @click="darkMode = false"
+      :class="!darkMode ? 'bg-[#1b2333] text-white shadow' : 'text-gray-400 hover:text-gray-200'"
+      class="flex flex-1 items-center justify-center gap-2 rounded-full py-2 text-xs font-semibold transition"
+    >
+      <i data-lucide="sun" class="h-3.5 w-3.5"></i>
+      <span x-text="lang === 'id' ? 'Terang' : 'Light'">Terang</span>
+    </button>
+  </div>
+</aside>
