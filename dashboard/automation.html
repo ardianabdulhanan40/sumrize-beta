@@ -829,16 +829,13 @@
             }
 
             .workflow-popup {
-                padding: 12px 10px !important;
-                align-items: flex-end !important;
-                /* Memastikan modal menempel rapi atau di tengah dengan aman */
+                padding: 8px;
             }
 
             .workflow-shell {
-                height: 90vh !important;
-                max-height: 90vh !important;
-                border-radius: 24px 24px 0 0 !important;
-                /* Gaya sheet dari bawah jika diinginkan, atau border penuh */
+                flex-direction: column;
+                height: 96vh;
+                border-radius: 20px;
             }
 
             .mobile-rail-toggle {
@@ -846,11 +843,11 @@
             }
 
             .workflow-settings-rail {
-                width: 100% !important;
-                padding: 20px 16px 16px 16px !important;
-                /* Padding atas ditingkatkan jadi 20px agar tidak mentok */
-                gap: 14px;
+                width: 100%;
+                max-height: none;
                 flex-shrink: 0;
+                padding: 14px 16px;
+                gap: 12px;
                 border-right: 0;
                 border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             }
@@ -870,37 +867,32 @@
                 gap: 12px;
             }
         }
-
         /* Styling Wrapper Dropdown Select agar panah tidak mepet */
-        .custom-select-wrapper {
-            position: relative;
-            width: 100%;
-        }
+.custom-select-wrapper {
+    position: relative;
+    width: 100%;
+}
 
-        .custom-select-wrapper select.custom-input-box {
-            appearance: none;
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            padding-right: 40px;
-            /* Beri ruang agar teks tidak menabrak ikon panah */
-            cursor: pointer;
-        }
+.custom-select-wrapper select.custom-input-box {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    padding-right: 40px; /* Beri ruang agar teks tidak menabrak ikon panah */
+    cursor: pointer;
+}
 
-        .custom-select-wrapper::after {
-            content: "\f078";
-            /* Kode ikon FontAwesome untuk chevron-down */
-            font-family: "Font Awesome 6 Free";
-            font-weight: 900;
-            position: absolute;
-            right: 16px;
-            /* Jarak menjorok ke dalam dari border kanan */
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 12px;
-            color: #94a3b8;
-            pointer-events: none;
-            /* Agar klik tetap tembus ke elemen select di bawahnya */
-        }
+.custom-select-wrapper::after {
+    content: "\f078"; /* Kode ikon FontAwesome untuk chevron-down */
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+    position: absolute;
+    right: 16px; /* Jarak menjorok ke dalam dari border kanan */
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 12px;
+    color: #94a3b8;
+    pointer-events: none; /* Agar klik tetap tembus ke elemen select di bawahnya */
+}
     </style>
 </head>
 
@@ -1002,8 +994,8 @@
                     </button>
 
                     <div class="dashboard-navbar-v3-control">
-                        <span class="dashboard-navbar-v3-avatar">A</span>
-                        <span>Alfyan</span>
+                        <span class="dashboard-navbar-v3-avatar">Y</span>
+                        <span>Yan</span>
                     </div>
                 </div>
             </section>
@@ -1163,14 +1155,13 @@
                         <span style="font-size: 11px; color: #7f95ba;">Pemicu Awal</span>
                     </div>
 
-                    <div class="form-group-field" id="targetConnectorBlock">
-                        <label style="font-size: 12px; color: #a6a9b6;">Pilih Connector / Grup Tujuan</label>
+                    <div class="form-group-field">
+                        <label style="font-size: 12px; color: #a6a9b6;">Pilih Connector / Grup</label>
                         <div class="custom-select-wrapper">
-                            <select id="actionConnectorSelect" class="custom-input-box"
-                                onchange="onActionGroupChange()">
-                                <option value="Product Team">Product Team</option>
-                                <option value="Dev Ticket Support">Dev Ticket Support</option>
-                                <option value="Engineering Desk">Engineering Desk</option>
+                            <select id="originConnectorSelect" class="custom-input-box">
+                                <option value="Marketing Team">Marketing Team</option>
+                                <option value="Customer Support">Customer Support</option>
+                                <option value="Discord General">Discord General</option>
                             </select>
                         </div>
                     </div>
@@ -1263,6 +1254,7 @@
                         </div>
                     </div>
 
+                    <!-- Dropdown Grup Connector Tujuan (Hanya muncul jika Ke Group) -->
                     <div class="form-group-field" id="targetConnectorBlock">
                         <label style="font-size: 12px; color: #a6a9b6;">Pilih Connector / Grup Tujuan</label>
                         <div class="custom-select-wrapper">
@@ -1275,7 +1267,6 @@
                         </div>
                     </div>
 
-                    <!-- Pilihan Format Pesan -->
                     <div class="form-group-field">
                         <label style="font-size: 12px; color: #a6a9b6;">Pesan yang Dikirim</label>
                         <div class="custom-select-wrapper">
@@ -1287,7 +1278,6 @@
                             </select>
                         </div>
                     </div>
-
                     <!-- Konten Pesan Tambahan & Mention Dinamis -->
                     <div id="actionCustomMsgBlock" class="form-group-field">
                         <label style="font-size: 11px; color: #7f95ba;">Pesan Tambahan</label>
