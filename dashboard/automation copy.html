@@ -5,14 +5,13 @@
     <meta charset="utf-8">
     <base href="/sumrize-beta/dashboard/">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>Sumrize — Dashboard</title>
+    <title>Sumrize — Automation</title>
     <link rel="icon" type="image/png" href="https://app.sumrize.me/assets/img/logo/dark-bg.png">
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
     <style>
-        /* === SEMUA CSS ASLI DIPERTAHANKAN DI SINI === */
         @font-face {
             font-family: 'Playfair Display';
             font-style: normal;
@@ -49,6 +48,7 @@
             font-family: "Playfair Display", serif !important;
         }
 
+        /* === DESKTOP SHELL V3 RULES === */
         .dashboard-desktop-only-v3 {
             display: block;
         }
@@ -63,6 +63,7 @@
             align-items: start;
         }
 
+        /* Sidebar Desktop */
         .dashboard-sidebar-v3 {
             width: 260px;
             gap: 28px;
@@ -273,6 +274,7 @@
             font-weight: 700;
         }
 
+        /* === 3-COLUMN DESKTOP AUTOMATION GRID === */
         .automation-grid {
             display: grid;
             grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -394,6 +396,7 @@
             background: rgba(179, 219, 255, 0.09);
         }
 
+        /* === BUILDER WORKFLOW MODAL RESPONSIVE === */
         .workflow-popup {
             position: fixed;
             inset: 0;
@@ -576,6 +579,7 @@
             color: #ff4438;
         }
 
+        /* === TIME SELECTION CLEAN INPUTS === */
         .time-select-container {
             background: #131620;
             border: 1px solid #282d3e;
@@ -609,6 +613,7 @@
             border-color: #ff4438;
         }
 
+        /* Styling Pill Anggota Grup Interaktif */
         .member-select-chip {
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.12);
@@ -648,6 +653,7 @@
             transform: scale(1.1);
         }
 
+        /* Styling Chip Mention Anggota Grup Tujuan */
         .mention-select-chip {
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.12);
@@ -677,6 +683,7 @@
             box-shadow: 0 0 8px rgba(72, 187, 120, 0.2);
         }
 
+        /* Light Theme Adaptation */
         html[data-v2-theme="light"] body {
             background: #f6f0e6 !important;
             color: #2b241d !important;
@@ -719,6 +726,7 @@
             border-color: #ddd2c3;
         }
 
+        /* Mobile Header Rule */
         header.mobile-header-bar {
             position: fixed;
             left: 0;
@@ -783,6 +791,7 @@
             display: block;
         }
 
+        /* === TABLET & MOBILE BREAKPOINTS === */
         @media (max-width: 1100px) {
             .automation-grid {
                 grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -843,6 +852,7 @@
                 border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             }
 
+            /* Fix Collapse Form di Mobile: Mengesampingkan Bootstrap secara tegas */
             #settingsRail.collapsed #railContent {
                 display: none !important;
             }
@@ -857,113 +867,139 @@
                 gap: 12px;
             }
         }
+        /* Styling Wrapper Dropdown Select agar panah tidak mepet */
+.custom-select-wrapper {
+    position: relative;
+    width: 100%;
+}
 
-        .custom-select-wrapper {
-            position: relative;
-            width: 100%;
-        }
+.custom-select-wrapper select.custom-input-box {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    padding-right: 40px; /* Beri ruang agar teks tidak menabrak ikon panah */
+    cursor: pointer;
+}
 
-        .custom-select-wrapper select.custom-input-box {
-            appearance: none;
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            padding-right: 40px;
-            cursor: pointer;
-        }
-
-        .custom-select-wrapper::after {
-            content: "\f078";
-            font-family: "Font Awesome 6 Free";
-            font-weight: 900;
-            position: absolute;
-            right: 16px;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 12px;
-            color: #94a3b8;
-            pointer-events: none;
-        }
+.custom-select-wrapper::after {
+    content: "\f078"; /* Kode ikon FontAwesome untuk chevron-down */
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+    position: absolute;
+    right: 16px; /* Jarak menjorok ke dalam dari border kanan */
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 12px;
+    color: #94a3b8;
+    pointer-events: none; /* Agar klik tetap tembus ke elemen select di bawahnya */
+}
     </style>
 </head>
 
 <body>
+    <!-- Topbar Khusus Layar HP -->
+    <header class="mobile-header-bar">
+        <div class="d-flex align-items-center gap-2">
+            <button type="button" class="mobile-dashboard-menu-btn-v3" id="mobileMenuBtn">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+            <a href="/"><img src="https://app.sumrize.me/assets/img/logo/logo-white.png" height="34"
+                    alt="Sumrize"></a>
+        </div>
+        <!-- <div class="d-flex align-items-center gap-2">
+            <button type="button" class="dashboard-add-btn-v2"
+                style="min-height: 38px; padding: 0 14px; font-size: 13px;" onclick="openWorkflowModal()">
+                <i class="fa-solid fa-plus"></i> Tambah
+            </button>
+        </div> -->
+    </header>
 
-    <!-- 1. PLACEHOLDER UNTUK SIDEBAR -->
-    <!-- Script di bawah akan mengisi div ini dengan konten dari sidebar.html -->
-
+    <!-- Drawer Menu Mobile Navigasi -->
+    <div class="mobile-dashboard-drawer-overlay-v3" id="mobileDrawerOverlay"></div>
+    <nav id="mobileDashboardDrawerV3" class="mobile-dashboard-drawer-v3">
+        <a href="index.html" class="dashboard-sidebar-link-v3">
+            <span class="left"><i class="fa-solid fa-house"></i> Beranda</span>
+        </a>
+        <a href="automation.html" class="dashboard-sidebar-link-v3 is-active">
+            <span class="left"><i class="fa-solid fa-bolt"></i> Automation</span>
+        </a>
+        <a href="/rizz" class="dashboard-sidebar-link-v3">
+            <span class="left"><i class="fa-solid fa-wand-magic-sparkles"></i> Ask Rizz</span>
+        </a>
+        <a href="/referral" class="dashboard-sidebar-link-v3">
+            <span class="left"><i class="fa-solid fa-gift"></i> Referral</span>
+        </a>
+        <a href="/invoice" class="dashboard-sidebar-link-v3">
+            <span class="left"><i class="fa-solid fa-file-invoice"></i> Invoice</span>
+        </a>
+    </nav>
 
     <!-- Shell Kontainer Utama -->
     <div class="dashboard-shell-v3">
-        <div id="sidebar-container"></div>
-        <!-- Area Konten Utama -->
+        <aside id="dashboardSidebarV3" class="dashboard-sidebar-v3">
+            <div class="dashboard-sidebar-v3-brand">
+                <img src="https://app.sumrize.me/assets/img/logo/logo-white.png" id="themeLogoDesktop" alt="Sumrize">
+            </div>
+
+            <div class="dashboard-sidebar-card-v3">
+                <div class="dashboard-sidebar-menu-shell-v3">
+                    <div>
+                        <div class="dashboard-sidebar-v3-label">Menu</div>
+                        <div class="dashboard-sidebar-nav-v3">
+                            <a href="index.html" class="dashboard-sidebar-link-v3">
+                                <span class="left"><i class="fa-solid fa-house"></i> Beranda</span>
+                            </a>
+                            <a href="automation.html" class="dashboard-sidebar-link-v3 is-active">
+                                <span class="left"><i class="fa-solid fa-bolt"></i> Automation</span>
+                            </a>
+                            <a href="/rizz" class="dashboard-sidebar-link-v3">
+                                <span class="left"><i class="fa-solid fa-wand-magic-sparkles"></i> Ask Rizz</span>
+                            </a>
+                            <a href="/referral" class="dashboard-sidebar-link-v3">
+                                <span class="left"><i class="fa-solid fa-gift"></i> Referral</span>
+                            </a>
+                            <a href="/invoice" class="dashboard-sidebar-link-v3">
+                                <span class="left"><i class="fa-solid fa-file-invoice"></i> Invoice</span>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Theme Switcher -->
+                    <div class="dashboard-theme-switch-v3">
+                        <button type="button" class="dashboard-theme-btn-v2 is-active" id="btnThemeDark"
+                            onclick="applyTheme('dark')">
+                            <i class="fa-solid fa-moon"></i> Gelap
+                        </button>
+                        <button type="button" class="dashboard-theme-btn-v2" id="btnThemeLight"
+                            onclick="applyTheme('light')">
+                            <i class="fa-solid fa-sun"></i> Terang
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Area Konten Utama Automation -->
         <main class="dashboard-main-v2">
-            <!-- HEADER DESKTOP (Sembunyi di Mobile) -->
-            <section class="dashboard-navbar-v3 dashboard-desktop-only-v3 d-none d-lg-flex">
+            <section class="dashboard-navbar-v3">
                 <div class="dashboard-navbar-v3-copy-block">
-                    <h1>Automation</h1>
-                    <p style="color: #a6a9b6; margin: 4px 0 0; font-size: 14px;">Ringkasan aktivitas dan automasi Anda
-                    </p>
+                    <h1>Your Automation</h1>
+                    <p style="color: #a6a9b6; margin: 4px 0 0; font-size: 14px;">Atur disposisi chat dan pemicu respons
+                        cerdas antar percakapan WhatsApp</p>
                 </div>
 
                 <div class="dashboard-navbar-v3-actions">
                     <button type="button" class="dashboard-add-btn-v2" onclick="openWorkflowModal()">
                         <i class="fa-solid fa-plus"></i> Tambah Automation
                     </button>
-                    <div class="dashboard-navbar-v3-dropdown-wrap">
-                        <!-- Tambahkan onclick agar bisa ditekan -->
-                        <button type="button" class="dashboard-navbar-v3-control"
-                            onclick="document.getElementById('dashboardUserDropdownV3').classList.toggle('is-open'); event.stopPropagation();">
-                            <span class="dashboard-navbar-v3-avatar">Y</span>
-                            <span class="dashboard-navbar-v3-user-name">Yan</span>
-                            <i class="fa-solid fa-chevron-down" style="font-size: 12px; margin-left: 4px;"></i>
-                        </button>
 
-                        <div class="dashboard-navbar-v3-dropdown" id="dashboardUserDropdownV3">
-                            <div class="dashboard-navbar-v3-user-card">
-                                <div class="dashboard-navbar-v3-user-head">
-                                    <strong style="color: white; font-size: 16px;">Yan</strong>
-                                    <span
-                                        style="color: #7f95ba; font-size: 11px; font-weight: 700; letter-spacing: 0.1em;">EXPLORE</span>
-                                </div>
-                            </div>
-
-                            <!-- Ikon diganti fa-solid semua agar muncul -->
-                            <a href="javascript:;" class="dashboard-navbar-v3-item is-upgrade-action open-popup"
-                                data-action="upgrade">
-                                <i class="fa-solid fa-rocket"></i>
-                                <span style="font-weight: bold;">Upgrade</span>
-                            </a>
-                            <a href="/setting" class="dashboard-navbar-v3-item">
-                                <i class="fa-solid fa-gear"></i>
-                                <span>Pengaturan</span>
-                            </a>
-                            <a href="https://sumrize.me/contact-us" target="_blank" class="dashboard-navbar-v3-item">
-                                <i class="fa-solid fa-circle-info"></i>
-                                <span>Bantuan</span>
-                            </a>
-                            <a href="/?action=logout" class="dashboard-navbar-v3-item dashboard-navbar-v3-signout">
-                                <i class="fa-solid fa-arrow-right-from-bracket"></i>
-                                <span>Keluar</span>
-                            </a>
-                        </div>
-                    </div>
+                    <!-- <div class="dashboard-navbar-v3-control">
+                        <span class="dashboard-navbar-v3-avatar">Y</span>
+                        <span>Yan</span>
+                    </div> -->
                 </div>
-
             </section>
 
-            <!-- HEADER MOBILE KHUSUS (Sembunyi di Desktop) -->
-            <section class="d-flex d-lg-none flex-column mb-4 mt-5">
-                <div>
-                    <h1 style="font-size: 28px; margin: 0; color: #fcfbf8; font-weight: bold;">Automation</h1>
-                    <p style="color: #a6a9b6; margin: 4px 0 16px; font-size: 13px;">Ringkasan aktivitas dan automasi
-                        Anda</p>
-                </div>
-
-                <!-- Tombol dibuat w-100 (lebar penuh) agar lebih rapi & mudah ditekan di layar HP -->
-                <button type="button" class="dashboard-add-btn-v2 w-100" onclick="openWorkflowModal()">
-                    <i class="fa-solid fa-plus"></i> Tambah Automation
-                </button>
-            </section>
             <!-- Grid 3 Kolom Card Automation -->
             <section class="automation-grid" id="automationListStage">
                 <!-- Card 1 -->
@@ -971,8 +1007,10 @@
                     <div class="automation-card-body">
                         <div class="automation-card-meta-row">
                             <span class="badge-active-tag">Active</span>
+
                         </div>
                         <h3 class="automation-card-title">Ticket Solver</h3>
+
                         <div class="flow-visual-box">
                             <div class="flow-node-block">
                                 <div class="flow-node-title"><i class="fa-brands fa-whatsapp"></i> Group Mar...</div>
@@ -995,8 +1033,10 @@
                     <div class="automation-card-body">
                         <div class="automation-card-meta-row">
                             <span class="badge-active-tag">Active</span>
+
                         </div>
                         <h3 class="automation-card-title">Billing Escalate</h3>
+
                         <div class="flow-visual-box">
                             <div class="flow-node-block">
                                 <div class="flow-node-title"><i class="fa-brands fa-whatsapp"></i> CS Group</div>
@@ -1019,8 +1059,10 @@
                     <div class="automation-card-body">
                         <div class="automation-card-meta-row">
                             <span class="badge-active-tag">Active</span>
+
                         </div>
                         <h3 class="automation-card-title">Daily AI Broadcast</h3>
+
                         <div class="flow-visual-box">
                             <div class="flow-node-block">
                                 <div class="flow-node-title"><i class="fa-brands fa-whatsapp"></i> HQ Operations</div>
@@ -1039,212 +1081,243 @@
                 </article>
             </section>
         </main>
+    </div>
 
-        <!-- ================= MODAL WORKFLOW BUILDER ================= -->
-        <div class="workflow-popup" id="workflowBuilderModal">
-            <div class="workflow-shell">
-                <aside class="workflow-settings-rail" id="settingsRail">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h3 style="font-size: 20px; font-weight: 700; margin: 0;">New Automation</h3>
+    <!-- ================= MODAL WORKFLOW BUILDER ================= -->
+    <div class="workflow-popup" id="workflowBuilderModal">
+        <div class="workflow-shell">
+            <!-- Sidebar Panel: Metadata Otomasi (Collapsible di Mobile) -->
+            <aside class="workflow-settings-rail" id="settingsRail">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h3 style="font-size: 20px; font-weight: 700; margin: 0;">New Automation</h3>
+                    <button type="button" onclick="closeWorkflowModal()" class="border-0 bg-transparent text-white"
+                        style="font-size: 18px;">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+
+                <!-- Toggle Lipat/Buka di Layar HP -->
+                <button type="button" class="mobile-rail-toggle" onclick="toggleRailCollapse()">
+                    <span id="railToggleText"><i class="fa-solid fa-eye-slash mr-1"></i> Sembunyikan Detail
+                        Form</span>
+                    <i class="fa-solid fa-chevron-down" id="railToggleIcon"></i>
+                </button>
+
+                <div class="rail-collapsible-content" id="railContent">
+                    <div class="form-group-field mb-3">
+                        <label
+                            style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: #a6a9b6;">Automation
+                            Name</label>
+                        <input type="text" id="autoNameInput" class="custom-input-box" value="Ticket Solver"
+                            placeholder="Nama alur">
+                    </div>
+
+                    <div class="form-group-field mb-3">
+                        <label
+                            style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: #a6a9b6;">Description</label>
+                        <textarea id="autoDescInput" class="custom-input-box" rows="2" placeholder="Deskripsi alur...">Forward chat kendala ke tim support</textarea>
+                    </div>
+
+                    <div class="form-group-field mb-3">
+                        <label
+                            style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: #a6a9b6;">Automation
+                            Type</label>
+                        <div class="pill-toggle-switch">
+                            <button type="button" class="pill-toggle-btn active" id="typeTriggerBtn"
+                                onclick="switchType('trigger')">Trigger</button>
+                            <button type="button" class="pill-toggle-btn" id="typeTimeBtn"
+                                onclick="switchType('time')">Time</button>
+                        </div>
+                    </div>
+
+                    <!-- Tombol Action dengan Jarak Renggang Proporsional -->
+                    <div class="d-flex justify-content-between pt-3" style="gap: 12px;">
                         <button type="button" onclick="closeWorkflowModal()"
-                            class="border-0 bg-transparent text-white" style="font-size: 18px;">
-                            <i class="fa-solid fa-xmark"></i>
+                            class="btn btn-secondary flex-fill mr-2"
+                            style="border-radius: 12px; font-size: 13px; min-height: 44px;">
+                            Batalkan
+                        </button>
+                        <button type="button" id="btnSaveWorkflow" class="btn btn-primary flex-fill ml-2"
+                            style="border-radius: 12px; font-size: 13px; min-height: 44px; background: #ff4438 !important; border: 0;">
+                            Simpan
                         </button>
                     </div>
-                    <button type="button" class="mobile-rail-toggle" onclick="toggleRailCollapse()">
-                        <span id="railToggleText"><i class="fa-solid fa-eye-slash mr-1"></i> Sembunyikan Detail
-                            Form</span>
-                        <i class="fa-solid fa-chevron-down" id="railToggleIcon"></i>
-                    </button>
-                    <div class="rail-collapsible-content" id="railContent">
-                        <div class="form-group-field mb-3">
-                            <label
-                                style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: #a6a9b6;">Automation
-                                Name</label>
-                            <input type="text" id="autoNameInput" class="custom-input-box" value="Ticket Solver"
-                                placeholder="Nama alur">
-                        </div>
-                        <div class="form-group-field mb-3">
-                            <label
-                                style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: #a6a9b6;">Description</label>
-                            <textarea id="autoDescInput" class="custom-input-box" rows="2" placeholder="Deskripsi alur...">Forward chat kendala ke tim support</textarea>
-                        </div>
-                        <div class="form-group-field mb-3">
-                            <label
-                                style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: #a6a9b6;">Automation
-                                Type</label>
-                            <div class="pill-toggle-switch">
-                                <button type="button" class="pill-toggle-btn active" id="typeTriggerBtn"
-                                    onclick="switchType('trigger')">Trigger</button>
-                                <button type="button" class="pill-toggle-btn" id="typeTimeBtn"
-                                    onclick="switchType('time')">Time</button>
-                            </div>
-                        </div>
-                        <div class="d-flex justify-content-between pt-3" style="gap: 12px;">
-                            <button type="button" onclick="closeWorkflowModal()"
-                                class="btn btn-secondary flex-fill mr-2"
-                                style="border-radius: 12px; font-size: 13px; min-height: 44px;">Batalkan</button>
-                            <button type="button" id="btnSaveWorkflow" class="btn btn-primary flex-fill ml-2"
-                                style="border-radius: 12px; font-size: 13px; min-height: 44px; background: #ff4438 !important; border: 0;">Simpan</button>
-                        </div>
-                    </div>
-                </aside>
+                </div>
+            </aside>
 
-                <div class="workflow-canvas-area">
-                    <div class="workflow-step-card">
-                        <div
-                            class="d-flex justify-content-between align-items-center pb-2 border-bottom border-secondary">
-                            <span class="step-label origin"><i class="fa-solid fa-circle mr-1"
-                                    style="font-size: 8px;"></i> Origin</span>
-                            <span style="font-size: 11px; color: #7f95ba;">Pemicu Awal</span>
-                        </div>
-                        <div class="form-group-field">
-                            <label style="font-size: 12px; color: #a6a9b6;">Pilih Connector / Grup</label>
-                            <div class="custom-select-wrapper">
-                                <select id="originConnectorSelect" class="custom-input-box">
-                                    <option value="Marketing Team">Marketing Team</option>
-                                    <option value="Customer Support">Customer Support</option>
-                                    <option value="Discord General">Discord General</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div id="originTriggerContainer" class="d-flex flex-column gap-3">
-                            <div class="form-group-field">
-                                <label style="font-size: 12px; color: #a6a9b6;">Trigger</label>
-                                <div class="custom-select-wrapper">
-                                    <select id="originTriggerSelect" class="custom-input-box"
-                                        onchange="renderOriginDecisions()">
-                                        <option value="keyword">Ketika kata kunci disebutkan</option>
-                                        <option value="summary">Ketika ringkasan dibuat</option>
-                                        <option value="received">Ketika pesan diterima</option>
-                                        <option value="rizz">Ketika Rizz disebut</option>
-                                        <option value="sender">Ketika orang tertentu mengirim pesan</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div id="originKeywordsBlock">
-                                <label style="font-size: 11px; color: #7f95ba;">Kata Kunci (Ketik lalu Enter)</label>
-                                <input type="text" id="tagInputBox" class="custom-input-box"
-                                    style="padding: 8px 12px; font-size: 13px;" placeholder="Tambah kata kunci...">
-                                <div class="d-flex flex-wrap gap-1 mt-2" id="keywordsChipsHolder" style="gap: 4px;">
-                                    <span class="tag-chip-pill">bug <i class="fa-solid fa-xmark"
-                                            onclick="removeTag(this)"></i></span>
-                                    <span class="tag-chip-pill">masalah <i class="fa-solid fa-xmark"
-                                            onclick="removeTag(this)"></i></span>
-                                    <span class="tag-chip-pill">kendala <i class="fa-solid fa-xmark"
-                                            onclick="removeTag(this)"></i></span>
-                                </div>
-                            </div>
-                            <div id="originSendersBlock" style="display: none;">
-                                <div class="d-flex justify-content-between align-items-center mb-1">
-                                    <label style="font-size: 11px; color: #7f95ba; margin: 0;">Pilih Anggota
-                                        Group</label>
-                                    <span id="selectedMemberCount"
-                                        style="font-size: 11px; color: #48bb78; font-weight: 700;">2 dipilih</span>
-                                </div>
-                                <small
-                                    style="color: #6b7280; font-size: 11px; display: block; margin-bottom: 8px;">Klik
-                                    nama anggota untuk memilih atau membatalkan pilihan.</small>
-                                <div class="d-flex flex-wrap" id="groupMembersList" style="gap: 6px;"></div>
-                            </div>
-                        </div>
-                        <div id="originTimeContainer" style="display: none;">
-                            <div class="time-select-container">
-                                <div class="form-group-field">
-                                    <label style="font-size: 12px; color: #a6a9b6;">Set Waktu Jam Eksekusi
-                                        (HH:MM)</label>
-                                    <div class="time-hhmm-row">
-                                        <input type="time" id="inputTimeSpecific" class="time-input-native"
-                                            value="09:00" step="3600">
-                                        <span style="font-size: 13px; font-weight: 700; color: #7f95ba;">WIB (Setiap
-                                            Hari)</span>
-                                    </div>
-                                </div>
-                                <small style="color: #7f95ba; font-size: 11px; line-height: 1.4;">Otomasi akan
-                                    dijalankan
-                                    otomatis tepat pada jam yang Anda tentukan sekali dalam 24 jam.</small>
-                            </div>
+            <!-- Canvas Alur: Origin & Action -->
+            <div class="workflow-canvas-area">
+                <!-- CARD: ORIGIN -->
+                <div class="workflow-step-card">
+                    <div class="d-flex justify-content-between align-items-center pb-2 border-bottom border-secondary">
+                        <span class="step-label origin"><i class="fa-solid fa-circle mr-1"
+                                style="font-size: 8px;"></i> Origin</span>
+                        <span style="font-size: 11px; color: #7f95ba;">Pemicu Awal</span>
+                    </div>
+
+                    <div class="form-group-field">
+                        <label style="font-size: 12px; color: #a6a9b6;">Pilih Connector / Grup</label>
+                        <div class="custom-select-wrapper">
+                            <select id="originConnectorSelect" class="custom-input-box">
+                                <option value="Marketing Team">Marketing Team</option>
+                                <option value="Customer Support">Customer Support</option>
+                                <option value="Discord General">Discord General</option>
+                            </select>
                         </div>
                     </div>
-                    <div class="step-connector-wire"></div>
-                    <div class="workflow-step-card">
-                        <div
-                            class="d-flex justify-content-between align-items-center pb-2 border-bottom border-secondary">
-                            <span class="step-label action"><i class="fa-solid fa-circle mr-1"
-                                    style="font-size: 8px;"></i> Action</span>
-                            <span style="font-size: 11px; color: #7f95ba;">Tindakan</span>
-                        </div>
+
+                    <!-- KONTEN ORIGIN JIKA TIPE TRIGGER -->
+                    <div id="originTriggerContainer" class="d-flex flex-column gap-3">
                         <div class="form-group-field">
-                            <label style="font-size: 12px; color: #a6a9b6;">Kirim Ke</label>
-                            <div class="pill-toggle-switch">
-                                <button type="button" class="pill-toggle-btn active" id="btnSendGroup"
-                                    onclick="setTargetScope('group')">Ke Group</button>
-                                <button type="button" class="pill-toggle-btn" id="btnSendMe"
-                                    onclick="setTargetScope('me')">Ke Saya</button>
-                            </div>
-                        </div>
-                        <div class="form-group-field" id="targetConnectorBlock">
-                            <label style="font-size: 12px; color: #a6a9b6;">Pilih Connector / Grup Tujuan</label>
+                            <label style="font-size: 12px; color: #a6a9b6;">Trigger</label>
                             <div class="custom-select-wrapper">
-                                <select id="actionConnectorSelect" class="custom-input-box"
-                                    onchange="onActionGroupChange()">
-                                    <option value="Product Team">Product Team</option>
-                                    <option value="Dev Ticket Support">Dev Ticket Support</option>
-                                    <option value="Engineering Desk">Engineering Desk</option>
+                                <select id="originTriggerSelect" class="custom-input-box"
+                                    onchange="renderOriginDecisions()">
+                                    <option value="keyword">Ketika kata kunci disebutkan</option>
+                                    <option value="summary">Ketika ringkasan dibuat</option>
+                                    <option value="received">Ketika pesan diterima</option>
+                                    <option value="rizz">Ketika Rizz disebut</option>
+                                    <option value="sender">Ketika orang tertentu mengirim pesan</option>
                                 </select>
                             </div>
                         </div>
-                        <div class="form-group-field">
-                            <label style="font-size: 12px; color: #a6a9b6;">Pesan yang Dikirim</label>
-                            <div class="custom-select-wrapper">
-                                <select id="actionPayloadType" class="custom-input-box"
-                                    onchange="renderActionDecisions()">
-                                    <option value="original">Teruskan Pesan Asli</option>
-                                    <option value="custom" selected>Teruskan dengan Pesan</option>
-                                    <option value="rizz">Jawaban dari Rizz</option>
-                                </select>
+
+                        <!-- Filter Kata Kunci -->
+                        <div id="originKeywordsBlock">
+                            <label style="font-size: 11px; color: #7f95ba;">Kata Kunci (Ketik lalu Enter)</label>
+                            <input type="text" id="tagInputBox" class="custom-input-box"
+                                style="padding: 8px 12px; font-size: 13px;" placeholder="Tambah kata kunci...">
+                            <div class="d-flex flex-wrap gap-1 mt-2" id="keywordsChipsHolder" style="gap: 4px;">
+                                <span class="tag-chip-pill">bug <i class="fa-solid fa-xmark"
+                                        onclick="removeTag(this)"></i></span>
+                                <span class="tag-chip-pill">masalah <i class="fa-solid fa-xmark"
+                                        onclick="removeTag(this)"></i></span>
+                                <span class="tag-chip-pill">kendala <i class="fa-solid fa-xmark"
+                                        onclick="removeTag(this)"></i></span>
                             </div>
                         </div>
-                        <div id="actionCustomMsgBlock" class="form-group-field">
-                            <label style="font-size: 11px; color: #7f95ba;">Pesan Tambahan</label>
-                            <textarea id="actionCustomText" class="custom-input-box" rows="2" style="font-size: 13px;"
-                                placeholder="Tulis pesan tambahan...">Tolong segera dicek kendala ini.</textarea>
-                            <div id="actionMentionWrapper" class="mt-2">
-                                <div class="d-flex justify-content-between align-items-center mb-1">
-                                    <label style="font-size: 11px; color: #7f95ba; margin: 0;">Mention Anggota
-                                        Grup</label>
-                                    <span id="selectedMentionCount"
-                                        style="font-size: 11px; color: #48bb78; font-weight: 700;">0 dipilih</span>
+
+                        <!-- Filter Pengirim (Multi-select Toggle) -->
+                        <div id="originSendersBlock" style="display: none;">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <label style="font-size: 11px; color: #7f95ba; margin: 0;">Pilih Anggota Group</label>
+                                <span id="selectedMemberCount"
+                                    style="font-size: 11px; color: #48bb78; font-weight: 700;">2 dipilih</span>
+                            </div>
+                            <small style="color: #6b7280; font-size: 11px; display: block; margin-bottom: 8px;">
+                                Klik nama anggota untuk memilih atau membatalkan pilihan.
+                            </small>
+                            <div class="d-flex flex-wrap" id="groupMembersList" style="gap: 6px;"></div>
+                        </div>
+                    </div>
+
+                    <!-- KONTEN ORIGIN JIKA TIPE TIME (HANYA MUNCUL JIKA TIME DIPILIH) -->
+                    <div id="originTimeContainer" style="display: none;">
+                        <div class="time-select-container">
+                            <div class="form-group-field">
+                                <label style="font-size: 12px; color: #a6a9b6;">Set Waktu Jam Eksekusi (HH:MM)</label>
+                                <div class="time-hhmm-row">
+                                    <input type="time" id="inputTimeSpecific" class="time-input-native"
+                                        value="09:00" step="3600">
+                                    <span style="font-size: 13px; font-weight: 700; color: #7f95ba;">WIB (Setiap
+                                        Hari)</span>
                                 </div>
-                                <small
-                                    style="color: #6b7280; font-size: 11px; display: block; margin-bottom: 8px;">Pilih
-                                    anggota dari grup tujuan untuk di-mention saat pesan diteruskan.</small>
-                                <div class="d-flex flex-wrap" id="actionMentionMembersList" style="gap: 6px;"></div>
                             </div>
+
+
+                            <small style="color: #7f95ba; font-size: 11px; line-height: 1.4;">
+                                Otomasi akan dijalankan otomatis tepat pada jam yang Anda tentukan sekali dalam 24 jam.
+                            </small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Wire Link -->
+                <div class="step-connector-wire"></div>
+
+                <!-- CARD: ACTION -->
+                <div class="workflow-step-card">
+                    <div class="d-flex justify-content-between align-items-center pb-2 border-bottom border-secondary">
+                        <span class="step-label action"><i class="fa-solid fa-circle mr-1"
+                                style="font-size: 8px;"></i> Action</span>
+                        <span style="font-size: 11px; color: #7f95ba;">Tindakan</span>
+                    </div>
+
+                    <!-- Pilihan Tujuan: Ke Group vs Ke Saya -->
+                    <div class="form-group-field">
+                        <label style="font-size: 12px; color: #a6a9b6;">Kirim Ke</label>
+                        <div class="pill-toggle-switch">
+                            <button type="button" class="pill-toggle-btn active" id="btnSendGroup"
+                                onclick="setTargetScope('group')">Ke Group</button>
+                            <button type="button" class="pill-toggle-btn" id="btnSendMe"
+                                onclick="setTargetScope('me')">Ke Saya</button>
+                        </div>
+                    </div>
+
+                    <!-- Dropdown Grup Connector Tujuan (Hanya muncul jika Ke Group) -->
+                    <div class="form-group-field" id="targetConnectorBlock">
+                        <label style="font-size: 12px; color: #a6a9b6;">Pilih Connector / Grup Tujuan</label>
+                        <div class="custom-select-wrapper">
+                            <select id="actionConnectorSelect" class="custom-input-box"
+                                onchange="onActionGroupChange()">
+                                <option value="Product Team">Product Team</option>
+                                <option value="Dev Ticket Support">Dev Ticket Support</option>
+                                <option value="Engineering Desk">Engineering Desk</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group-field">
+                        <label style="font-size: 12px; color: #a6a9b6;">Pesan yang Dikirim</label>
+                        <div class="custom-select-wrapper">
+                            <select id="actionPayloadType" class="custom-input-box"
+                                onchange="renderActionDecisions()">
+                                <option value="original">Teruskan Pesan Asli</option>
+                                <option value="custom" selected>Teruskan dengan Pesan</option>
+                                <option value="rizz">Jawaban dari Rizz</option>
+                            </select>
+                        </div>
+                    </div>
+                    <!-- Konten Pesan Tambahan & Mention Dinamis -->
+                    <div id="actionCustomMsgBlock" class="form-group-field">
+                        <label style="font-size: 11px; color: #7f95ba;">Pesan Tambahan</label>
+                        <textarea id="actionCustomText" class="custom-input-box" rows="2" style="font-size: 13px;"
+                            placeholder="Tulis pesan tambahan...">Tolong segera dicek kendala ini.</textarea>
+
+                        <!-- Mention Anggota: Hanya ada jika Ke Group -->
+                        <div id="actionMentionWrapper" class="mt-2">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <label style="font-size: 11px; color: #7f95ba; margin: 0;">Mention Anggota Grup</label>
+                                <span id="selectedMentionCount"
+                                    style="font-size: 11px; color: #48bb78; font-weight: 700;">0 dipilih</span>
+                            </div>
+                            <small style="color: #6b7280; font-size: 11px; display: block; margin-bottom: 8px;">
+                                Pilih anggota dari grup tujuan untuk di-mention saat pesan diteruskan.
+                            </small>
+                            <div class="d-flex flex-wrap" id="actionMentionMembersList" style="gap: 6px;"></div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- Modal Delivery Log -->
-        <div class="workflow-popup" id="deliveryLogModal">
-            <div class="workflow-shell"
-                style="max-width: 540px; height: auto; flex-direction: column; padding: 22px;">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h3 id="logTitleText" style="font-size: 18px; margin: 0; font-weight: 700;">Delivery Log</h3>
-                    <button type="button" onclick="closeLogModal()" class="text-white border-0 bg-transparent"><i
-                            class="fa-solid fa-xmark"></i></button>
+    <!-- Modal Delivery Log -->
+    <div class="workflow-popup" id="deliveryLogModal">
+        <div class="workflow-shell" style="max-width: 540px; height: auto; flex-direction: column; padding: 22px;">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h3 id="logTitleText" style="font-size: 18px; margin: 0; font-weight: 700;">Delivery Log</h3>
+                <button type="button" onclick="closeLogModal()" class="text-white border-0 bg-transparent"><i
+                        class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="d-flex flex-column gap-2" style="font-size: 13px; color: #a6a9b6;">
+                <div class="p-2 border-bottom border-secondary d-flex justify-content-between align-items-center">
+                    <span>Forwarded message [Payment bug] &rarr; Product Team</span>
+                    <span class="badge badge-success">Success</span>
                 </div>
-                <div class="d-flex flex-column gap-2" style="font-size: 13px; color: #a6a9b6;">
-                    <div class="p-2 border-bottom border-secondary d-flex justify-content-between align-items-center">
-                        <span>Forwarded message [Payment bug] &rarr; Product Team</span>
-                        <span class="badge badge-success">Success</span>
-                    </div>
-                    <div class="p-2 border-bottom border-secondary d-flex justify-content-between align-items-center">
-                        <span>Forwarded message [Server down] &rarr; Product Team</span>
-                        <span class="badge badge-success">Success</span>
-                    </div>
+                <div class="p-2 border-bottom border-secondary d-flex justify-content-between align-items-center">
+                    <span>Forwarded message [Server down] &rarr; Product Team</span>
+                    <span class="badge badge-success">Success</span>
                 </div>
             </div>
         </div>
@@ -1252,50 +1325,22 @@
 
     <!-- ================= JAVASCRIPT HANDLERS ================= -->
     <script>
-        // 2. SCRIPT UNTUK MEMUAT SIDEBAR.HTML SECARA DINAMIS
-        document.addEventListener('DOMContentLoaded', function() {
-            fetch('/component/sidebar.html')
-                .then(response => {
-                    if (!response.ok) throw new Error('Gagal memuat sidebar');
-                    return response.text();
-                })
-                .then(data => {
-                    document.getElementById('sidebar-container').innerHTML = data;
-                    // Inisialisasi event listener mobile menu SETELAH sidebar dimuat
-                    initMobileMenu();
-                })
-                .catch(error => console.error('Error loading sidebar:', error));
-        });
-
-        function initMobileMenu() {
-            const mobileBtn = document.getElementById('mobileMenuBtn');
-            const drawer = document.getElementById('mobileDashboardDrawerV3');
-            const overlay = document.getElementById('mobileDrawerOverlay');
-            if (mobileBtn && drawer && overlay) {
-                mobileBtn.addEventListener('click', () => {
-                    drawer.classList.toggle('is-open');
-                    overlay.classList.toggle('is-open');
-                });
-                overlay.addEventListener('click', () => {
-                    drawer.classList.remove('is-open');
-                    overlay.classList.remove('is-open');
-                });
-            }
-        }
-
-        // === FUNGSI-FUNGSI ASLI DIPERTAHANKAN ===
+        // Tema Handler (Dark/Light)
         function applyTheme(theme) {
             document.documentElement.setAttribute('data-v2-theme', theme);
             const isDark = theme === 'dark';
             document.getElementById('btnThemeDark').classList.toggle('is-active', isDark);
             document.getElementById('btnThemeLight').classList.toggle('is-active', !isDark);
+
             const desktopLogo = document.getElementById('themeLogoDesktop');
             if (desktopLogo) {
-                desktopLogo.src = isDark ? 'https://app.sumrize.me/assets/img/logo/logo-white.png' :
+                desktopLogo.src = isDark ?
+                    'https://app.sumrize.me/assets/img/logo/logo-white.png' :
                     'https://app.sumrize.me/assets/img/logo/logo-black.png';
             }
         }
 
+        // Modal Alur Automate
         const modal = document.getElementById('workflowBuilderModal');
 
         function openWorkflowModal() {
@@ -1306,6 +1351,7 @@
             modal.classList.remove('is-open');
         }
 
+        // Sembunyikan / Tampilkan Detail Form di HP (Override pasti display elemen)
         let isRailCollapsed = false;
 
         function toggleRailCollapse() {
@@ -1314,6 +1360,7 @@
             const content = document.getElementById('railContent');
             const toggleText = document.getElementById('railToggleText');
             const toggleIcon = document.getElementById('railToggleIcon');
+
             rail.classList.toggle('collapsed', isRailCollapsed);
             if (isRailCollapsed) {
                 content.style.setProperty('display', 'none', 'important');
@@ -1326,14 +1373,17 @@
             }
         }
 
+        // Switcher Tipe Automasi (Trigger vs Time)
         let currentType = 'trigger';
 
         function switchType(type) {
             currentType = type;
             document.getElementById('typeTriggerBtn').classList.toggle('active', type === 'trigger');
             document.getElementById('typeTimeBtn').classList.toggle('active', type === 'time');
+
             const triggerBox = document.getElementById('originTriggerContainer');
             const timeBox = document.getElementById('originTimeContainer');
+
             if (type === 'time') {
                 triggerBox.style.setProperty('display', 'none', 'important');
                 timeBox.style.setProperty('display', 'block', 'important');
@@ -1343,19 +1393,40 @@
             }
         }
 
+        // Sinkronisasi Input Waktu
+        function syncTimeFromSelect(val) {
+            document.getElementById('inputTimeSpecific').value = val;
+        }
+
+        document.getElementById('inputTimeSpecific').addEventListener('change', function() {
+            const selectSlot = document.getElementById('selectHourSlot');
+            const hourPart = this.value.split(':')[0] + ':00';
+            for (let i = 0; i < selectSlot.options.length; i++) {
+                if (selectSlot.options[i].value === hourPart) {
+                    selectSlot.selectedIndex = i;
+                    break;
+                }
+            }
+        });
+
+        // Keputusan Trigger (Origin)
         function renderOriginDecisions() {
             const val = document.getElementById('originTriggerSelect').value;
             document.getElementById('originKeywordsBlock').style.display = (val === 'keyword') ? 'block' : 'none';
             const senderBlock = document.getElementById('originSendersBlock');
             senderBlock.style.display = (val === 'sender') ? 'block' : 'none';
-            if (val === 'sender') renderGroupMembers();
+            if (val === 'sender') {
+                renderGroupMembers();
+            }
         }
 
+        // Database & Logika Anggota Pengirim (Origin)
         const groupMembersData = [{
                 id: '1',
                 name: 'Jamal',
                 selected: true
-            }, {
+            },
+            {
                 id: '2',
                 name: 'Rahmat',
                 selected: true
@@ -1364,7 +1435,8 @@
                 id: '3',
                 name: 'Alfyan',
                 selected: false
-            }, {
+            },
+            {
                 id: '4',
                 name: 'Nahel',
                 selected: false
@@ -1373,7 +1445,8 @@
                 id: '5',
                 name: 'Dafinaa',
                 selected: false
-            }, {
+            },
+            {
                 id: '6',
                 name: 'Pak Rian',
                 selected: false
@@ -1385,100 +1458,130 @@
             if (!container) return;
             container.innerHTML = '';
             let selectedCount = 0;
+
             groupMembersData.forEach(member => {
                 if (member.selected) selectedCount++;
                 const chip = document.createElement('div');
                 chip.className = `member-select-chip ${member.selected ? 'selected' : ''}`;
-                chip.innerHTML =
-                    `<i class="chip-status-icon ${member.selected ? 'fa-solid fa-circle-check' : 'fa-regular fa-circle'}"></i><span>${member.name}</span>`;
+                chip.innerHTML = `
+                    <i class="chip-status-icon ${member.selected ? 'fa-solid fa-circle-check' : 'fa-regular fa-circle'}"></i>
+                    <span>${member.name}</span>
+                `;
                 chip.onclick = function() {
                     member.selected = !member.selected;
                     renderGroupMembers();
                 };
                 container.appendChild(chip);
             });
+
             const countBadge = document.getElementById('selectedMemberCount');
-            if (countBadge) countBadge.innerText = `${selectedCount} dipilih`;
+            if (countBadge) {
+                countBadge.innerText = `${selectedCount} dipilih`;
+            }
         }
 
+        // Database & Logika Mention Anggota (Action)
         const groupMembersDatabase = {
             'Product Team': [{
-                id: 'p1',
-                name: 'Jamal',
-                selected: true
-            }, {
-                id: 'p2',
-                name: 'Rahmat',
-                selected: false
-            }, {
-                id: 'p3',
-                name: 'Alfyan',
-                selected: false
-            }, {
-                id: 'p4',
-                name: 'Dian',
-                selected: false
-            }],
+                    id: 'p1',
+                    name: 'Jamal',
+                    selected: true
+                },
+                {
+                    id: 'p2',
+                    name: 'Rahmat',
+                    selected: false
+                },
+                {
+                    id: 'p3',
+                    name: 'Alfyan',
+                    selected: false
+                },
+                {
+                    id: 'p4',
+                    name: 'Dian',
+                    selected: false
+                }
+            ],
             'Dev Ticket Support': [{
-                id: 'd1',
-                name: 'Budi Santoso',
-                selected: false
-            }, {
-                id: 'd2',
-                name: 'Bayu DevOps',
-                selected: false
-            }, {
-                id: 'd3',
-                name: 'Gilang Backend',
-                selected: true
-            }, {
-                id: 'd4',
-                name: 'Andi QA',
-                selected: false
-            }],
+                    id: 'd1',
+                    name: 'Budi Santoso',
+                    selected: false
+                },
+                {
+                    id: 'd2',
+                    name: 'Bayu DevOps',
+                    selected: false
+                },
+                {
+                    id: 'd3',
+                    name: 'Gilang Backend',
+                    selected: true
+                },
+                {
+                    id: 'd4',
+                    name: 'Andi QA',
+                    selected: false
+                }
+            ],
             'Engineering Desk': [{
-                id: 'e1',
-                name: 'Farhan Architect',
-                selected: false
-            }, {
-                id: 'e2',
-                name: 'Rico System',
-                selected: false
-            }, {
-                id: 'e3',
-                name: 'Pak Taufan',
-                selected: true
-            }]
+                    id: 'e1',
+                    name: 'Farhan Architect',
+                    selected: false
+                },
+                {
+                    id: 'e2',
+                    name: 'Rico System',
+                    selected: false
+                },
+                {
+                    id: 'e3',
+                    name: 'Pak Taufan',
+                    selected: true
+                }
+            ]
         };
 
         function renderMentionMembers() {
             const groupSelect = document.getElementById('actionConnectorSelect');
             const selectedGroup = groupSelect ? groupSelect.value : 'Product Team';
             const members = groupMembersDatabase[selectedGroup] || [];
+
             const container = document.getElementById('actionMentionMembersList');
             if (!container) return;
             container.innerHTML = '';
+
             let selectedCount = 0;
+
             members.forEach(member => {
                 if (member.selected) selectedCount++;
+
                 const chip = document.createElement('div');
                 chip.className = `mention-select-chip ${member.selected ? 'selected' : ''}`;
-                chip.innerHTML =
-                    `<i class="${member.selected ? 'fa-solid fa-circle-check' : 'fa-regular fa-circle'}"></i><span>@${member.name}</span>`;
+                chip.innerHTML = `
+                    <i class="${member.selected ? 'fa-solid fa-circle-check' : 'fa-regular fa-circle'}"></i>
+                    <span>@${member.name}</span>
+                `;
+
                 chip.onclick = function() {
                     member.selected = !member.selected;
                     renderMentionMembers();
                 };
+
                 container.appendChild(chip);
             });
+
             const countBadge = document.getElementById('selectedMentionCount');
-            if (countBadge) countBadge.innerText = `${selectedCount} dipilih`;
+            if (countBadge) {
+                countBadge.innerText = `${selectedCount} dipilih`;
+            }
         }
 
         function onActionGroupChange() {
             renderMentionMembers();
         }
 
+        // Keputusan Target (Ke Group vs Ke Saya)
         let activeTargetScope = 'group';
 
         function setTargetScope(scope) {
@@ -1489,11 +1592,16 @@
             renderActionDecisions();
         }
 
+        // Keputusan Format Pesan & Mention
         function renderActionDecisions() {
             const payloadType = document.getElementById('actionPayloadType').value;
             const customMsgBlock = document.getElementById('actionCustomMsgBlock');
             const mentionWrapper = document.getElementById('actionMentionWrapper');
-            if (customMsgBlock) customMsgBlock.style.display = (payloadType === 'custom') ? 'block' : 'none';
+
+            if (customMsgBlock) {
+                customMsgBlock.style.display = (payloadType === 'custom') ? 'block' : 'none';
+            }
+
             if (mentionWrapper) {
                 if (activeTargetScope === 'group' && payloadType === 'custom') {
                     mentionWrapper.style.display = 'block';
@@ -1504,6 +1612,7 @@
             }
         }
 
+        // Input Tag Chip
         const tagInput = document.getElementById('tagInputBox');
         tagInput.addEventListener('keydown', function(e) {
             if (e.key === 'Enter' && this.value.trim()) {
@@ -1520,11 +1629,13 @@
             icon.parentElement.remove();
         }
 
+        // Simpan & Render Kartu Baru
         document.getElementById('btnSaveWorkflow').addEventListener('click', function() {
             const name = document.getElementById('autoNameInput').value || 'Workflow Otomatis';
             const origin = document.getElementById('originConnectorSelect').value;
             const target = (activeTargetScope === 'group') ? document.getElementById('actionConnectorSelect')
                 .value : 'Ke Saya (Direct)';
+
             let triggerLabel = '';
             if (currentType === 'time') {
                 const timeVal = document.getElementById('inputTimeSpecific').value || '09:00';
@@ -1537,11 +1648,15 @@
                 else if (triggerVal === 'rizz') triggerLabel = 'Rizz Disebut';
                 else triggerLabel = 'Pesan Diterima';
             }
+
             const card = document.createElement('article');
             card.className = 'automation-card';
             card.innerHTML = `
                 <div class="automation-card-body">
-                    <div class="automation-card-meta-row"><span class="badge-active-tag">Active</span></div>
+                    <div class="automation-card-meta-row">
+                        <span class="badge-active-tag">Active</span>
+                        
+                    </div>
                     <h3 class="automation-card-title">${name}</h3>
                     <div class="flow-visual-box">
                         <div class="flow-node-block">
@@ -1563,6 +1678,7 @@
             closeWorkflowModal();
         });
 
+        // Modal Delivery Log
         function openLogModal(name) {
             document.getElementById('logTitleText').innerText = `Delivery Log: ${name}`;
             document.getElementById('deliveryLogModal').classList.add('is-open');
@@ -1572,19 +1688,27 @@
             document.getElementById('deliveryLogModal').classList.remove('is-open');
         }
 
+        // Mobile Drawer Controller
+        const mobileBtn = document.getElementById('mobileMenuBtn');
+        const drawer = document.getElementById('mobileDashboardDrawerV3');
+        const overlay = document.getElementById('mobileDrawerOverlay');
+        if (mobileBtn) {
+            mobileBtn.addEventListener('click', () => {
+                drawer.classList.toggle('is-open');
+                overlay.classList.toggle('is-open');
+            });
+            overlay.addEventListener('click', () => {
+                drawer.classList.remove('is-open');
+                overlay.classList.remove('is-open');
+            });
+        }
+
+        // Inisialisasi awal
         document.addEventListener('DOMContentLoaded', function() {
             renderMentionMembers();
             renderGroupMembers();
         });
-        // Tutup dropdown menu desktop jika area luar diklik
-        document.addEventListener('click', function(e) {
-            const deskMenu = document.getElementById('dashboardUserDropdownV3');
-            if (deskMenu && !deskMenu.contains(e.target)) {
-                deskMenu.classList.remove('is-open');
-            }
-        });
     </script>
-
 </body>
 
 </html>
