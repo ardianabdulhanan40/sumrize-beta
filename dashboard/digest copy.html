@@ -1,15 +1,32 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="id" data-v2-theme="dark">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sumrize - Digest (Explore Mode)</title>
+    <meta charset="utf-8">
+      <base href="/sumrize-beta/dashboard/">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Sumrize — Automation</title>
+    <script>
+    (function() {
+        var savedTheme = null;
+        try {
+            savedTheme = localStorage.getItem('sumrize_v2_theme');
+        } catch (e) {}
+        var resolvedTheme = savedTheme || (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+        document.documentElement.setAttribute('data-v2-theme', resolvedTheme);
+    })();
+</script>
+    <link rel="icon" type="image/png" href="https://app.sumrize.me/assets/img/logo/dark-bg.png">
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    
+    <!-- TAMBAHAN: SweetAlert2 untuk Animasi Sukses dan Error -->
+    <link href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-dark@4/dark.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
-        /* === FONT & BASE STYLES DARI AUTOMATION === */
+        /* === SEMUA CSS ASLI DIPERTAHANKAN DI SINI === */
         @font-face {
             font-family: 'Playfair Display';
             font-style: normal;
@@ -24,64 +41,32 @@
             src: url(https://fonts.gstatic.com/s/urbanist/v15/L0xjDF02iFML4hGCyOCnRdy4BgPtL3vusB-txfPn.woff2) format('woff2');
         }
 
-        /* TEMA TERANG (LIGHT MODE) */
-        :root,
-        :root[data-v2-theme="light"] {
-            --bg-main: #f0f2f5;
-            --panel-bg: #ffffff;
-            --panel-bg-soft: #f8fafc;
-            --border-color: #e2e8f0;
-            --text-main: #0f172a;
-            --text-muted: #64748b;
-            --primary: #ff4438;
-            --primary-hover: #e63c2e;
-            --success: #38d99a;
-            --warning: #ffb84d;
-            --input-bg: #ffffff;
-            --hover-border: #cbd5e1;
-            --toast-bg: #ffffff;
-            --phone-bg: #efeae2;
-            --shadow: rgba(0, 0, 0, 0.06) 0px 8px 24px 0px;
-        }
-
-        /* TEMA GELAP (DARK MODE) */
-        :root[data-v2-theme="dark"] {
-            --bg-main: rgb(29, 29, 29);
-            --panel-bg: #171717;
-            --panel-bg-soft: #1c1c1c;
-            --border-color: #262626;
-            --text-main: #fcfbf8;
-            --text-muted: #a6a9b6;
-            --primary: #ff4438;
-            --primary-hover: #e63c2e;
-            --success: #38d99a;
-            --warning: #ffb84d;
-            --input-bg: #101010;
-            --hover-border: #555;
-            --toast-bg: #1c202c;
-            --phone-bg: #0b0f13;
-            --shadow: rgba(0, 0, 0, 0.2) 0px 10px 36px 0px;
-        }
-
         * {
             box-sizing: border-box;
         }
 
-        html, body {
+        html,
+        body {
             max-width: 100%;
             overflow-x: hidden !important;
-            background: var(--bg-main);
+            background: rgb(29, 29, 29);
             font-family: "Urbanist", sans-serif;
-            color: var(--text-main);
+            color: #fcfbf8;
             margin: 0;
             padding: 0;
         }
 
-        h1, h2, h3, .brand-title {
+        h1,
+        h2,
+        h3,
+        .brand-title {
             font-family: "Playfair Display", serif !important;
         }
 
-        /* === LAYOUT SHELL === */
+        .dashboard-desktop-only-v3 {
+            display: block;
+        }
+
         .dashboard-shell-v3 {
             display: grid;
             grid-template-columns: 260px minmax(0, 1fr);
@@ -92,13 +77,140 @@
             align-items: start;
         }
 
+        .dashboard-sidebar-v3 {
+            width: 260px;
+            gap: 28px;
+            position: sticky;
+            top: 24px;
+            display: flex;
+            flex-direction: column;
+            min-height: calc(100dvh - 48px);
+        }
+
+        .dashboard-sidebar-v3-brand {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            min-height: 68px;
+        }
+
+        .dashboard-sidebar-v3-brand img {
+            width: 72%;
+        }
+
+        .dashboard-sidebar-card-v3 {
+            padding: 0;
+            background: #1d2131;
+            border-radius: 36px;
+            margin-top: 0;
+            flex: 1 1 auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .dashboard-sidebar-menu-shell-v3 {
+            background: transparent;
+            padding: 28px 10px 12px;
+            border-radius: 36px;
+            gap: 18px;
+            flex: 1 1 auto;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .dashboard-sidebar-v3-label {
+            padding: 0 12px;
+            color: #7f95ba;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: .1em;
+            text-transform: uppercase;
+        }
+
+        .dashboard-sidebar-nav-v3 {
+            display: grid;
+            gap: 8px;
+        }
+
+        .dashboard-sidebar-link-v3 {
+            min-height: 46px;
+            padding: 0 14px;
+            border-radius: 12px;
+            color: #eef1f7;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all .2s ease;
+        }
+
+        .dashboard-sidebar-link-v3 .left {
+            display: inline-flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .dashboard-sidebar-link-v3 .left i {
+            width: 16px;
+            text-align: center;
+            font-size: 15px;
+        }
+
+        .dashboard-sidebar-link-v3:hover {
+            background: rgba(255, 255, 255, 0.04);
+            color: #ffffff;
+            text-decoration: none;
+        }
+
+        .dashboard-sidebar-link-v3.is-active {
+            background: rgba(255, 255, 255, 0.06);
+            color: #ffffff;
+            text-decoration: none;
+        }
+
+        .dashboard-sidebar-link-v3.is-active .left i {
+            color: #7f95ba;
+        }
+
+        .dashboard-theme-switch-v3 {
+            margin-top: auto;
+            background: #233453;
+            padding: 5px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            border-radius: 24px;
+        }
+
+        .dashboard-theme-btn-v2 {
+            min-height: 42px;
+            border-radius: 999px;
+            border: 0;
+            background: transparent;
+            color: #f5fbff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .dashboard-theme-btn-v2.is-active {
+            background: #111d2a !important;
+            color: #f5fbff;
+        }
+
         .dashboard-main-v2 {
             min-width: 0;
             width: 100%;
         }
 
-        /* === NAVBAR (DESKTOP) === */
-        .dashboard-desktop-only-v3 { display: block; }
         .dashboard-navbar-v3 {
             display: flex;
             align-items: center;
@@ -113,7 +225,7 @@
             font-size: 30px;
             line-height: 1.3;
             font-weight: 700;
-            color: var(--text-main);
+            color: #fcfbf8;
         }
 
         .dashboard-navbar-v3-actions {
@@ -123,13 +235,37 @@
             gap: 14px;
         }
 
+        .dashboard-add-btn-v2 {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            min-height: 46px;
+            padding: 0 20px;
+            border-radius: 50px;
+            border: 1px solid #ff4438;
+            background: #ff4438;
+            color: #fff;
+            font-weight: 700;
+            font-size: 14px;
+            text-decoration: none;
+            cursor: pointer;
+            box-shadow: 0 8px 24px rgba(255, 68, 56, 0.35);
+        }
+
+        .dashboard-add-btn-v2:hover {
+            color: #fff;
+            background: #e63c2e;
+            text-decoration: none;
+        }
+
         .dashboard-navbar-v3-control {
             min-height: 42px;
             padding: 0 16px;
             border-radius: 999px;
-            border: 1px solid var(--border-color);
-            background: var(--panel-bg-soft);
-            color: var(--text-main);
+            border: 1px solid rgba(127, 149, 186, 0.18);
+            background: rgba(255, 255, 255, 0.03);
+            color: #f4f6fb;
             display: inline-flex;
             align-items: center;
             gap: 10px;
@@ -151,710 +287,1287 @@
             font-weight: 700;
         }
 
-        /* === DIGEST SPECIFIC STYLES === */
-        .digest-container {
-            max-width: 100%;
-            width: 100%;
-            margin-top: 1.5rem;
-        }
-
-        .digest-grid {
+        .automation-grid {
             display: grid;
-            grid-template-columns: 1fr;
-            gap: 16px;
-        }
-
-        .digest-card {
-            background: var(--panel-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 20px;
-            padding: 20px 24px;
-            cursor: pointer;
-            transition: all 0.2s;
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            box-shadow: var(--shadow);
-        }
-
-        .digest-card-content {
-            flex: 1;
-        }
-
-        .digest-card:hover:not(.locked) {
-            border-color: var(--hover-border);
-        }
-
-        .digest-card.active {
-            border-color: var(--primary);
-            background-color: rgba(255, 68, 56, 0.05);
-        }
-
-        .digest-card h3 {
-            margin: 0 0 6px 0;
-            font-size: 20px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .digest-card p {
-            color: var(--text-muted);
-            font-size: 14px;
-            line-height: 1.5;
-            margin: 0;
-            font-family: "Urbanist", sans-serif;
-        }
-
-        .digest-card.locked {
-            opacity: 0.7;
-        }
-
-        .spark-badge {
-            background: #ff4438;
-            color: #fff;
-            font-size: 10px;
-            font-weight: bold;
-            padding: 3px 8px;
-            border-radius: 4px;
-            margin-left: 8px;
-            font-family: "Urbanist", sans-serif;
-        }
-
-        .btn-upgrade {
-            background-color: var(--primary);
-            color: #fff;
-            border: none;
-            padding: 10px 18px;
-            border-radius: 10px;
-            font-weight: 700;
-            cursor: pointer;
-            font-size: 13px;
-            font-family: "Urbanist", sans-serif;
-            box-shadow: 0 4px 12px rgba(255, 68, 56, 0.35);
-        }
-
-        .btn-upgrade:hover {
-            background-color: var(--primary-hover);
-        }
-
-        .radio-circle {
-            width: 22px;
-            height: 22px;
-            border-radius: 50%;
-            border: 2px solid var(--hover-border);
-            margin-right: 20px;
-            position: relative;
-            flex-shrink: 0;
-        }
-
-        .digest-card.active .radio-circle {
-            border-color: var(--primary);
-        }
-
-        .digest-card.active .radio-circle::after {
-            content: '';
-            width: 12px;
-            height: 12px;
-            background: var(--primary);
-            border-radius: 50%;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-        }
-
-        /* === STEP LABEL === */
-        .flow-step-label {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin: 40px 0 14px;
-        }
-        .flow-step-label:first-of-type { margin-top: 28px; }
-        .flow-step-label .num {
-            width: 26px; height: 26px;
-            border-radius: 50%;
-            background: var(--panel-bg);
-            border: 1px solid var(--border-color);
-            color: var(--text-muted);
-            font-size: 12px;
-            font-weight: 700;
-            display: flex; align-items: center; justify-content: center;
-            flex-shrink: 0;
-        }
-        .flow-step-label h2 {
-            font-size: 18px;
-            margin: 0;
-            color: var(--text-main);
-        }
-        .flow-step-label p {
-            margin: 2px 0 0;
-            font-size: 13px;
-            color: var(--text-muted);
-        }
-        .flow-step-label .head-text { display: flex; flex-direction: column; }
-
-        /* === SCHEDULE PANEL === */
-        .schedule-panel {
-            background: var(--panel-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 20px;
-            padding: 22px 24px;
-            box-shadow: var(--shadow);
-            transition: opacity .2s;
-        }
-        .schedule-panel.disabled {
-            opacity: .45;
-            pointer-events: none;
-        }
-        .schedule-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 20px;
-            padding: 14px 0;
-            border-bottom: 1px solid var(--border-color);
-            flex-wrap: wrap;
-        }
-        .schedule-row:last-of-type { border-bottom: none; }
-        .schedule-row .label { font-weight: 700; font-size: 14px; color: var(--text-main); }
-        .schedule-row .hint { font-size: 12.5px; color: var(--text-muted); margin-top: 2px; }
-        .schedule-field { display: flex; align-items: center; gap: 8px; }
-
-        .schedule-panel input[type="time"],
-        .schedule-panel select {
-            font-family: "Urbanist", sans-serif;
-            font-size: 14px;
-            font-weight: 600;
-            padding: 10px 14px;
-            border-radius: 10px;
-            border: 1px solid var(--border-color);
-            background: var(--input-bg);
-            color: var(--text-main);
-            min-width: 160px;
-        }
-        .schedule-panel input[type="time"]:focus,
-        .schedule-panel select:focus {
-            outline: none;
-            border-color: var(--primary);
-        }
-
-        .channel-pill {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: rgba(56, 217, 154, 0.08);
-            border: 1px solid rgba(56, 217, 154, 0.35);
-            color: var(--success);
-            font-size: 13px;
-            font-weight: 700;
-            padding: 8px 14px;
-            border-radius: 999px;
-        }
-
-        .btn-primary-fill {
-            background-color: var(--primary);
-            color: #fff;
-            border: none;
-            padding: 11px 20px;
-            border-radius: 10px;
-            font-weight: 700;
-            cursor: pointer;
-            font-size: 13.5px;
-            font-family: "Urbanist", sans-serif;
-        }
-        .btn-primary-fill:hover { background-color: var(--primary-hover); }
-        .btn-primary-fill:disabled { opacity: .5; cursor: not-allowed; }
-
-        .btn-ghost {
-            background: transparent;
-            color: var(--text-main);
-            border: 1px solid var(--border-color);
-            padding: 11px 20px;
-            border-radius: 10px;
-            font-weight: 700;
-            cursor: pointer;
-            font-size: 13.5px;
-            font-family: "Urbanist", sans-serif;
-        }
-        .btn-ghost:hover { border-color: var(--hover-border); }
-
-        .schedule-footer {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-top: 18px;
-            flex-wrap: wrap;
-        }
-        .no-spam-note {
-            font-size: 12px;
-            color: var(--text-muted);
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            margin-top: 14px;
-        }
-        .no-spam-note i { color: var(--success); }
-
-        /* === PRATINJAU DIGEST (modal + phone) === */
-        .preview-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.6);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 10000;
-            padding: 20px;
-        }
-        .preview-overlay.show { display: flex; }
-
-        .preview-modal {
-            background: var(--panel-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 22px;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 18px;
+            margin-top: 1.5rem;
             width: 100%;
-            max-width: 360px;
-            max-height: 92vh;
-            overflow-y: auto;
-            padding: 40px 26px 26px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            position: relative;
         }
 
-        .preview-modal-close {
-            position: absolute;
-            top: 14px; right: 18px;
-            background: none;
-            border: none;
-            color: var(--text-muted);
-            font-size: 18px;
-            cursor: pointer;
-        }
-
-        .phone-frame {
-            width: 100%;
-            max-width: 300px;
-            height: 540px;
-            background: #000;
-            border-radius: 32px;
-            padding: 10px;
-            margin: 0 auto;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
-        }
-        .phone-screen {
-            background: var(--phone-bg);
-            width: 100%; height: 100%;
-            border-radius: 22px;
+        .automation-card {
+            background: #171717;
+            border: 1px solid #262626;
+            border-radius: 20px;
             overflow: hidden;
             display: flex;
             flex-direction: column;
+            box-shadow: rgba(0, 0, 0, 0.2) 0px 10px 36px 0px;
+            min-width: 0;
         }
-        .wa-head {
-            background: var(--panel-bg-soft);
-            padding: 14px 14px 12px;
+
+        .automation-card-body {
+            padding: 18px 16px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .automation-card-meta-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .badge-active-tag {
+            background: #1e4832;
+            color: #d2ffe1;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 999px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .automation-card-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin: 0 0 8px 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .flow-visual-box {
+            background: #101010;
+            border: 1px solid #262626;
+            border-radius: 14px;
+            padding: 12px 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 6px;
+            margin-top: auto;
+        }
+
+        .flow-node-block {
+            background: linear-gradient(180deg, #2b6138 0%, #1e4527 100%);
+            border-top: 2px solid #48bb78;
+            border-radius: 10px;
+            padding: 8px 10px;
+            color: #fff;
+            flex: 1 1 0;
+            min-width: 0;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+        }
+
+        .flow-node-title {
+            font-weight: 700;
+            font-size: 11.5px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .flow-node-sub {
+            font-size: 10px;
+            color: #c6f6d5;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-top: 2px;
+        }
+
+        .flow-arrow-separator {
+            color: #718096;
+            font-size: 13px;
+            flex-shrink: 0;
+        }
+
+        .automation-card-footer {
+            border-top: 1px solid #262626;
+            background: rgba(179, 219, 255, 0.04);
+            padding: 10px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            color: #b3dbff;
+            font-size: 12.5px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .automation-card-footer:hover {
+            background: rgba(179, 219, 255, 0.09);
+        }
+
+        .workflow-popup {
+            position: fixed;
+            inset: 0;
+            z-index: 1050;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(14px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+
+        .workflow-popup.is-open {
+            display: flex;
+        }
+
+        .workflow-shell {
+            width: 100%;
+            max-width: 1000px;
+            height: 85vh;
+            background: #14171f;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            display: flex;
+            overflow: hidden;
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
+        }
+
+        .workflow-settings-rail {
+            width: 320px;
+            background: #181c26;
+            border-right: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            overflow-y: auto;
+            flex-shrink: 0;
+            transition: all 0.3s ease;
+        }
+
+        .mobile-rail-toggle {
+            display: none;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            color: #b3dbff;
+            padding: 10px 14px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .form-group-field {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .custom-input-box {
+            width: 100%;
+            padding: 10px 14px;
+            border-radius: 10px;
+            background: #1c1f2c;
+            border: 1px solid #3c3f4c;
+            color: #fff;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .custom-input-box:focus {
+            border-color: #b3dbff;
+        }
+
+        .pill-toggle-switch {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            background: #0f1218;
+            border-radius: 10px;
+            padding: 4px;
+            gap: 4px;
+        }
+
+        .pill-toggle-btn {
+            background: transparent;
+            border: 0;
+            color: #7f95ba;
+            padding: 8px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .pill-toggle-btn.active {
+            background: #ff4438;
+            color: #fff;
+        }
+
+        .workflow-canvas-area {
+            flex: 1;
+            background-color: #0d0f15;
+            background-image: radial-gradient(rgba(255, 255, 255, 0.12) 1px, transparent 1px);
+            background-size: 20px 20px;
+            padding: 24px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .workflow-step-card {
+            width: 100%;
+            max-width: 480px;
+            background: #1c202c;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 18px;
+            padding: 20px;
+            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .step-label {
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+        }
+
+        .step-label.origin {
+            color: #ff6a61;
+        }
+
+        .step-label.action {
+            color: #48bb78;
+        }
+
+        .step-connector-wire {
+            width: 2px;
+            height: 28px;
+            background: linear-gradient(180deg, #ff6a61, #48bb78);
+            position: relative;
+        }
+
+        .step-connector-wire::after {
+            content: "";
+            position: absolute;
+            bottom: -3px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-top: 6px solid #48bb78;
+        }
+
+        .tag-chip-pill {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #e2e8f0;
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .tag-chip-pill i {
+            cursor: pointer;
+            font-size: 11px;
+        }
+
+        .tag-chip-pill i:hover {
+            color: #ff4438;
+        }
+
+        .time-select-container {
+            background: #131620;
+            border: 1px solid #282d3e;
+            border-radius: 14px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .time-hhmm-row {
             display: flex;
             align-items: center;
             gap: 10px;
-            border-bottom: 1px solid var(--border-color);
         }
-        .wa-avatar {
-            width: 32px; height: 32px; border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary), #ffb84d);
-            flex-shrink: 0;
-        }
-        .wa-head .name { font-size: 13.5px; font-weight: 700; color: var(--text-main); }
-        .wa-head .status { font-size: 10.5px; color: var(--text-muted); }
 
-        .wa-body {
-            flex: 1;
-            padding: 14px 10px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            overflow-y: auto;
+        .time-input-native {
+            background: #1c1f2c;
+            border: 1px solid #3c3f4c;
+            color: #b3dbff;
+            border-radius: 10px;
+            padding: 8px 14px;
+            font-size: 16px;
+            font-weight: 700;
+            outline: none;
+            width: 140px;
+            text-align: center;
         }
-        .wa-date {
-            align-self: center;
-            background: var(--panel-bg-soft);
-            color: var(--text-muted);
-            font-size: 10px;
-            padding: 3px 10px;
-            border-radius: 8px;
-            margin-bottom: 4px;
+
+        .time-input-native:focus {
+            border-color: #ff4438;
         }
-        .wa-bubble {
-            background: var(--panel-bg-soft);
-            border: 1px solid var(--border-color);
-            border-radius: 4px 12px 12px 12px;
-            padding: 12px 12px 8px;
+
+        .member-select-chip, .mention-select-chip {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #94a3b8;
+            padding: 6px 12px;
+            border-radius: 999px;
             font-size: 12px;
-            color: var(--text-main);
-            line-height: 1.5;
-        }
-        .wa-bubble .greet { font-weight: 800; margin: 0 0 8px; font-size: 13px; }
-        .wa-bubble .sec-label { font-weight: 800; display: block; margin: 10px 0 4px; color: var(--primary); }
-        .wa-bubble .sec-label.neutral { color: var(--text-main); }
-        .wa-bubble ul { margin: 0 0 4px; padding-left: 16px; }
-        .wa-bubble li { margin-bottom: 3px; color: var(--text-main); opacity: 0.85; }
-        .wa-bubble .time { text-align: right; font-size: 9.5px; color: var(--text-muted); margin-top: 6px; }
-
-        /* === TOAST NOTIFICATION === */
-        .toast-notification {
-            position: fixed;
-            bottom: 24px;
-            right: 24px;
-            background-color: var(--toast-bg);
-            border: 1px solid var(--border-color);
-            padding: 16px 20px;
-            border-radius: 12px;
-            display: flex;
+            font-weight: 600;
+            cursor: pointer;
+            user-select: none;
+            display: inline-flex;
             align-items: center;
-            gap: 15px;
-            box-shadow: var(--shadow);
-            transform: translateX(150%);
-            transition: transform 0.3s ease-out;
-            z-index: 9999;
-            max-width: 340px;
+            gap: 6px;
+            transition: all 0.2s ease;
         }
 
-        .toast-notification.show {
-            transform: translateX(0);
+        .member-select-chip:hover, .mention-select-chip:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border-color: rgba(255, 255, 255, 0.25);
         }
 
-        .toast-content h4 { margin: 0 0 4px 0; font-size: 14px; color: var(--text-main); font-family: "Urbanist", sans-serif; font-weight: bold; }
-        .toast-content p { margin: 0; font-size: 12px; color: var(--text-muted); }
-        .toast-close {
-            background: none; border: none; color: var(--text-muted);
-            cursor: pointer; font-size: 16px; padding: 0; margin-left: 20px;
+        .member-select-chip.selected, .mention-select-chip.selected {
+            background: rgba(72, 187, 120, 0.18) !important;
+            border-color: #48bb78 !important;
+            color: #48bb78 !important;
+            box-shadow: 0 0 10px rgba(72, 187, 120, 0.2);
         }
 
-        /* === RESPONSIVE (MOBILE) === */
+        .member-select-chip .chip-status-icon {
+            font-size: 11px;
+            transition: transform 0.2s;
+        }
+
+        .member-select-chip.selected .chip-status-icon {
+            color: #48bb78;
+            transform: scale(1.1);
+        }
+
+        html[data-v2-theme="light"] body {
+            background: #f6f0e6 !important;
+            color: #2b241d !important;
+        }
+
+        html[data-v2-theme="light"] .dashboard-sidebar-card-v3 {
+            background: #f7f1e8;
+        }
+
+        html[data-v2-theme="light"] .dashboard-sidebar-link-v3 {
+            color: #3a3127;
+        }
+
+        html[data-v2-theme="light"] .dashboard-sidebar-link-v3.is-active,
+        html[data-v2-theme="light"] .dashboard-sidebar-link-v3:hover {
+            background: #eef4fb;
+            color: #26344a;
+        }
+
+        html[data-v2-theme="light"] .dashboard-navbar-v3-copy-block h1 {
+            color: #2b241d;
+        }
+
+        html[data-v2-theme="light"] .dashboard-theme-switch-v3 {
+            background: #d9d7d5;
+        }
+
+        html[data-v2-theme="light"] .dashboard-theme-btn-v2.is-active {
+            background: #ffffff !important;
+            color: #26344a !important;
+        }
+
+        html[data-v2-theme="light"] .automation-card {
+            background: #fffaf2;
+            border: 1px solid #ddd2c3;
+        }
+
+        html[data-v2-theme="light"] .flow-visual-box {
+            background: #f4ece0;
+            border-color: #ddd2c3;
+        }
+
+        header.mobile-header-bar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            z-index: 900;
+            background: rgba(20, 20, 20, 0.75);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            color: #fff;
+            width: 100%;
+            height: 60px;
+            display: none;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 16px;
+        }
+
+        .mobile-dashboard-menu-btn-v3 {
+            background: transparent;
+            border: 0;
+            color: #fff;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 4px;
+        }
+
+        .mobile-dashboard-drawer-v3 {
+            display: flex;
+            position: fixed;
+            top: 60px;
+            left: 0;
+            right: 0;
+            z-index: 901;
+            padding: 20px 16px;
+            flex-direction: column;
+            gap: 6px;
+            background: #1d2131;
+            border-bottom: 1px solid rgba(127, 149, 186, 0.18);
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transform: translateY(-10px);
+            transition: all .2s ease;
+        }
+
+        .mobile-dashboard-drawer-v3.is-open {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+            transform: translateY(0);
+        }
+
+        .mobile-dashboard-drawer-overlay-v3 {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 899;
+            background: rgba(5, 7, 12, 0.58);
+        }
+
+        .mobile-dashboard-drawer-overlay-v3.is-open {
+            display: block;
+        }
+
+        @media (max-width: 1100px) {
+            .automation-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
         @media (max-width: 768px) {
+            header.mobile-header-bar {
+                display: flex !important;
+            }
+
+            .dashboard-sidebar-v3 {
+                display: none;
+            }
+
             .dashboard-shell-v3 {
                 display: block;
                 padding: 76px 16px 40px 16px;
             }
-            .dashboard-sidebar-v3 {
-                display: none;
-            }
-            .digest-card {
+
+            .dashboard-navbar-v3 {
                 flex-direction: column;
                 align-items: flex-start;
-                gap: 16px;
+                gap: 14px;
+            }
+
+            .dashboard-navbar-v3-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .automation-grid {
+                grid-template-columns: 1fr;
+                gap: 14px;
+            }
+
+            .workflow-popup {
+                padding: 8px;
+            }
+
+            .workflow-shell {
+                flex-direction: column;
+                height: 96vh;
+                border-radius: 20px;
+            }
+
+            .mobile-rail-toggle {
+                display: flex;
+            }
+
+            .workflow-settings-rail {
+                width: 100%;
+                max-height: none;
+                flex-shrink: 0;
+                padding: 14px 16px;
+                gap: 12px;
+                border-right: 0;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            }
+
+            #settingsRail.collapsed #railContent {
+                display: none !important;
+            }
+
+            .workflow-canvas-area {
+                padding: 16px 12px;
+                gap: 12px;
+            }
+
+            .workflow-step-card {
                 padding: 16px;
+                gap: 12px;
             }
-            .radio-circle {
-                position: absolute;
-                top: 20px;
-                left: 16px;
-            }
-            .digest-card-content {
-                margin-left: 36px;
-                width: 100%;
-            }
-            .btn-upgrade {
-                width: 100%;
-                margin-top: 8px;
-            }
-            .schedule-row { align-items: flex-start; }
-            .schedule-field { width: 100%; }
-            .schedule-panel select, .schedule-panel input[type="time"] { width: 100%; }
+        }
+
+        .custom-select-wrapper {
+            position: relative;
+            width: 100%;
+        }
+
+        .custom-select-wrapper select.custom-input-box {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            padding-right: 40px;
+            cursor: pointer;
+        }
+
+        .custom-select-wrapper::after {
+            content: "\f078";
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 12px;
+            color: #94a3b8;
+            pointer-events: none;
         }
     </style>
 </head>
 
 <body>
+
+    <!-- 1. PLACEHOLDER UNTUK SIDEBAR -->
+    <!-- Script di bawah akan mengisi div ini dengan konten dari sidebar.html -->
+
+    <!-- Shell Kontainer Utama -->
     <div class="dashboard-shell-v3">
-
         <div id="sidebar-container"></div>
-
+        <!-- Area Konten Utama -->
         <main class="dashboard-main-v2">
-
+            <!-- HEADER DESKTOP (Sembunyi di Mobile) -->
             <section class="dashboard-navbar-v3 dashboard-desktop-only-v3 d-none d-lg-flex">
                 <div class="dashboard-navbar-v3-copy-block">
-                    <h1>Digest</h1>
-                    <p style="color: var(--text-muted); margin: 4px 0 0; font-size: 14px;">Atur jadwal ringkasan otomatis</p>
+                    <h1>Automation</h1>
+                    <p style="color: #a6a9b6; margin: 4px 0 0; font-size: 14px;">Ringkasan aktivitas dan automasi Anda
+                    </p>
                 </div>
 
                 <div class="dashboard-navbar-v3-actions">
-                    <button type="button" class="dashboard-navbar-v3-control">
-                        <span class="dashboard-navbar-v3-avatar">Y</span>
-                        <span class="dashboard-navbar-v3-user-name">Yan</span>
-                        <i class="fa-solid fa-chevron-down" style="font-size: 12px; margin-left: 4px;"></i>
+                    <button type="button" class="dashboard-add-btn-v2" onclick="openWorkflowModal()">
+                        <i class="fa-solid fa-plus"></i> Tambah Automation
                     </button>
+                    <div class="dashboard-navbar-v3-dropdown-wrap">
+                        <button type="button" class="dashboard-navbar-v3-control"
+                            onclick="document.getElementById('dashboardUserDropdownV3').classList.toggle('is-open'); event.stopPropagation();">
+                            <span class="dashboard-navbar-v3-avatar">Y</span>
+                            <span class="dashboard-navbar-v3-user-name">Yan</span>
+                            <i class="fa-solid fa-chevron-down" style="font-size: 12px; margin-left: 4px;"></i>
+                        </button>
+
+                        <div class="dashboard-navbar-v3-dropdown" id="dashboardUserDropdownV3">
+                            <div class="dashboard-navbar-v3-user-card">
+                                <div class="dashboard-navbar-v3-user-head">
+                                    <strong style="color: white; font-size: 16px;">Yan</strong>
+                                    <span style="color: #7f95ba; font-size: 11px; font-weight: 700; letter-spacing: 0.1em;">EXPLORE</span>
+                                </div>
+                            </div>
+                            <a href="javascript:;" class="dashboard-navbar-v3-item is-upgrade-action open-popup" data-action="upgrade">
+                                <i class="fa-solid fa-rocket"></i>
+                                <span style="font-weight: bold;">Upgrade</span>
+                            </a>
+                            <a href="/setting" class="dashboard-navbar-v3-item">
+                                <i class="fa-solid fa-gear"></i>
+                                <span>Pengaturan</span>
+                            </a>
+                            <a href="https://sumrize.me/contact-us" target="_blank" class="dashboard-navbar-v3-item">
+                                <i class="fa-solid fa-circle-info"></i>
+                                <span>Bantuan</span>
+                            </a>
+                            <a href="/?action=logout" class="dashboard-navbar-v3-item dashboard-navbar-v3-signout">
+                                <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                                <span>Keluar</span>
+                            </a>
+                        </div>
+                    </div>
                 </div>
             </section>
 
+            <!-- HEADER MOBILE KHUSUS (Sembunyi di Desktop) -->
             <section class="d-flex d-lg-none flex-column mb-4 mt-5">
                 <div>
-                    <h1 style="font-size: 28px; margin: 0; color: var(--text-main); font-weight: bold;">Digest</h1>
-                    <p style="color: var(--text-muted); margin: 4px 0 16px; font-size: 13px;">Atur jadwal ringkasan otomatis</p>
+                    <h1 style="font-size: 28px; margin: 0; color: #fcfbf8; font-weight: bold;">Automation</h1>
+                    <p style="color: #a6a9b6; margin: 4px 0 16px; font-size: 13px;">Ringkasan aktivitas dan automasi Anda</p>
                 </div>
+
+                <button type="button" class="dashboard-add-btn-v2 w-100" onclick="openWorkflowModal()">
+                    <i class="fa-solid fa-plus"></i> Tambah Automation
+                </button>
             </section>
-
-            <div class="flow-step-label">
-                <div class="num">1</div>
-                <div class="head-text">
-                    <h2>Pilih frekuensi digest</h2>
-                    <p>Ringkasan aktivitas dari semua konektor kamu, dikirim otomatis sesuai frekuensi yang dipilih.</p>
-                </div>
-            </div>
-
-            <div class="digest-container">
-                <div class="digest-grid">
-                    <div class="digest-card" data-freq="monthly" onclick="selectCard(this)">
-                        <div class="radio-circle"></div>
-                        <div class="digest-card-content">
-                            <h3>Monthly</h3>
-                            <p>Ringkasan dikirim setiap satu bulan.</p>
+            <!-- Grid 3 Kolom Card Automation -->
+            <section class="automation-grid" id="automationListStage">
+                <!-- Card 1 -->
+                <article class="automation-card">
+                    <div class="automation-card-body">
+                        <div class="automation-card-meta-row">
+                            <span class="badge-active-tag">Active</span>
+                        </div>
+                        <h3 class="automation-card-title">Ticket Solver</h3>
+                        <div class="flow-visual-box">
+                            <div class="flow-node-block">
+                                <div class="flow-node-title"><i class="fa-brands fa-whatsapp"></i> Group Mar...</div>
+                                <div class="flow-node-sub">Keyword: "bug", "issue"</div>
+                            </div>
+                            <div class="flow-arrow-separator"><i class="fa-solid fa-arrow-right-long"></i></div>
+                            <div class="flow-node-block">
+                                <div class="flow-node-title"><i class="fa-brands fa-whatsapp"></i> Group Tick..</div>
+                                <div class="flow-node-sub">Send to Group + Mention</div>
+                            </div>
                         </div>
                     </div>
+                    <div class="automation-card-footer" onclick="openLogModal('Ticket Solver')">
+                        <i class="fa-solid fa-clock-rotate-left"></i> Delivery Log
+                    </div>
+                </article>
 
-                    <div class="digest-card active" data-freq="weekly" onclick="selectCard(this)">
-                        <div class="radio-circle"></div>
-                        <div class="digest-card-content">
-                            <h3>Weekly</h3>
-                            <p>Ringkasan dikirim setiap satu minggu.</p>
+                <!-- Card 2 -->
+                <article class="automation-card">
+                    <div class="automation-card-body">
+                        <div class="automation-card-meta-row">
+                            <span class="badge-active-tag">Active</span>
+                        </div>
+                        <h3 class="automation-card-title">Billing Escalate</h3>
+                        <div class="flow-visual-box">
+                            <div class="flow-node-block">
+                                <div class="flow-node-title"><i class="fa-brands fa-whatsapp"></i> CS Group</div>
+                                <div class="flow-node-sub">Keyword: "tagihan"</div>
+                            </div>
+                            <div class="flow-arrow-separator"><i class="fa-solid fa-arrow-right-long"></i></div>
+                            <div class="flow-node-block">
+                                <div class="flow-node-title"><i class="fa-brands fa-whatsapp"></i> Finance Desk</div>
+                                <div class="flow-node-sub">Forward Original</div>
+                            </div>
                         </div>
                     </div>
+                    <div class="automation-card-footer" onclick="openLogModal('Billing Escalate')">
+                        <i class="fa-solid fa-clock-rotate-left"></i> Delivery Log
+                    </div>
+                </article>
 
-                    <div class="digest-card" data-freq="daily" onclick="selectDaily(this)">
-                        <div class="radio-circle"></div>
-                        <div class="digest-card-content">
-                            <h3>Daily <i class="fa-solid fa-lock" style="font-size: 14px; color: var(--text-muted);"></i> <span class="spark-badge">Spark</span></h3>
-                            <p>Ringkasan dikirim setiap hari — cocok untuk morning briefing sebelum mulai kerja.</p>
+                <!-- Card 3 -->
+                <article class="automation-card">
+                    <div class="automation-card-body">
+                        <div class="automation-card-meta-row">
+                            <span class="badge-active-tag">Active</span>
                         </div>
-                        <button class="btn-upgrade" onclick="event.stopPropagation(); window.location.href='/paket-saya'">Upgrade ke Spark</button>
+                        <h3 class="automation-card-title">Daily AI Broadcast</h3>
+                        <div class="flow-visual-box">
+                            <div class="flow-node-block">
+                                <div class="flow-node-title"><i class="fa-brands fa-whatsapp"></i> HQ Operations</div>
+                                <div class="flow-node-sub">Jam 09:00 Setiap Hari</div>
+                            </div>
+                            <div class="flow-arrow-separator"><i class="fa-solid fa-arrow-right-long"></i></div>
+                            <div class="flow-node-block">
+                                <div class="flow-node-title"><i class="fa-solid fa-user-shield"></i> Ke Saya</div>
+                                <div class="flow-node-sub">Jawaban dari Rizz</div>
+                            </div>
+                        </div>
                     </div>
-                </div>
-            </div>
-
-            <div class="flow-step-label">
-                <div class="num">2</div>
-                <div class="head-text">
-                    <h2>Atur jam pengiriman</h2>
-                    <p>Sistem akan mengirim digest tepat pada jam ini, sesuai zona waktumu.</p>
-                </div>
-            </div>
-
-            <div class="schedule-panel" id="schedulePanel">
-                <div class="schedule-row">
-                    <div>
-                        <div class="label">Jam kirim</div>
-                        <div class="hint">Default pukul 08.00, bisa diubah kapan saja</div>
+                    <div class="automation-card-footer" onclick="openLogModal('Daily AI Broadcast')">
+                        <i class="fa-solid fa-clock-rotate-left"></i> Delivery Log
                     </div>
-                    <div class="schedule-field">
-                        <input type="time" id="scheduleTime" value="08:00">
-                    </div>
-                </div>
-
-                <div class="schedule-row">
-                    <div>
-                        <div class="label">Zona waktu</div>
-                        <div class="hint">Dipakai untuk menghitung jadwal kirim yang tepat</div>
-                    </div>
-                    <div class="schedule-field">
-                        <select id="scheduleTimezone">
-                            <option value="WIB">WIB</option>
-                            <option value="WITA">WITA</option>
-                            <option value="WIT">WIT</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="schedule-row">
-                    <div>
-                        <div class="label">Dikirim ke</div>
-                        <div class="hint">Saluran default — belum bisa diganti di versi ini</div>
-                    </div>
-                    <div class="schedule-field">
-                        <span class="channel-pill"><i class="fa-brands fa-whatsapp"></i> WhatsApp</span>
-                    </div>
-                </div>
-
-                <div class="schedule-footer">
-                    <button class="btn-primary-fill" id="saveScheduleBtn" onclick="saveSchedule()">Simpan jadwal</button>
-                    <button class="btn-ghost" onclick="openPreview()">
-                        <i class="fa-regular fa-eye" style="margin-right:6px;"></i>Lihat contoh pesan
-                    </button>
-                </div>
-
-                <div class="no-spam-note">
-                    <i class="fa-solid fa-circle-check"></i>
-                    Kami cuma kirim kalau ada aktivitas baru — nggak ada digest kosong yang bikin spam.
-                </div>
-            </div>
-
-            <div class="flow-step-label">
-                <div class="num">3</div>
-                <div class="head-text">
-                    <h2>Ubah lagi kapan pun</h2>
-                    <p>Nggak cocok dengan jam 08.00? Ganti jam atau zona waktu di atas, lalu simpan — perubahan berlaku mulai digest berikutnya.</p>
-                </div>
-            </div>
-
+                </article>
+            </section>
         </main>
-    </div>
 
-    <!-- Modal Pratinjau Digest -->
-    <div class="preview-overlay" id="previewOverlay">
-        <div class="preview-modal">
-            <button class="preview-modal-close" onclick="closePreview()"><i class="fa-solid fa-xmark"></i></button>
-            <div class="phone-frame">
-                <div class="phone-screen">
-                    <div class="wa-head">
-                        <div class="wa-avatar"></div>
-                        <div>
-                            <div class="name">Sumrize</div>
-                            <div class="status">Asisten harian kamu</div>
+        <!-- ================= MODAL WORKFLOW BUILDER ================= -->
+        <div class="workflow-popup" id="workflowBuilderModal">
+            <!-- TAMBAHAN: Dibungkus dengan form agar HTML5 Validation (required) berfungsi -->
+            <form id="workflowForm" style="display: flex; justify-content: center; align-items: center; width: 100%; margin: 0;">
+                <div class="workflow-shell">
+                    <aside class="workflow-settings-rail" id="settingsRail">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h3 style="font-size: 20px; font-weight: 700; margin: 0;">New Automation</h3>
+                            <button type="button" onclick="closeWorkflowModal()" class="border-0 bg-transparent text-white" style="font-size: 18px;">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        </div>
+                        <button type="button" class="mobile-rail-toggle" onclick="toggleRailCollapse()">
+                            <span id="railToggleText"><i class="fa-solid fa-eye-slash mr-1"></i> Sembunyikan Detail Form</span>
+                            <i class="fa-solid fa-chevron-down" id="railToggleIcon"></i>
+                        </button>
+                        <div class="rail-collapsible-content" id="railContent">
+                            <div class="form-group-field mb-3">
+                                <label style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: #a6a9b6;">Automation Name</label>
+                                <!-- TAMBAHAN: Atribut required -->
+                                <input type="text" id="autoNameInput" class="custom-input-box" placeholder="Nama alur" required>
+                            </div>
+                            <div class="form-group-field mb-3">
+                                <label style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: #a6a9b6;">Description</label>
+                                <!-- TAMBAHAN: Atribut required -->
+                                <textarea id="autoDescInput" class="custom-input-box" rows="2" placeholder="Deskripsi alur..." required></textarea>
+                            </div>
+                            <div class="form-group-field mb-3">
+                                <label style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: #a6a9b6;">Automation Type</label>
+                                <div class="pill-toggle-switch">
+                                    <button type="button" class="pill-toggle-btn active" id="typeTriggerBtn" onclick="switchType('trigger')">Trigger</button>
+                                    <button type="button" class="pill-toggle-btn" id="typeTimeBtn" onclick="switchType('time')">Time</button>
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-between pt-3" style="gap: 12px;">
+                                <button type="button" onclick="closeWorkflowModal()" class="btn btn-secondary flex-fill mr-2" style="border-radius: 12px; font-size: 13px; min-height: 44px;">Batalkan</button>
+                                <!-- PERUBAHAN: Ubah button type="button" menjadi type="submit" -->
+                                <button type="submit" id="btnSaveWorkflow" class="btn btn-primary flex-fill ml-2" style="border-radius: 12px; font-size: 13px; min-height: 44px; background: #ff4438 !important; border: 0;">Simpan</button>
+                            </div>
+                        </div>
+                    </aside>
+
+                    <div class="workflow-canvas-area">
+                        <div class="workflow-step-card">
+                            <div class="d-flex justify-content-between align-items-center pb-2 border-bottom border-secondary">
+                                <span class="step-label origin"><i class="fa-solid fa-circle mr-1" style="font-size: 8px;"></i> Origin</span>
+                                <span style="font-size: 11px; color: #7f95ba;">Pemicu Awal</span>
+                            </div>
+                            <div class="form-group-field">
+                                <label style="font-size: 12px; color: #a6a9b6;">Pilih Connector / Grup</label>
+                                <div class="custom-select-wrapper">
+                                    <select id="originConnectorSelect" class="custom-input-box">
+                                        <option value="Marketing Team">Marketing Team</option>
+                                        <option value="Customer Support">Customer Support</option>
+                                        <option value="Discord General">Discord General</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div id="originTriggerContainer" class="d-flex flex-column gap-3">
+                                <div class="form-group-field">
+                                    <label style="font-size: 12px; color: #a6a9b6;">Trigger</label>
+                                    <div class="custom-select-wrapper">
+                                        <select id="originTriggerSelect" class="custom-input-box" onchange="renderOriginDecisions()">
+                                            <option value="keyword">Ketika kata kunci disebutkan</option>
+                                            <option value="summary">Ketika ringkasan dibuat</option>
+                                            <option value="received">Ketika pesan diterima</option>
+                                            <option value="rizz">Ketika Rizz disebut</option>
+                                            <option value="sender">Ketika orang tertentu mengirim pesan</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div id="originKeywordsBlock">
+                                    <label style="font-size: 11px; color: #7f95ba;">Kata Kunci (Ketik lalu Enter)</label>
+                                    <input type="text" id="tagInputBox" class="custom-input-box" style="padding: 8px 12px; font-size: 13px;" placeholder="Tambah kata kunci...">
+                                    <!-- Dibersihkan kontennya awalnya agar bisa dites validasi -->
+                                    <div class="d-flex flex-wrap gap-1 mt-2" id="keywordsChipsHolder" style="gap: 4px;"></div>
+                                </div>
+                                <div id="originSendersBlock" style="display: none;">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <label style="font-size: 11px; color: #7f95ba; margin: 0;">Pilih Anggota Group</label>
+                                        <span id="selectedMemberCount" style="font-size: 11px; color: #48bb78; font-weight: 700;">2 dipilih</span>
+                                    </div>
+                                    <small style="color: #6b7280; font-size: 11px; display: block; margin-bottom: 8px;">Klik nama anggota untuk memilih atau membatalkan pilihan.</small>
+                                    <div class="d-flex flex-wrap" id="groupMembersList" style="gap: 6px;"></div>
+                                </div>
+                            </div>
+                            <div id="originTimeContainer" style="display: none;">
+                                <div class="time-select-container">
+                                    <div class="form-group-field">
+                                        <label style="font-size: 12px; color: #a6a9b6;">Set Waktu Jam Eksekusi (HH:MM)</label>
+                                        <div class="time-hhmm-row">
+                                            <input type="time" id="inputTimeSpecific" class="time-input-native" value="09:00" step="3600">
+                                            <span style="font-size: 13px; font-weight: 700; color: #7f95ba;">WIB (Setiap Hari)</span>
+                                        </div>
+                                    </div>
+                                    <small style="color: #7f95ba; font-size: 11px; line-height: 1.4;">Otomasi akan dijalankan otomatis tepat pada jam yang Anda tentukan sekali dalam 24 jam.</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="step-connector-wire"></div>
+                        <div class="workflow-step-card">
+                            <div class="d-flex justify-content-between align-items-center pb-2 border-bottom border-secondary">
+                                <span class="step-label action"><i class="fa-solid fa-circle mr-1" style="font-size: 8px;"></i> Action</span>
+                                <span style="font-size: 11px; color: #7f95ba;">Tindakan</span>
+                            </div>
+                            <div class="form-group-field">
+                                <label style="font-size: 12px; color: #a6a9b6;">Kirim Ke</label>
+                                <div class="pill-toggle-switch">
+                                    <button type="button" class="pill-toggle-btn active" id="btnSendGroup" onclick="setTargetScope('group')">Ke Group</button>
+                                    <button type="button" class="pill-toggle-btn" id="btnSendMe" onclick="setTargetScope('me')">Ke Saya</button>
+                                </div>
+                            </div>
+                            <div class="form-group-field" id="targetConnectorBlock">
+                                <label style="font-size: 12px; color: #a6a9b6;">Pilih Connector / Grup Tujuan</label>
+                                <div class="custom-select-wrapper">
+                                    <select id="actionConnectorSelect" class="custom-input-box" onchange="onActionGroupChange()">
+                                        <option value="Product Team">Product Team</option>
+                                        <option value="Dev Ticket Support">Dev Ticket Support</option>
+                                        <option value="Engineering Desk">Engineering Desk</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group-field">
+                                <label style="font-size: 12px; color: #a6a9b6;">Pesan yang Dikirim</label>
+                                <div class="custom-select-wrapper">
+                                    <select id="actionPayloadType" class="custom-input-box" onchange="renderActionDecisions()">
+                                        <option value="original">Teruskan Pesan Asli</option>
+                                        <option value="custom" selected>Teruskan dengan Pesan</option>
+                                        <option value="rizz">Jawaban dari Rizz</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div id="actionCustomMsgBlock" class="form-group-field">
+                                <label style="font-size: 11px; color: #7f95ba;">Pesan Tambahan</label>
+                                <textarea id="actionCustomText" class="custom-input-box" rows="2" style="font-size: 13px;" placeholder="Tulis pesan tambahan...">Tolong segera dicek kendala ini.</textarea>
+                                <div id="actionMentionWrapper" class="mt-2">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <label style="font-size: 11px; color: #7f95ba; margin: 0;">Mention Anggota Grup</label>
+                                        <span id="selectedMentionCount" style="font-size: 11px; color: #48bb78; font-weight: 700;">0 dipilih</span>
+                                    </div>
+                                    <small style="color: #6b7280; font-size: 11px; display: block; margin-bottom: 8px;">Pilih anggota dari grup tujuan untuk di-mention saat pesan diteruskan.</small>
+                                    <div class="d-flex flex-wrap" id="actionMentionMembersList" style="gap: 6px;"></div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div class="wa-body">
-                        <span class="wa-date">Hari ini, 08.00</span>
-                        <div class="wa-bubble">
-                            <p class="greet">Pagi, Yan ☀️ Ini rekap mingguanmu.</p>
-                            
-                            <span class="sec-label">Perlu perhatian hari ini</span>
-                            <ul>
-                                <li>5 mention penting di Slack belum dibalas</li>
-                                <li>Diskusi tim di Discord: jadwal rilis disepakati bergeser ke hari Jumat</li>
-                            </ul>
-                            
-                            <span class="sec-label neutral">Dari WhatsApp Group</span>
-                            <ul>
-                                <li>Grup Project Alpha: 2 dokumen revisi telah dibagikan</li>
-                                <li>Grup Marketing: Pertanyaan dari client sudah dijawab</li>
-                            </ul>
-                            
-                            <span class="sec-label neutral">Dari Slack</span>
-                            <ul>
-                                <li>3 thread diskusi baru di channel #design-updates</li>
-                            </ul>
+                </div>
+            </form>
+        </div>
 
-                            <div class="time">08.00</div>
-                        </div>
+        <!-- Modal Delivery Log -->
+        <div class="workflow-popup" id="deliveryLogModal">
+            <div class="workflow-shell" style="max-width: 540px; height: auto; flex-direction: column; padding: 22px;">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h3 id="logTitleText" style="font-size: 18px; margin: 0; font-weight: 700;">Delivery Log</h3>
+                    <button type="button" onclick="closeLogModal()" class="text-white border-0 bg-transparent"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div class="d-flex flex-column gap-2" style="font-size: 13px; color: #a6a9b6;">
+                    <div class="p-2 border-bottom border-secondary d-flex justify-content-between align-items-center">
+                        <span>Forwarded message [Payment bug] &rarr; Product Team</span>
+                        <span class="badge badge-success">Success</span>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="toast-notification" id="lockedToast">
-        <div class="toast-icon" style="color: var(--warning); font-size: 18px;"><i class="fa-solid fa-lock"></i></div>
-        <div class="toast-content" id="toastContent">
-            <h4>Fitur terkunci</h4>
-            <p>Daily Digest hanya tersedia pada paket Spark.</p>
-        </div>
-        <button class="toast-close" onclick="closeToast()"><i class="fa-solid fa-xmark"></i></button>
-    </div>
-
+    <!-- ================= JAVASCRIPT HANDLERS ================= -->
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            fetch('../component/sidebar.html')
-                .then(response => {
-                    if (!response.ok) throw new Error('Gagal memuat sidebar');
-                    return response.text();
-                })
-                .then(data => {
-                    document.getElementById('sidebar-container').innerHTML = data;
-                })
-                .catch(error => console.error('Error loading sidebar:', error));
+    document.addEventListener('DOMContentLoaded', function() {
+        // 1. Pastikan HTML sudah menggunakan tema dari LocalStorage sebelum sidebar dimuat
+        let savedTheme = localStorage.getItem('sumrize_v2_theme') || 'dark';
+        document.documentElement.setAttribute('data-v2-theme', savedTheme);
 
-            updateSchedulePanelState();
+        // 2. Muat Sidebar secara dinamis
+        fetch('/component/sidebar.html')
+            .then(response => {
+                if (!response.ok) throw new Error('Gagal memuat sidebar');
+                return response.text();
+            })
+            .then(data => {
+                // Masukkan HTML sidebar ke dalam container
+                document.getElementById('sidebar-container').innerHTML = data;
+                
+                // 3. JALANKAN FUNGSI UI SETELAH SIDEBAR MUNCUL
+                if (typeof initMobileMenu === 'function') initMobileMenu(); // Hanya jika halaman tsb punya fungsi mobile menu
+                setActiveMenu(); 
+                updateThemeUI(savedTheme); // Sinkronkan tombol Terang/Gelap & Logo
+            })
+            .catch(error => console.error('Error loading sidebar:', error));
+
+        // Panggil fungsi inisiasi khusus halaman tertentu (misal: digest.html)
+        if (typeof updateSchedulePanelState === 'function') updateSchedulePanelState();
+    });
+
+    // --- FUNGSI: Tandai Menu Sidebar yang Aktif ---
+    function setActiveMenu() {
+        let currentPath = window.location.pathname.split("/").pop();
+        if (currentPath === "") currentPath = "index.html"; 
+
+        const sidebarLinks = document.querySelectorAll('.dashboard-sidebar-link-v3');
+        sidebarLinks.forEach(link => {
+            link.classList.remove('is-active');
+            const linkHref = link.getAttribute('href');
+            if (linkHref) {
+                const cleanHref = linkHref.startsWith('/') ? linkHref.substring(1) : linkHref;
+                if (cleanHref === currentPath) {
+                    link.classList.add('is-active');
+                }
+            }
+        });
+    }
+
+    // --- FUNGSI: Aksi Saat Tombol Terang/Gelap Diklik ---
+    function applyTheme(theme) {
+        document.documentElement.setAttribute('data-v2-theme', theme);
+        localStorage.setItem('sumrize_v2_theme', theme);
+        updateThemeUI(theme);
+    }
+
+    // --- FUNGSI: Sinkronisasi Tombol & Logo di Sidebar ---
+    function updateThemeUI(theme) {
+        const isDark = theme === 'dark';
+        
+        // Atur tombol switch Terang/Gelap
+        const btnDark = document.getElementById('btnThemeDark');
+        const btnLight = document.getElementById('btnThemeLight');
+        if (btnDark) btnDark.classList.toggle('is-active', isDark);
+        if (btnLight) btnLight.classList.toggle('is-active', !isDark);
+
+        // Atur perubahan gambar Logo sesuai mode
+        const desktopLogo = document.getElementById('themeLogoDesktop');
+        if (desktopLogo) {
+            desktopLogo.src = isDark 
+                ? 'https://app.sumrize.me/assets/img/logo/logo-white.png' 
+                : 'https://app.sumrize.me/assets/img/logo/logo-black.png';
+        }
+    }
+
+    // Fungsi toggle mobile menu bawaan
+    function initMobileMenu() {
+        const mobileBtn = document.getElementById('mobileMenuBtn');
+        const drawer = document.getElementById('mobileDashboardDrawerV3');
+        const overlay = document.getElementById('mobileDrawerOverlay');
+        if (mobileBtn && drawer && overlay) {
+            mobileBtn.addEventListener('click', () => {
+                drawer.classList.toggle('is-open');
+                overlay.classList.toggle('is-open');
+            });
+            overlay.addEventListener('click', () => {
+                drawer.classList.remove('is-open');
+                overlay.classList.remove('is-open');
+            });
+        }
+    }
+
+    // Fungsi Tema Mode Terang/Gelap
+    // function applyTheme(theme) {
+    //     document.documentElement.setAttribute('data-v2-theme', theme);
+    //     localStorage.setItem('sumrize_v2_theme', theme);
+        
+    //     const isDark = theme === 'dark';
+    //     updateThemeButtons(theme);
+        
+    //     const desktopLogo = document.getElementById('themeLogoDesktop');
+    //     if (desktopLogo) {
+    //         desktopLogo.src = isDark ? 'https://app.sumrize.me/assets/img/logo/logo-white.png' :
+    //             'https://app.sumrize.me/assets/img/logo/logo-black.png';
+    //     }
+    // }
+
+    function updateThemeButtons(theme) {
+        const btnDark = document.getElementById('btnThemeDark');
+        const btnLight = document.getElementById('btnThemeLight');
+        if (btnDark && btnLight) {
+            btnDark.classList.toggle('is-active', theme === 'dark');
+            btnLight.classList.toggle('is-active', theme === 'light');
+        }
+    }
+
+    // Fungsi modal (tetap sama)
+    const modal = document.getElementById('workflowBuilderModal');
+    function openWorkflowModal() {
+        modal.classList.add('is-open');
+    }
+
+    function closeWorkflowModal() {
+        modal.classList.remove('is-open');
+    }
+
+        let isRailCollapsed = false;
+        function toggleRailCollapse() {
+            isRailCollapsed = !isRailCollapsed;
+            const rail = document.getElementById('settingsRail');
+            const content = document.getElementById('railContent');
+            const toggleText = document.getElementById('railToggleText');
+            const toggleIcon = document.getElementById('railToggleIcon');
+            rail.classList.toggle('collapsed', isRailCollapsed);
+            if (isRailCollapsed) {
+                content.style.setProperty('display', 'none', 'important');
+                toggleText.innerHTML = '<i class="fa-solid fa-eye mr-1"></i> Tampilkan Detail Form';
+                toggleIcon.style.transform = 'rotate(-90deg)';
+            } else {
+                content.style.removeProperty('display');
+                toggleText.innerHTML = '<i class="fa-solid fa-eye-slash mr-1"></i> Sembunyikan Detail Form';
+                toggleIcon.style.transform = 'rotate(0deg)';
+            }
+        }
+
+        let currentType = 'trigger';
+        function switchType(type) {
+            currentType = type;
+            document.getElementById('typeTriggerBtn').classList.toggle('active', type === 'trigger');
+            document.getElementById('typeTimeBtn').classList.toggle('active', type === 'time');
+            const triggerBox = document.getElementById('originTriggerContainer');
+            const timeBox = document.getElementById('originTimeContainer');
+            if (type === 'time') {
+                triggerBox.style.setProperty('display', 'none', 'important');
+                timeBox.style.setProperty('display', 'block', 'important');
+            } else {
+                triggerBox.style.setProperty('display', 'flex', 'important');
+                timeBox.style.setProperty('display', 'none', 'important');
+            }
+        }
+
+        function renderOriginDecisions() {
+            const val = document.getElementById('originTriggerSelect').value;
+            document.getElementById('originKeywordsBlock').style.display = (val === 'keyword') ? 'block' : 'none';
+            const senderBlock = document.getElementById('originSendersBlock');
+            senderBlock.style.display = (val === 'sender') ? 'block' : 'none';
+            if (val === 'sender') renderGroupMembers();
+        }
+
+        const groupMembersData = [
+            { id: '1', name: 'Jamal', selected: true }, 
+            { id: '2', name: 'Rahmat', selected: true },
+            { id: '3', name: 'Alfyan', selected: false }, 
+            { id: '4', name: 'Nahel', selected: false },
+            { id: '5', name: 'Dafinaa', selected: false }, 
+            { id: '6', name: 'Pak Rian', selected: false }
+        ];
+
+        function renderGroupMembers() {
+            const container = document.getElementById('groupMembersList');
+            if (!container) return;
+            container.innerHTML = '';
+            let selectedCount = 0;
+            groupMembersData.forEach(member => {
+                if (member.selected) selectedCount++;
+                const chip = document.createElement('div');
+                chip.className = `member-select-chip ${member.selected ? 'selected' : ''}`;
+                chip.innerHTML = `<i class="chip-status-icon ${member.selected ? 'fa-solid fa-circle-check' : 'fa-regular fa-circle'}"></i><span>${member.name}</span>`;
+                chip.onclick = function() {
+                    member.selected = !member.selected;
+                    renderGroupMembers();
+                };
+                container.appendChild(chip);
+            });
+            const countBadge = document.getElementById('selectedMemberCount');
+            if (countBadge) countBadge.innerText = `${selectedCount} dipilih`;
+        }
+
+        const groupMembersDatabase = {
+            'Product Team': [
+                { id: 'p1', name: 'Jamal', selected: true }, 
+                { id: 'p2', name: 'Rahmat', selected: false }, 
+                { id: 'p3', name: 'Alfyan', selected: false }, 
+                { id: 'p4', name: 'Dian', selected: false }
+            ],
+            'Dev Ticket Support': [
+                { id: 'd1', name: 'Budi Santoso', selected: false }, 
+                { id: 'd2', name: 'Bayu DevOps', selected: false }, 
+                { id: 'd3', name: 'Gilang Backend', selected: true }, 
+                { id: 'd4', name: 'Andi QA', selected: false }
+            ],
+            'Engineering Desk': [
+                { id: 'e1', name: 'Farhan Architect', selected: false }, 
+                { id: 'e2', name: 'Rico System', selected: false }, 
+                { id: 'e3', name: 'Pak Taufan', selected: true }
+            ]
+        };
+
+        function renderMentionMembers() {
+            const groupSelect = document.getElementById('actionConnectorSelect');
+            const selectedGroup = groupSelect ? groupSelect.value : 'Product Team';
+            const members = groupMembersDatabase[selectedGroup] || [];
+            const container = document.getElementById('actionMentionMembersList');
+            if (!container) return;
+            container.innerHTML = '';
+            let selectedCount = 0;
+            members.forEach(member => {
+                if (member.selected) selectedCount++;
+                const chip = document.createElement('div');
+                chip.className = `mention-select-chip ${member.selected ? 'selected' : ''}`;
+                chip.innerHTML = `<i class="${member.selected ? 'fa-solid fa-circle-check' : 'fa-regular fa-circle'}"></i><span>@${member.name}</span>`;
+                chip.onclick = function() {
+                    member.selected = !member.selected;
+                    renderMentionMembers();
+                };
+                container.appendChild(chip);
+            });
+            const countBadge = document.getElementById('selectedMentionCount');
+            if (countBadge) countBadge.innerText = `${selectedCount} dipilih`;
+        }
+
+        function onActionGroupChange() {
+            renderMentionMembers();
+        }
+
+        let activeTargetScope = 'group';
+        function setTargetScope(scope) {
+            activeTargetScope = scope;
+            document.getElementById('btnSendGroup').classList.toggle('active', scope === 'group');
+            document.getElementById('btnSendMe').classList.toggle('active', scope === 'me');
+            document.getElementById('targetConnectorBlock').style.display = (scope === 'group') ? 'block' : 'none';
+            renderActionDecisions();
+        }
+
+        function renderActionDecisions() {
+            const payloadType = document.getElementById('actionPayloadType').value;
+            const customMsgBlock = document.getElementById('actionCustomMsgBlock');
+            const mentionWrapper = document.getElementById('actionMentionWrapper');
+            if (customMsgBlock) customMsgBlock.style.display = (payloadType === 'custom') ? 'block' : 'none';
+            if (mentionWrapper) {
+                if (activeTargetScope === 'group' && payloadType === 'custom') {
+                    mentionWrapper.style.display = 'block';
+                    renderMentionMembers();
+                } else {
+                    mentionWrapper.style.display = 'none';
+                }
+            }
+        }
+
+        const tagInput = document.getElementById('tagInputBox');
+        tagInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                if (this.value.trim()) {
+                    const span = document.createElement('span');
+                    span.className = 'tag-chip-pill';
+                    span.innerHTML = `${this.value.trim()} <i class="fa-solid fa-xmark" onclick="removeTag(this)"></i>`;
+                    document.getElementById('keywordsChipsHolder').appendChild(span);
+                    this.value = '';
+                }
+            }
         });
 
-        var toastTimer = null;
-
-        /* ---------- STEP 1: pilih frekuensi ---------- */
-        function selectCard(element) {
-            document.querySelectorAll('.digest-card:not(.locked)').forEach(function(card) {
-                card.classList.remove('active');
-            });
-            document.querySelector('.digest-card[data-freq="daily"]').classList.remove('active');
-            element.classList.add('active');
-            updateSchedulePanelState();
+        function removeTag(icon) {
+            icon.parentElement.remove();
         }
 
-        function selectDaily(element) {
-            showLockedToast();
-        }
+        // Menangani Submit Form Beserta Validasi Kustom
+        document.getElementById('workflowForm').addEventListener('submit', function(e) {
+            e.preventDefault(); // Mencegah reload halaman
+            
+            // Validasi Kustom 1: Jika Trigger adalah "keyword", minimal 1 kata kunci harus ditambahkan.
+            if (currentType === 'trigger' && document.getElementById('originTriggerSelect').value === 'keyword') {
+                const chipCount = document.getElementById('keywordsChipsHolder').children.length;
+                if(chipCount === 0) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Minimal tambahkan satu kata kunci (ketik lalu enter)!',
+                        background: '#1c202c',
+                        color: '#ffffff',
+                        confirmButtonColor: '#ff4438'
+                    });
+                    return; // Hentikan eksekusi submit
+                }
+            }
 
-        function updateSchedulePanelState() {
-            var activeCard = document.querySelector('.digest-card.active:not([data-freq="daily"])');
-            var panel = document.getElementById('schedulePanel');
-            if (activeCard) {
-                panel.classList.remove('disabled');
+            // AMBIL DATA & SIMPAN (Jika Validasi Sukses)
+            const name = document.getElementById('autoNameInput').value;
+            const origin = document.getElementById('originConnectorSelect').value;
+            const target = (activeTargetScope === 'group') ? document.getElementById('actionConnectorSelect').value : 'Ke Saya (Direct)';
+            
+            let triggerLabel = '';
+            if (currentType === 'time') {
+                const timeVal = document.getElementById('inputTimeSpecific').value || '09:00';
+                triggerLabel = `Jam ${timeVal} Setiap Hari`;
             } else {
-                panel.classList.add('disabled');
+                const triggerVal = document.getElementById('originTriggerSelect').value;
+                if (triggerVal === 'keyword') triggerLabel = 'Kata Kunci Mention';
+                else if (triggerVal === 'sender') triggerLabel = 'Pengirim Tertentu';
+                else if (triggerVal === 'summary') triggerLabel = 'Ringkasan Dibuat';
+                else if (triggerVal === 'rizz') triggerLabel = 'Rizz Disebut';
+                else triggerLabel = 'Pesan Diterima';
             }
+
+            // ANIMASI SUKSES DENGAN SWEETALERT2
+            Swal.fire({
+                icon: 'success',
+                title: 'Tersimpan!',
+                text: 'Automation berhasil ditambahkan.',
+                background: '#1c202c',
+                color: '#ffffff',
+                showConfirmButton: false,
+                timer: 1500
+            }).then(() => {
+                // Tambahkan Card ke DOM
+                const card = document.createElement('article');
+                card.className = 'automation-card';
+                card.innerHTML = `
+                    <div class="automation-card-body">
+                        <div class="automation-card-meta-row"><span class="badge-active-tag">Active</span></div>
+                        <h3 class="automation-card-title">${name}</h3>
+                        <div class="flow-visual-box">
+                            <div class="flow-node-block">
+                                <div class="flow-node-title"><i class="fa-brands fa-whatsapp"></i> ${origin}</div>
+                                <div class="flow-node-sub">${triggerLabel}</div>
+                            </div>
+                            <div class="flow-arrow-separator"><i class="fa-solid fa-arrow-right-long"></i></div>
+                            <div class="flow-node-block">
+                                <div class="flow-node-title"><i class="fa-brands fa-whatsapp"></i> ${target}</div>
+                                <div class="flow-node-sub">Disposisi Chat</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="automation-card-footer" onclick="openLogModal('${name}')">
+                        <i class="fa-solid fa-clock-rotate-left"></i> Delivery Log
+                    </div>
+                `;
+                document.getElementById('automationListStage').appendChild(card);
+                
+                // Reset Form
+                document.getElementById('workflowForm').reset();
+                document.getElementById('keywordsChipsHolder').innerHTML = ''; // Bersihkan pill kata kunci
+                
+                closeWorkflowModal();
+            });
+        });
+
+        function openLogModal(name) {
+            document.getElementById('logTitleText').innerText = `Delivery Log: ${name}`;
+            document.getElementById('deliveryLogModal').classList.add('is-open');
         }
 
-        /* ---------- STEP 2: simpan jadwal ---------- */
-        function saveSchedule() {
-            var time = document.getElementById('scheduleTime').value || '08:00';
-            var tzSelect = document.getElementById('scheduleTimezone');
-            var tzLabel = tzSelect.options[tzSelect.selectedIndex].value;
-            var activeCard = document.querySelector('.digest-card.active:not([data-freq="daily"])');
-            var freqName = activeCard ? activeCard.querySelector('h3').childNodes[0].textContent.trim() : 'Digest';
-
-            showToast(
-                'Jadwal disimpan',
-                freqName + ' berikutnya dikirim pukul ' + time + ' ' + tzLabel + '.',
-                'fa-solid fa-circle-check',
-                'var(--success)'
-            );
+        function closeLogModal() {
+            document.getElementById('deliveryLogModal').classList.remove('is-open');
         }
 
-        /* ---------- Pratinjau digest (modal) ---------- */
-        function openPreview() {
-            document.getElementById('previewOverlay').classList.add('show');
-        }
-        function closePreview() {
-            document.getElementById('previewOverlay').classList.remove('show');
-        }
+        document.addEventListener('DOMContentLoaded', function() {
+            renderMentionMembers();
+            renderGroupMembers();
+        });
 
-        /* ---------- Toast ---------- */
-        function showLockedToast() {
-            showToast('Fitur terkunci', 'Daily Digest hanya tersedia pada paket Spark.', 'fa-solid fa-lock', 'var(--warning)');
-        }
-
-        function showToast(title, message, iconClass, iconColor) {
-            var toast = document.getElementById('lockedToast');
-            document.querySelector('#lockedToast .toast-icon').innerHTML = '<i class="' + iconClass + '"></i>';
-            document.querySelector('#lockedToast .toast-icon').style.color = iconColor;
-            document.querySelector('#toastContent h4').textContent = title;
-            document.querySelector('#toastContent p').textContent = message;
-
-            toast.classList.add('show');
-            clearTimeout(toastTimer);
-            toastTimer = setTimeout(closeToast, 4000);
-        }
-
-        function closeToast() {
-            document.getElementById('lockedToast').classList.remove('show');
-        }
-               
-        function applyTheme(theme) {
-            document.documentElement.setAttribute('data-v2-theme', theme);
-            const isDark = theme === 'dark';
-            
-            const btnDark = document.getElementById('btnThemeDark');
-            if(btnDark) btnDark.classList.toggle('is-active', isDark);
-            
-            const btnLight = document.getElementById('btnThemeLight');
-            if(btnLight) btnLight.classList.toggle('is-active', !isDark);
-            
-            const desktopLogo = document.getElementById('themeLogoDesktop');
-            if (desktopLogo) {
-                desktopLogo.src = isDark ? 'https://app.sumrize.me/assets/img/logo/logo-white.png' :
-                    'https://app.sumrize.me/assets/img/logo/logo-black.png';
+        document.addEventListener('click', function(e) {
+            const deskMenu = document.getElementById('dashboardUserDropdownV3');
+            if (deskMenu && !deskMenu.contains(e.target)) {
+                deskMenu.classList.remove('is-open');
             }
-        }
+        });
     </script>
 </body>
 </html>

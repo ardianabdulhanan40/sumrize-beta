@@ -4,7 +4,7 @@
 
   <head>
       <meta charset="utf-8">
-      <base href="/dashboard/">
+    <base href="/sumrize-beta/dashboard/">
       <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
       <meta name="csrf-token" content="661f92c84a8683cbcdff9f1fc0e695fffa24c2bf04214aa2d76ac50379bb7ac4">
       <!-- Primary Meta Tags -->
@@ -12994,7 +12994,7 @@
         document.documentElement.setAttribute('data-v2-theme', savedTheme);
 
         // 2. Muat Sidebar secara dinamis
-        fetch('../component/sidebar.html')
+        fetch('/component/sidebar.html')
             .then(response => {
                 if (!response.ok) throw new Error('Gagal memuat sidebar');
                 return response.text();
