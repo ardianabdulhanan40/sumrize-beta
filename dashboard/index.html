@@ -13219,24 +13219,6 @@
           }
 
           // Fungsi untuk mengganti tema
-          function applyTheme(theme) {
-              document.documentElement.setAttribute('data-v2-theme', theme);
-              const isDark = theme === 'dark';
-
-              // Ubah status tombol aktif
-              const btnDark = document.getElementById('btnThemeDark');
-              const btnLight = document.getElementById('btnThemeLight');
-              if (btnDark) btnDark.classList.toggle('is-active', isDark);
-              if (btnLight) btnLight.classList.toggle('is-active', !isDark);
-
-              // Ubah logo menyesuaikan tema
-              const desktopLogo = document.getElementById('themeLogoDesktop');
-              if (desktopLogo) {
-                  desktopLogo.src = isDark ?
-                      'https://app.sumrize.me/assets/img/logo/logo-white.png' :
-                      'https://app.sumrize.me/assets/img/logo/logo-black.png';
-              }
-          }
 
           function sumrizeFormatHourLabel(value) {
               var numeric = parseInt(value, 10) || 0;
@@ -18317,7 +18299,7 @@
       <script>
           document.addEventListener('DOMContentLoaded', function() {
               // Path sidebar (Sesuaikan dengan path server lokal Anda, misal /component/sidebar.html)
-              const sidebarPath = '../component/sidebar.html';
+              const sidebarPath = '/component/sidebar.html';
 
               fetch(sidebarPath)
                   .then(response => {
@@ -18360,6 +18342,24 @@
                   })
                   .catch(error => console.error('Error loading sidebar:', error));
           });
+                 
+        function applyTheme(theme) {
+            document.documentElement.setAttribute('data-v2-theme', theme);
+            const isDark = theme === 'dark';
+            
+            const btnDark = document.getElementById('btnThemeDark');
+            if(btnDark) btnDark.classList.toggle('is-active', isDark);
+            
+            const btnLight = document.getElementById('btnThemeLight');
+            if(btnLight) btnLight.classList.toggle('is-active', !isDark);
+            
+            const desktopLogo = document.getElementById('themeLogoDesktop');
+            if (desktopLogo) {
+                desktopLogo.src = isDark ? 'https://app.sumrize.me/assets/img/logo/logo-white.png' :
+                    'https://app.sumrize.me/assets/img/logo/logo-black.png';
+            }
+        }
+
       </script>
   </body>
 
