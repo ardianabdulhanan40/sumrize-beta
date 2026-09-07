@@ -4,11 +4,21 @@
 
   <head>
       <meta charset="utf-8">
-      <base href="/sumrize/dashboard/">
+      <base href="/dashboard/">
       <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
       <meta name="csrf-token" content="661f92c84a8683cbcdff9f1fc0e695fffa24c2bf04214aa2d76ac50379bb7ac4">
       <!-- Primary Meta Tags -->
       <title>Sumrize — Because life’s too short to scroll group chats</title>
+      <script>
+    (function() {
+        var savedTheme = null;
+        try {
+            savedTheme = localStorage.getItem('sumrize_v2_theme');
+        } catch (e) {}
+        var resolvedTheme = savedTheme || (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+        document.documentElement.setAttribute('data-v2-theme', resolvedTheme);
+    })();
+</script>
       <meta name="title" content="Sumrize — Because life’s too short to scroll group chats">
       <meta name="description"
           content="Sumrize helps you simplify WhatsApp group chats. Get daily summaries, AI assistance, reminders, and even image generation — directly from your group. Your group, simplified.">
@@ -12977,7 +12987,81 @@
       <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"
           integrity="sha384-Fy6S3B9q64WdZWQUiU+q4/2Lc9npb8tCaSX9FK7E8HnRr0Jz8D6OP9dO5Vg3Q9ct" crossorigin="anonymous">
       </script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // 1. Pastikan HTML sudah menggunakan tema dari LocalStorage sebelum sidebar dimuat
+        let savedTheme = localStorage.getItem('sumrize_v2_theme') || 'dark';
+        document.documentElement.setAttribute('data-v2-theme', savedTheme);
 
+        // 2. Muat Sidebar secara dinamis
+        fetch('../component/sidebar.html')
+            .then(response => {
+                if (!response.ok) throw new Error('Gagal memuat sidebar');
+                return response.text();
+            })
+            .then(data => {
+                // Masukkan HTML sidebar ke dalam container
+                document.getElementById('sidebar-container').innerHTML = data;
+                
+                // 3. JALANKAN FUNGSI UI SETELAH SIDEBAR MUNCUL
+                setActiveMenu(); 
+                updateThemeUI(savedTheme); // Sinkronkan tombol Terang/Gelap & Logo
+            })
+            .catch(error => console.error('Error loading sidebar:', error));
+    });
+
+    // --- FUNGSI: Tandai Menu Sidebar yang Aktif ---
+    function setActiveMenu() {
+        let currentPath = window.location.pathname.split("/").pop();
+        if (currentPath === "") currentPath = "index.html"; 
+
+        const sidebarLinks = document.querySelectorAll('.dashboard-sidebar-link-v3');
+        sidebarLinks.forEach(link => {
+            link.classList.remove('is-active');
+            const linkHref = link.getAttribute('href');
+            if (linkHref) {
+                const cleanHref = linkHref.startsWith('/') ? linkHref.substring(1) : linkHref;
+                if (cleanHref === currentPath) {
+                    link.classList.add('is-active');
+                }
+            }
+        });
+    }
+
+    // --- FUNGSI: Aksi Saat Tombol Terang/Gelap Diklik ---
+    function applyTheme(theme) {
+        document.documentElement.setAttribute('data-v2-theme', theme);
+        localStorage.setItem('sumrize_v2_theme', theme);
+        updateThemeUI(theme);
+    }
+
+    // --- FUNGSI: Sinkronisasi Tombol & Logo di Sidebar ---
+    function updateThemeUI(theme) {
+        const isDark = theme === 'dark';
+        
+        // Atur tombol switch Terang/Gelap
+        const btnDark = document.getElementById('btnThemeDark');
+        const btnLight = document.getElementById('btnThemeLight');
+        if (btnDark) btnDark.classList.toggle('is-active', isDark);
+        if (btnLight) btnLight.classList.toggle('is-active', !isDark);
+
+        // Atur perubahan gambar Logo sesuai mode
+        const desktopLogo = document.getElementById('themeLogoDesktop');
+        if (desktopLogo) {
+            desktopLogo.src = isDark 
+                ? 'https://app.sumrize.me/assets/img/logo/logo-white.png' 
+                : 'https://app.sumrize.me/assets/img/logo/logo-black.png';
+        }
+    }
+
+    // Fungsi tutup popup Dropdown jika di-klik di luar elemen
+    document.addEventListener('click', function(e) {
+        const mobMenu = document.getElementById('dashboardUserDropdownMobile');
+        if (mobMenu && !mobMenu.contains(e.target)) {
+            mobMenu.classList.remove('is-open');
+        }
+    });
+</script>
       <script>
           var sumrizeCsrfMeta = document.querySelector('meta[name="csrf-token"]');
           window.sumrizeCsrfToken = (sumrizeCsrfMeta ? sumrizeCsrfMeta.getAttribute('content') : '') ||
@@ -16373,37 +16457,6 @@
           function v2InitDashboardState() {
               v2ApplyConnectorFilters();
           }
-
-          function v2GetSavedTheme() {
-              try {
-                  return localStorage.getItem('sumrize_v2_theme') || '';
-              } catch (e) {
-                  return '';
-              }
-          }
-
-          function v2ApplyTheme(theme) {
-              var resolved = theme || ((window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) ?
-                  'light' : 'dark');
-              document.documentElement.setAttribute('data-v2-theme', resolved);
-              $('.dashboard-theme-btn-v2').removeClass('is-active');
-              $('.dashboard-theme-btn-v2[data-theme-value="' + resolved + '"]').addClass('is-active');
-              $('[data-logo-dark][data-logo-light]').each(function() {
-                  var $logo = $(this);
-                  var src = resolved === 'light' ? $logo.attr('data-logo-light') : $logo.attr('data-logo-dark');
-                  if (src) {
-                      $logo.attr('src', src);
-                  }
-              });
-              var mobileIconClass = resolved === 'light' ? 'fa-light fa-moon mobile-theme-toggle-icon-v2' :
-                  'fa-light fa-sun mobile-theme-toggle-icon-v2';
-              $('.mobile-theme-toggle-v2')
-                  .attr('data-theme-current', resolved)
-                  .attr('aria-label', resolved === 'light' ? 'Switch to dark mode' : 'Switch to light mode')
-                  .attr('title', resolved === 'light' ? 'Switch to dark mode' : 'Switch to light mode')
-                  .html('<i class="' + mobileIconClass + '"></i>');
-          }
-
           function v2OpenSearch() {
               v2CloseConnectorSortMenus();
               $('.dashboard-toolbar-v2').addClass('is-searching');
@@ -16483,24 +16536,7 @@
               }
           }
 
-          $(document).on('click', '.dashboard-theme-btn-v2', function() {
-              var theme = $(this).attr('data-theme-value') || 'dark';
-              $('#theme-logo-sumrize-desktop').attr('src', 'https://app.sumrize.me/assets/img/logo/logo-' + (theme ===
-                  'light' ? 'black' : 'white') + '.png');
-              $('#theme-logo-sumrize-mobile').attr('src', 'https://app.sumrize.me/assets/img/logo/logo-' + (theme ===
-                  'light' ? 'black' : 'white') + '.png');
-              var $btn = $(this);
-              $('.dashboard-theme-btn-v2').removeClass('is-pressed');
-              $btn.addClass('is-pressed');
-              setTimeout(function() {
-                  $btn.removeClass('is-pressed');
-              }, 160);
-              try {
-                  localStorage.setItem('sumrize_v2_theme', theme);
-              } catch (e) {}
-              v2ApplyTheme(theme);
-          });
-
+          
           $(document).on('click', '.mobile-theme-toggle-v2', function() {
               var current = document.documentElement.getAttribute('data-v2-theme') || 'dark';
               var theme = current === 'light' ? 'dark' : 'light';
@@ -17866,6 +17902,81 @@
           });
       </script>
       <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // 1. Pastikan HTML sudah menggunakan tema dari LocalStorage sebelum sidebar dimuat
+        let savedTheme = localStorage.getItem('sumrize_v2_theme') || 'dark';
+        document.documentElement.setAttribute('data-v2-theme', savedTheme);
+
+        // 2. Muat Sidebar secara dinamis
+        fetch('/component/sidebar.html')
+            .then(response => {
+                if (!response.ok) throw new Error('Gagal memuat sidebar');
+                return response.text();
+            })
+            .then(data => {
+                // Masukkan HTML sidebar ke dalam container
+                document.getElementById('sidebar-container').innerHTML = data;
+                
+                // 3. JALANKAN FUNGSI UI SETELAH SIDEBAR MUNCUL
+                setActiveMenu(); 
+                updateThemeUI(savedTheme); // Sinkronkan tombol Terang/Gelap & Logo
+            })
+            .catch(error => console.error('Error loading sidebar:', error));
+    });
+
+    // --- FUNGSI: Tandai Menu Sidebar yang Aktif ---
+    function setActiveMenu() {
+        let currentPath = window.location.pathname.split("/").pop();
+        if (currentPath === "") currentPath = "index.html"; 
+
+        const sidebarLinks = document.querySelectorAll('.dashboard-sidebar-link-v3');
+        sidebarLinks.forEach(link => {
+            link.classList.remove('is-active');
+            const linkHref = link.getAttribute('href');
+            if (linkHref) {
+                const cleanHref = linkHref.startsWith('/') ? linkHref.substring(1) : linkHref;
+                if (cleanHref === currentPath) {
+                    link.classList.add('is-active');
+                }
+            }
+        });
+    }
+
+    // --- FUNGSI: Aksi Saat Tombol Terang/Gelap Diklik ---
+    function applyTheme(theme) {
+        document.documentElement.setAttribute('data-v2-theme', theme);
+        localStorage.setItem('sumrize_v2_theme', theme);
+        updateThemeUI(theme);
+    }
+
+    // --- FUNGSI: Sinkronisasi Tombol & Logo di Sidebar ---
+    function updateThemeUI(theme) {
+        const isDark = theme === 'dark';
+        
+        // Atur tombol switch Terang/Gelap
+        const btnDark = document.getElementById('btnThemeDark');
+        const btnLight = document.getElementById('btnThemeLight');
+        if (btnDark) btnDark.classList.toggle('is-active', isDark);
+        if (btnLight) btnLight.classList.toggle('is-active', !isDark);
+
+        // Atur perubahan gambar Logo sesuai mode
+        const desktopLogo = document.getElementById('themeLogoDesktop');
+        if (desktopLogo) {
+            desktopLogo.src = isDark 
+                ? 'https://app.sumrize.me/assets/img/logo/logo-white.png' 
+                : 'https://app.sumrize.me/assets/img/logo/logo-black.png';
+        }
+    }
+
+    // Fungsi tutup popup Dropdown jika di-klik di luar elemen
+    document.addEventListener('click', function(e) {
+        const mobMenu = document.getElementById('dashboardUserDropdownMobile');
+        if (mobMenu && !mobMenu.contains(e.target)) {
+            mobMenu.classList.remove('is-open');
+        }
+    });
+</script>
+      <script>
           function v3SyncSidebarState(isOpen) {
               $('body').toggleClass('dashboard-sidebar-open-v3', isOpen);
               $('.dashboard-navbar-v3-menu-btn').attr('aria-expanded', isOpen ? 'true' : 'false');
@@ -18281,84 +18392,6 @@
               };
           })();
       </script>
-
-      <!-- CSS khusus warna menu & JS Pemanggil Sidebar -->
-      <style>
-          .dashboard-sidebar-link-v3.is-active,
-          html[data-v2-theme="light"] .dashboard-sidebar-link-v3.is-active {
-              background: rgba(255, 255, 255, 0.04) !important;
-              color: #959595 !important;
-          }
-
-          .dashboard-sidebar-link-v3.is-active .left i,
-          html[data-v2-theme="light"] .dashboard-sidebar-link-v3.is-active .left i {
-              color: #959595 !important;
-          }
-      </style>
-
-      <script>
-          document.addEventListener('DOMContentLoaded', function() {
-              // Path sidebar (Sesuaikan dengan path server lokal Anda, misal /component/sidebar.html)
-              const sidebarPath = '../component/sidebar.html';
-
-              fetch(sidebarPath)
-                  .then(response => {
-                      if (!response.ok) throw new Error('Gagal memuat sidebar');
-                      return response.text();
-                  })
-                  .then(data => {
-                      // 1. Tampilkan HTML sidebar ke dalam container
-                      document.getElementById('sidebar-container').innerHTML = data;
-
-                      // 2. Inisialisasi Mobile Menu (agar tombol drawer HP berfungsi)
-                      const mobileBtn = document.getElementById('mobileMenuBtn');
-                      const drawer = document.getElementById('mobileDashboardDrawerV3');
-                      const overlay = document.getElementById('mobileDrawerOverlay');
-                      if (mobileBtn && drawer && overlay) {
-                          mobileBtn.addEventListener('click', () => {
-                              drawer.classList.toggle('is-open');
-                              overlay.classList.toggle('is-open');
-                          });
-                          overlay.addEventListener('click', () => {
-                              drawer.classList.remove('is-open');
-                              overlay.classList.remove('is-open');
-                          });
-                      }
-
-                      // 3. Logika mendeteksi halaman saat ini (URL) dan memberi class is-active
-                      const currentUrl = window.location.pathname.split('/').pop() || 'index.html';
-                      const sidebarLinks = document.querySelectorAll('.dashboard-sidebar-link-v3');
-
-                      sidebarLinks.forEach(link => {
-                          const linkHref = link.getAttribute('href');
-                          link.classList.remove('is-active'); // Hapus class default
-
-                          // Jika URL saat ini sesuai dengan isi href dari menu
-                          if (currentUrl.includes(linkHref) || (currentUrl === '' && linkHref ===
-                                  'index.html')) {
-                              link.classList.add('is-active');
-                          }
-                      });
-                  })
-                  .catch(error => console.error('Error loading sidebar:', error));
-          });
-                 
-        function applyTheme(theme) {
-            document.documentElement.setAttribute('data-v2-theme', theme);
-            const isDark = theme === 'dark';
-            
-            const btnDark = document.getElementById('btnThemeDark');
-            if(btnDark) btnDark.classList.toggle('is-active', isDark);
-            
-            const btnLight = document.getElementById('btnThemeLight');
-            if(btnLight) btnLight.classList.toggle('is-active', !isDark);
-            
-            const desktopLogo = document.getElementById('themeLogoDesktop');
-            if (desktopLogo) {
-                desktopLogo.src = isDark ? 'https://app.sumrize.me/assets/img/logo/logo-white.png' :
-                    'https://app.sumrize.me/assets/img/logo/logo-black.png';
-            }
-        }
 
       </script>
   </body>
