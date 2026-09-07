@@ -1,21 +1,10 @@
 <!DOCTYPE html>
 <html lang="id" data-v2-theme="dark">
-
 <head>
     <meta charset="UTF-8">
-    <base href="/dashboard/">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Sumrize - Digest (Explore Mode)</title>
-<script>
-    (function() {
-        var savedTheme = null;
-        try {
-            savedTheme = localStorage.getItem('sumrize_v2_theme');
-        } catch (e) {}
-        var resolvedTheme = savedTheme || (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
-        document.documentElement.setAttribute('data-v2-theme', resolvedTheme);
-    })();
-</script>
+
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
@@ -78,8 +67,7 @@
             box-sizing: border-box;
         }
 
-        html,
-        body {
+        html, body {
             max-width: 100%;
             overflow-x: hidden !important;
             background: var(--bg-main);
@@ -89,10 +77,7 @@
             padding: 0;
         }
 
-        h1,
-        h2,
-        h3,
-        .brand-title {
+        h1, h2, h3, .brand-title {
             font-family: "Playfair Display", serif !important;
         }
 
@@ -113,10 +98,7 @@
         }
 
         /* === NAVBAR (DESKTOP) === */
-        .dashboard-desktop-only-v3 {
-            display: block;
-        }
-
+        .dashboard-desktop-only-v3 { display: block; }
         .dashboard-navbar-v3 {
             display: flex;
             align-items: center;
@@ -290,42 +272,29 @@
             gap: 10px;
             margin: 40px 0 14px;
         }
-
-        .flow-step-label:first-of-type {
-            margin-top: 28px;
-        }
-
+        .flow-step-label:first-of-type { margin-top: 28px; }
         .flow-step-label .num {
-            width: 26px;
-            height: 26px;
+            width: 26px; height: 26px;
             border-radius: 50%;
             background: var(--panel-bg);
             border: 1px solid var(--border-color);
             color: var(--text-muted);
             font-size: 12px;
             font-weight: 700;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: flex; align-items: center; justify-content: center;
             flex-shrink: 0;
         }
-
         .flow-step-label h2 {
             font-size: 18px;
             margin: 0;
             color: var(--text-main);
         }
-
         .flow-step-label p {
             margin: 2px 0 0;
             font-size: 13px;
             color: var(--text-muted);
         }
-
-        .flow-step-label .head-text {
-            display: flex;
-            flex-direction: column;
-        }
+        .flow-step-label .head-text { display: flex; flex-direction: column; }
 
         /* === SCHEDULE PANEL === */
         .schedule-panel {
@@ -336,12 +305,10 @@
             box-shadow: var(--shadow);
             transition: opacity .2s;
         }
-
         .schedule-panel.disabled {
             opacity: .45;
             pointer-events: none;
         }
-
         .schedule-row {
             display: flex;
             align-items: center;
@@ -351,28 +318,10 @@
             border-bottom: 1px solid var(--border-color);
             flex-wrap: wrap;
         }
-
-        .schedule-row:last-of-type {
-            border-bottom: none;
-        }
-
-        .schedule-row .label {
-            font-weight: 700;
-            font-size: 14px;
-            color: var(--text-main);
-        }
-
-        .schedule-row .hint {
-            font-size: 12.5px;
-            color: var(--text-muted);
-            margin-top: 2px;
-        }
-
-        .schedule-field {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
+        .schedule-row:last-of-type { border-bottom: none; }
+        .schedule-row .label { font-weight: 700; font-size: 14px; color: var(--text-main); }
+        .schedule-row .hint { font-size: 12.5px; color: var(--text-muted); margin-top: 2px; }
+        .schedule-field { display: flex; align-items: center; gap: 8px; }
 
         .schedule-panel input[type="time"],
         .schedule-panel select {
@@ -386,7 +335,6 @@
             color: var(--text-main);
             min-width: 160px;
         }
-
         .schedule-panel input[type="time"]:focus,
         .schedule-panel select:focus {
             outline: none;
@@ -417,15 +365,8 @@
             font-size: 13.5px;
             font-family: "Urbanist", sans-serif;
         }
-
-        .btn-primary-fill:hover {
-            background-color: var(--primary-hover);
-        }
-
-        .btn-primary-fill:disabled {
-            opacity: .5;
-            cursor: not-allowed;
-        }
+        .btn-primary-fill:hover { background-color: var(--primary-hover); }
+        .btn-primary-fill:disabled { opacity: .5; cursor: not-allowed; }
 
         .btn-ghost {
             background: transparent;
@@ -438,10 +379,7 @@
             font-size: 13.5px;
             font-family: "Urbanist", sans-serif;
         }
-
-        .btn-ghost:hover {
-            border-color: var(--hover-border);
-        }
+        .btn-ghost:hover { border-color: var(--hover-border); }
 
         .schedule-footer {
             display: flex;
@@ -450,7 +388,6 @@
             margin-top: 18px;
             flex-wrap: wrap;
         }
-
         .no-spam-note {
             font-size: 12px;
             color: var(--text-muted);
@@ -459,26 +396,20 @@
             gap: 6px;
             margin-top: 14px;
         }
-
-        .no-spam-note i {
-            color: var(--success);
-        }
+        .no-spam-note i { color: var(--success); }
 
         /* === PRATINJAU DIGEST (modal + phone) === */
         .preview-overlay {
             position: fixed;
             inset: 0;
-            background: rgba(0, 0, 0, 0.6);
+            background: rgba(0,0,0,0.6);
             display: none;
             align-items: center;
             justify-content: center;
             z-index: 10000;
             padding: 20px;
         }
-
-        .preview-overlay.show {
-            display: flex;
-        }
+        .preview-overlay.show { display: flex; }
 
         .preview-modal {
             background: var(--panel-bg);
@@ -497,8 +428,7 @@
 
         .preview-modal-close {
             position: absolute;
-            top: 14px;
-            right: 18px;
+            top: 14px; right: 18px;
             background: none;
             border: none;
             color: var(--text-muted);
@@ -514,19 +444,16 @@
             border-radius: 32px;
             padding: 10px;
             margin: 0 auto;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
         }
-
         .phone-screen {
             background: var(--phone-bg);
-            width: 100%;
-            height: 100%;
+            width: 100%; height: 100%;
             border-radius: 22px;
             overflow: hidden;
             display: flex;
             flex-direction: column;
         }
-
         .wa-head {
             background: var(--panel-bg-soft);
             padding: 14px 14px 12px;
@@ -535,25 +462,13 @@
             gap: 10px;
             border-bottom: 1px solid var(--border-color);
         }
-
         .wa-avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
+            width: 32px; height: 32px; border-radius: 50%;
             background: linear-gradient(135deg, var(--primary), #ffb84d);
             flex-shrink: 0;
         }
-
-        .wa-head .name {
-            font-size: 13.5px;
-            font-weight: 700;
-            color: var(--text-main);
-        }
-
-        .wa-head .status {
-            font-size: 10.5px;
-            color: var(--text-muted);
-        }
+        .wa-head .name { font-size: 13.5px; font-weight: 700; color: var(--text-main); }
+        .wa-head .status { font-size: 10.5px; color: var(--text-muted); }
 
         .wa-body {
             flex: 1;
@@ -563,7 +478,6 @@
             gap: 8px;
             overflow-y: auto;
         }
-
         .wa-date {
             align-self: center;
             background: var(--panel-bg-soft);
@@ -573,7 +487,6 @@
             border-radius: 8px;
             margin-bottom: 4px;
         }
-
         .wa-bubble {
             background: var(--panel-bg-soft);
             border: 1px solid var(--border-color);
@@ -583,41 +496,12 @@
             color: var(--text-main);
             line-height: 1.5;
         }
-
-        .wa-bubble .greet {
-            font-weight: 800;
-            margin: 0 0 8px;
-            font-size: 13px;
-        }
-
-        .wa-bubble .sec-label {
-            font-weight: 800;
-            display: block;
-            margin: 10px 0 4px;
-            color: var(--primary);
-        }
-
-        .wa-bubble .sec-label.neutral {
-            color: var(--text-main);
-        }
-
-        .wa-bubble ul {
-            margin: 0 0 4px;
-            padding-left: 16px;
-        }
-
-        .wa-bubble li {
-            margin-bottom: 3px;
-            color: var(--text-main);
-            opacity: 0.85;
-        }
-
-        .wa-bubble .time {
-            text-align: right;
-            font-size: 9.5px;
-            color: var(--text-muted);
-            margin-top: 6px;
-        }
+        .wa-bubble .greet { font-weight: 800; margin: 0 0 8px; font-size: 13px; }
+        .wa-bubble .sec-label { font-weight: 800; display: block; margin: 10px 0 4px; color: var(--primary); }
+        .wa-bubble .sec-label.neutral { color: var(--text-main); }
+        .wa-bubble ul { margin: 0 0 4px; padding-left: 16px; }
+        .wa-bubble li { margin-bottom: 3px; color: var(--text-main); opacity: 0.85; }
+        .wa-bubble .time { text-align: right; font-size: 9.5px; color: var(--text-muted); margin-top: 6px; }
 
         /* === TOAST NOTIFICATION === */
         .toast-notification {
@@ -642,28 +526,11 @@
             transform: translateX(0);
         }
 
-        .toast-content h4 {
-            margin: 0 0 4px 0;
-            font-size: 14px;
-            color: var(--text-main);
-            font-family: "Urbanist", sans-serif;
-            font-weight: bold;
-        }
-
-        .toast-content p {
-            margin: 0;
-            font-size: 12px;
-            color: var(--text-muted);
-        }
-
+        .toast-content h4 { margin: 0 0 4px 0; font-size: 14px; color: var(--text-main); font-family: "Urbanist", sans-serif; font-weight: bold; }
+        .toast-content p { margin: 0; font-size: 12px; color: var(--text-muted); }
         .toast-close {
-            background: none;
-            border: none;
-            color: var(--text-muted);
-            cursor: pointer;
-            font-size: 16px;
-            padding: 0;
-            margin-left: 20px;
+            background: none; border: none; color: var(--text-muted);
+            cursor: pointer; font-size: 16px; padding: 0; margin-left: 20px;
         }
 
         /* === RESPONSIVE (MOBILE) === */
@@ -672,46 +539,31 @@
                 display: block;
                 padding: 76px 16px 40px 16px;
             }
-
             .dashboard-sidebar-v3 {
                 display: none;
             }
-
             .digest-card {
                 flex-direction: column;
                 align-items: flex-start;
                 gap: 16px;
                 padding: 16px;
             }
-
             .radio-circle {
                 position: absolute;
                 top: 20px;
                 left: 16px;
             }
-
             .digest-card-content {
                 margin-left: 36px;
                 width: 100%;
             }
-
             .btn-upgrade {
                 width: 100%;
                 margin-top: 8px;
             }
-
-            .schedule-row {
-                align-items: flex-start;
-            }
-
-            .schedule-field {
-                width: 100%;
-            }
-
-            .schedule-panel select,
-            .schedule-panel input[type="time"] {
-                width: 100%;
-            }
+            .schedule-row { align-items: flex-start; }
+            .schedule-field { width: 100%; }
+            .schedule-panel select, .schedule-panel input[type="time"] { width: 100%; }
         }
     </style>
 </head>
@@ -726,8 +578,7 @@
             <section class="dashboard-navbar-v3 dashboard-desktop-only-v3 d-none d-lg-flex">
                 <div class="dashboard-navbar-v3-copy-block">
                     <h1>Digest</h1>
-                    <p style="color: var(--text-muted); margin: 4px 0 0; font-size: 14px;">Atur jadwal ringkasan
-                        otomatis</p>
+                    <p style="color: var(--text-muted); margin: 4px 0 0; font-size: 14px;">Atur jadwal ringkasan otomatis</p>
                 </div>
 
                 <div class="dashboard-navbar-v3-actions">
@@ -742,8 +593,7 @@
             <section class="d-flex d-lg-none flex-column mb-4 mt-5">
                 <div>
                     <h1 style="font-size: 28px; margin: 0; color: var(--text-main); font-weight: bold;">Digest</h1>
-                    <p style="color: var(--text-muted); margin: 4px 0 16px; font-size: 13px;">Atur jadwal ringkasan
-                        otomatis</p>
+                    <p style="color: var(--text-muted); margin: 4px 0 16px; font-size: 13px;">Atur jadwal ringkasan otomatis</p>
                 </div>
             </section>
 
@@ -776,14 +626,10 @@
                     <div class="digest-card" data-freq="daily" onclick="selectDaily(this)">
                         <div class="radio-circle"></div>
                         <div class="digest-card-content">
-                            <h3>Daily <i class="fa-solid fa-lock"
-                                    style="font-size: 14px; color: var(--text-muted);"></i> <span
-                                    class="spark-badge">Spark</span></h3>
+                            <h3>Daily <i class="fa-solid fa-lock" style="font-size: 14px; color: var(--text-muted);"></i> <span class="spark-badge">Spark</span></h3>
                             <p>Ringkasan dikirim setiap hari — cocok untuk morning briefing sebelum mulai kerja.</p>
                         </div>
-                        <button class="btn-upgrade"
-                            onclick="event.stopPropagation(); window.location.href='/paket-saya'">Upgrade ke
-                            Spark</button>
+                        <button class="btn-upgrade" onclick="event.stopPropagation(); window.location.href='/paket-saya'">Upgrade ke Spark</button>
                     </div>
                 </div>
             </div>
@@ -832,8 +678,7 @@
                 </div>
 
                 <div class="schedule-footer">
-                    <button class="btn-primary-fill" id="saveScheduleBtn" onclick="saveSchedule()">Simpan
-                        jadwal</button>
+                    <button class="btn-primary-fill" id="saveScheduleBtn" onclick="saveSchedule()">Simpan jadwal</button>
                     <button class="btn-ghost" onclick="openPreview()">
                         <i class="fa-regular fa-eye" style="margin-right:6px;"></i>Lihat contoh pesan
                     </button>
@@ -849,8 +694,7 @@
                 <div class="num">3</div>
                 <div class="head-text">
                     <h2>Ubah lagi kapan pun</h2>
-                    <p>Nggak cocok dengan jam 08.00? Ganti jam atau zona waktu di atas, lalu simpan — perubahan berlaku
-                        mulai digest berikutnya.</p>
+                    <p>Nggak cocok dengan jam 08.00? Ganti jam atau zona waktu di atas, lalu simpan — perubahan berlaku mulai digest berikutnya.</p>
                 </div>
             </div>
 
@@ -874,19 +718,19 @@
                         <span class="wa-date">Hari ini, 08.00</span>
                         <div class="wa-bubble">
                             <p class="greet">Pagi, Yan ☀️ Ini rekap mingguanmu.</p>
-
+                            
                             <span class="sec-label">Perlu perhatian hari ini</span>
                             <ul>
                                 <li>5 mention penting di Slack belum dibalas</li>
                                 <li>Diskusi tim di Discord: jadwal rilis disepakati bergeser ke hari Jumat</li>
                             </ul>
-
+                            
                             <span class="sec-label neutral">Dari WhatsApp Group</span>
                             <ul>
                                 <li>Grup Project Alpha: 2 dokumen revisi telah dibagikan</li>
                                 <li>Grup Marketing: Pertanyaan dari client sudah dijawab</li>
                             </ul>
-
+                            
                             <span class="sec-label neutral">Dari Slack</span>
                             <ul>
                                 <li>3 thread diskusi baru di channel #design-updates</li>
@@ -901,84 +745,28 @@
     </div>
 
     <div class="toast-notification" id="lockedToast">
-        <div class="toast-icon" style="color: var(--warning); font-size: 18px;"><i class="fa-solid fa-lock"></i>
-        </div>
+        <div class="toast-icon" style="color: var(--warning); font-size: 18px;"><i class="fa-solid fa-lock"></i></div>
         <div class="toast-content" id="toastContent">
             <h4>Fitur terkunci</h4>
             <p>Daily Digest hanya tersedia pada paket Spark.</p>
         </div>
         <button class="toast-close" onclick="closeToast()"><i class="fa-solid fa-xmark"></i></button>
     </div>
+
     <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // 1. Pastikan HTML sudah menggunakan tema dari LocalStorage sebelum sidebar dimuat
-        let savedTheme = localStorage.getItem('sumrize_v2_theme') || 'dark';
-        document.documentElement.setAttribute('data-v2-theme', savedTheme);
+        document.addEventListener('DOMContentLoaded', function() {
+            fetch('../component/sidebar.html')
+                .then(response => {
+                    if (!response.ok) throw new Error('Gagal memuat sidebar');
+                    return response.text();
+                })
+                .then(data => {
+                    document.getElementById('sidebar-container').innerHTML = data;
+                })
+                .catch(error => console.error('Error loading sidebar:', error));
 
-        // 2. Muat Sidebar secara dinamis
-        fetch('../component/sidebar.html')
-            .then(response => {
-                if (!response.ok) throw new Error('Gagal memuat sidebar');
-                return response.text();
-            })
-            .then(data => {
-                // Masukkan HTML sidebar ke dalam container
-                document.getElementById('sidebar-container').innerHTML = data;
-                
-                // 3. JALANKAN FUNGSI UI SETELAH SIDEBAR MUNCUL
-                if (typeof initMobileMenu === 'function') initMobileMenu(); // Hanya jika halaman tsb punya fungsi mobile menu
-                setActiveMenu(); 
-                updateThemeUI(savedTheme); // Sinkronkan tombol Terang/Gelap & Logo
-            })
-            .catch(error => console.error('Error loading sidebar:', error));
-
-        // Panggil fungsi inisiasi khusus halaman tertentu (misal: digest.html)
-        if (typeof updateSchedulePanelState === 'function') updateSchedulePanelState();
-    });
-
-    // --- FUNGSI: Tandai Menu Sidebar yang Aktif ---
-    function setActiveMenu() {
-        let currentPath = window.location.pathname.split("/").pop();
-        if (currentPath === "") currentPath = "index.html"; 
-
-        const sidebarLinks = document.querySelectorAll('.dashboard-sidebar-link-v3');
-        sidebarLinks.forEach(link => {
-            link.classList.remove('is-active');
-            const linkHref = link.getAttribute('href');
-            if (linkHref) {
-                const cleanHref = linkHref.startsWith('/') ? linkHref.substring(1) : linkHref;
-                if (cleanHref === currentPath) {
-                    link.classList.add('is-active');
-                }
-            }
+            updateSchedulePanelState();
         });
-    }
-
-    // --- FUNGSI: Aksi Saat Tombol Terang/Gelap Diklik ---
-    function applyTheme(theme) {
-        document.documentElement.setAttribute('data-v2-theme', theme);
-        localStorage.setItem('sumrize_v2_theme', theme);
-        updateThemeUI(theme);
-    }
-
-    // --- FUNGSI: Sinkronisasi Tombol & Logo di Sidebar ---
-    function updateThemeUI(theme) {
-        const isDark = theme === 'dark';
-        
-        // Atur tombol switch Terang/Gelap
-        const btnDark = document.getElementById('btnThemeDark');
-        const btnLight = document.getElementById('btnThemeLight');
-        if (btnDark) btnDark.classList.toggle('is-active', isDark);
-        if (btnLight) btnLight.classList.toggle('is-active', !isDark);
-
-        // Atur perubahan gambar Logo sesuai mode
-        const desktopLogo = document.getElementById('themeLogoDesktop');
-        if (desktopLogo) {
-            desktopLogo.src = isDark 
-                ? 'https://app.sumrize.me/assets/img/logo/logo-white.png' 
-                : 'https://app.sumrize.me/assets/img/logo/logo-black.png';
-        }
-    }
 
         var toastTimer = null;
 
@@ -1026,15 +814,13 @@
         function openPreview() {
             document.getElementById('previewOverlay').classList.add('show');
         }
-
         function closePreview() {
             document.getElementById('previewOverlay').classList.remove('show');
         }
 
         /* ---------- Toast ---------- */
         function showLockedToast() {
-            showToast('Fitur terkunci', 'Daily Digest hanya tersedia pada paket Spark.', 'fa-solid fa-lock',
-                'var(--warning)');
+            showToast('Fitur terkunci', 'Daily Digest hanya tersedia pada paket Spark.', 'fa-solid fa-lock', 'var(--warning)');
         }
 
         function showToast(title, message, iconClass, iconColor) {
@@ -1052,32 +838,23 @@
         function closeToast() {
             document.getElementById('lockedToast').classList.remove('show');
         }
-
-        // Fungsi Tema Mode Terang/Gelap
+               
         function applyTheme(theme) {
             document.documentElement.setAttribute('data-v2-theme', theme);
-            localStorage.setItem('sumrize_v2_theme', theme);
-
-            updateThemeButtons(theme);
-
             const isDark = theme === 'dark';
+            
+            const btnDark = document.getElementById('btnThemeDark');
+            if(btnDark) btnDark.classList.toggle('is-active', isDark);
+            
+            const btnLight = document.getElementById('btnThemeLight');
+            if(btnLight) btnLight.classList.toggle('is-active', !isDark);
+            
             const desktopLogo = document.getElementById('themeLogoDesktop');
             if (desktopLogo) {
                 desktopLogo.src = isDark ? 'https://app.sumrize.me/assets/img/logo/logo-white.png' :
                     'https://app.sumrize.me/assets/img/logo/logo-black.png';
             }
         }
-
-        // Fungsi pembantu untuk menggeser class 'is-active' pada tombol tema
-        function updateThemeButtons(theme) {
-            const btnDark = document.getElementById('btnThemeDark');
-            const btnLight = document.getElementById('btnThemeLight');
-            if (btnDark && btnLight) {
-                btnDark.classList.toggle('is-active', theme === 'dark');
-                btnLight.classList.toggle('is-active', theme === 'light');
-            }
-        }
     </script>
 </body>
-
 </html>
