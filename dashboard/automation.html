@@ -10,6 +10,10 @@
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    
+    <!-- TAMBAHAN: SweetAlert2 untuk Animasi Sukses dan Error -->
+    <link href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-dark@4/dark.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
         /* === SEMUA CSS ASLI DIPERTAHANKAN DI SINI === */
@@ -202,7 +206,7 @@
             align-items: center;
             justify-content: space-between;
             gap: 20px;
-            min-height: 68px;
+            min-height: 6px;
             padding: 2px 0 6px;
         }
 
@@ -609,7 +613,7 @@
             border-color: #ff4438;
         }
 
-        .member-select-chip {
+        .member-select-chip, .mention-select-chip {
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.12);
             color: #94a3b8;
@@ -625,13 +629,13 @@
             transition: all 0.2s ease;
         }
 
-        .member-select-chip:hover {
+        .member-select-chip:hover, .mention-select-chip:hover {
             background: rgba(255, 255, 255, 0.1);
             color: #fff;
             border-color: rgba(255, 255, 255, 0.25);
         }
 
-        .member-select-chip.selected {
+        .member-select-chip.selected, .mention-select-chip.selected {
             background: rgba(72, 187, 120, 0.18) !important;
             border-color: #48bb78 !important;
             color: #48bb78 !important;
@@ -646,35 +650,6 @@
         .member-select-chip.selected .chip-status-icon {
             color: #48bb78;
             transform: scale(1.1);
-        }
-
-        .mention-select-chip {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            color: #94a3b8;
-            padding: 5px 11px;
-            border-radius: 999px;
-            font-size: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            user-select: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            transition: all 0.2s ease;
-        }
-
-        .mention-select-chip:hover {
-            background: rgba(255, 255, 255, 0.1);
-            color: #fff;
-            border-color: rgba(255, 255, 255, 0.25);
-        }
-
-        .mention-select-chip.selected {
-            background: rgba(72, 187, 120, 0.18) !important;
-            border-color: #48bb78 !important;
-            color: #48bb78 !important;
-            box-shadow: 0 0 8px rgba(72, 187, 120, 0.2);
         }
 
         html[data-v2-theme="light"] body {
@@ -891,7 +866,6 @@
     <!-- 1. PLACEHOLDER UNTUK SIDEBAR -->
     <!-- Script di bawah akan mengisi div ini dengan konten dari sidebar.html -->
 
-
     <!-- Shell Kontainer Utama -->
     <div class="dashboard-shell-v3">
         <div id="sidebar-container"></div>
@@ -910,7 +884,6 @@
                         <i class="fa-solid fa-plus"></i> Tambah Automation
                     </button>
                     <div class="dashboard-navbar-v3-dropdown-wrap">
-                        <!-- Tambahkan onclick agar bisa ditekan -->
                         <button type="button" class="dashboard-navbar-v3-control"
                             onclick="document.getElementById('dashboardUserDropdownV3').classList.toggle('is-open'); event.stopPropagation();">
                             <span class="dashboard-navbar-v3-avatar">Y</span>
@@ -922,14 +895,10 @@
                             <div class="dashboard-navbar-v3-user-card">
                                 <div class="dashboard-navbar-v3-user-head">
                                     <strong style="color: white; font-size: 16px;">Yan</strong>
-                                    <span
-                                        style="color: #7f95ba; font-size: 11px; font-weight: 700; letter-spacing: 0.1em;">EXPLORE</span>
+                                    <span style="color: #7f95ba; font-size: 11px; font-weight: 700; letter-spacing: 0.1em;">EXPLORE</span>
                                 </div>
                             </div>
-
-                            <!-- Ikon diganti fa-solid semua agar muncul -->
-                            <a href="javascript:;" class="dashboard-navbar-v3-item is-upgrade-action open-popup"
-                                data-action="upgrade">
+                            <a href="javascript:;" class="dashboard-navbar-v3-item is-upgrade-action open-popup" data-action="upgrade">
                                 <i class="fa-solid fa-rocket"></i>
                                 <span style="font-weight: bold;">Upgrade</span>
                             </a>
@@ -948,18 +917,15 @@
                         </div>
                     </div>
                 </div>
-
             </section>
 
             <!-- HEADER MOBILE KHUSUS (Sembunyi di Desktop) -->
             <section class="d-flex d-lg-none flex-column mb-4 mt-5">
                 <div>
                     <h1 style="font-size: 28px; margin: 0; color: #fcfbf8; font-weight: bold;">Automation</h1>
-                    <p style="color: #a6a9b6; margin: 4px 0 16px; font-size: 13px;">Ringkasan aktivitas dan automasi
-                        Anda</p>
+                    <p style="color: #a6a9b6; margin: 4px 0 16px; font-size: 13px;">Ringkasan aktivitas dan automasi Anda</p>
                 </div>
 
-                <!-- Tombol dibuat w-100 (lebar penuh) agar lebih rapi & mudah ditekan di layar HP -->
                 <button type="button" class="dashboard-add-btn-v2 w-100" onclick="openWorkflowModal()">
                     <i class="fa-solid fa-plus"></i> Tambah Automation
                 </button>
@@ -1042,207 +1008,164 @@
 
         <!-- ================= MODAL WORKFLOW BUILDER ================= -->
         <div class="workflow-popup" id="workflowBuilderModal">
-            <div class="workflow-shell">
-                <aside class="workflow-settings-rail" id="settingsRail">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h3 style="font-size: 20px; font-weight: 700; margin: 0;">New Automation</h3>
-                        <button type="button" onclick="closeWorkflowModal()"
-                            class="border-0 bg-transparent text-white" style="font-size: 18px;">
-                            <i class="fa-solid fa-xmark"></i>
+            <!-- TAMBAHAN: Dibungkus dengan form agar HTML5 Validation (required) berfungsi -->
+            <form id="workflowForm" style="display: flex; justify-content: center; align-items: center; width: 100%; margin: 0;">
+                <div class="workflow-shell">
+                    <aside class="workflow-settings-rail" id="settingsRail">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h3 style="font-size: 20px; font-weight: 700; margin: 0;">New Automation</h3>
+                            <button type="button" onclick="closeWorkflowModal()" class="border-0 bg-transparent text-white" style="font-size: 18px;">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        </div>
+                        <button type="button" class="mobile-rail-toggle" onclick="toggleRailCollapse()">
+                            <span id="railToggleText"><i class="fa-solid fa-eye-slash mr-1"></i> Sembunyikan Detail Form</span>
+                            <i class="fa-solid fa-chevron-down" id="railToggleIcon"></i>
                         </button>
-                    </div>
-                    <button type="button" class="mobile-rail-toggle" onclick="toggleRailCollapse()">
-                        <span id="railToggleText"><i class="fa-solid fa-eye-slash mr-1"></i> Sembunyikan Detail
-                            Form</span>
-                        <i class="fa-solid fa-chevron-down" id="railToggleIcon"></i>
-                    </button>
-                    <div class="rail-collapsible-content" id="railContent">
-                        <div class="form-group-field mb-3">
-                            <label
-                                style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: #a6a9b6;">Automation
-                                Name</label>
-                            <input type="text" id="autoNameInput" class="custom-input-box" value="Ticket Solver"
-                                placeholder="Nama alur">
-                        </div>
-                        <div class="form-group-field mb-3">
-                            <label
-                                style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: #a6a9b6;">Description</label>
-                            <textarea id="autoDescInput" class="custom-input-box" rows="2" placeholder="Deskripsi alur...">Forward chat kendala ke tim support</textarea>
-                        </div>
-                        <div class="form-group-field mb-3">
-                            <label
-                                style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: #a6a9b6;">Automation
-                                Type</label>
-                            <div class="pill-toggle-switch">
-                                <button type="button" class="pill-toggle-btn active" id="typeTriggerBtn"
-                                    onclick="switchType('trigger')">Trigger</button>
-                                <button type="button" class="pill-toggle-btn" id="typeTimeBtn"
-                                    onclick="switchType('time')">Time</button>
+                        <div class="rail-collapsible-content" id="railContent">
+                            <div class="form-group-field mb-3">
+                                <label style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: #a6a9b6;">Automation Name</label>
+                                <!-- TAMBAHAN: Atribut required -->
+                                <input type="text" id="autoNameInput" class="custom-input-box" placeholder="Nama alur" required>
+                            </div>
+                            <div class="form-group-field mb-3">
+                                <label style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: #a6a9b6;">Description</label>
+                                <!-- TAMBAHAN: Atribut required -->
+                                <textarea id="autoDescInput" class="custom-input-box" rows="2" placeholder="Deskripsi alur..." required></textarea>
+                            </div>
+                            <div class="form-group-field mb-3">
+                                <label style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: #a6a9b6;">Automation Type</label>
+                                <div class="pill-toggle-switch">
+                                    <button type="button" class="pill-toggle-btn active" id="typeTriggerBtn" onclick="switchType('trigger')">Trigger</button>
+                                    <button type="button" class="pill-toggle-btn" id="typeTimeBtn" onclick="switchType('time')">Time</button>
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-between pt-3" style="gap: 12px;">
+                                <button type="button" onclick="closeWorkflowModal()" class="btn btn-secondary flex-fill mr-2" style="border-radius: 12px; font-size: 13px; min-height: 44px;">Batalkan</button>
+                                <!-- PERUBAHAN: Ubah button type="button" menjadi type="submit" -->
+                                <button type="submit" id="btnSaveWorkflow" class="btn btn-primary flex-fill ml-2" style="border-radius: 12px; font-size: 13px; min-height: 44px; background: #ff4438 !important; border: 0;">Simpan</button>
                             </div>
                         </div>
-                        <div class="d-flex justify-content-between pt-3" style="gap: 12px;">
-                            <button type="button" onclick="closeWorkflowModal()"
-                                class="btn btn-secondary flex-fill mr-2"
-                                style="border-radius: 12px; font-size: 13px; min-height: 44px;">Batalkan</button>
-                            <button type="button" id="btnSaveWorkflow" class="btn btn-primary flex-fill ml-2"
-                                style="border-radius: 12px; font-size: 13px; min-height: 44px; background: #ff4438 !important; border: 0;">Simpan</button>
-                        </div>
-                    </div>
-                </aside>
+                    </aside>
 
-                <div class="workflow-canvas-area">
-                    <div class="workflow-step-card">
-                        <div
-                            class="d-flex justify-content-between align-items-center pb-2 border-bottom border-secondary">
-                            <span class="step-label origin"><i class="fa-solid fa-circle mr-1"
-                                    style="font-size: 8px;"></i> Origin</span>
-                            <span style="font-size: 11px; color: #7f95ba;">Pemicu Awal</span>
-                        </div>
-                        <div class="form-group-field">
-                            <label style="font-size: 12px; color: #a6a9b6;">Pilih Connector / Grup</label>
-                            <div class="custom-select-wrapper">
-                                <select id="originConnectorSelect" class="custom-input-box">
-                                    <option value="Marketing Team">Marketing Team</option>
-                                    <option value="Customer Support">Customer Support</option>
-                                    <option value="Discord General">Discord General</option>
-                                </select>
+                    <div class="workflow-canvas-area">
+                        <div class="workflow-step-card">
+                            <div class="d-flex justify-content-between align-items-center pb-2 border-bottom border-secondary">
+                                <span class="step-label origin"><i class="fa-solid fa-circle mr-1" style="font-size: 8px;"></i> Origin</span>
+                                <span style="font-size: 11px; color: #7f95ba;">Pemicu Awal</span>
                             </div>
-                        </div>
-                        <div id="originTriggerContainer" class="d-flex flex-column gap-3">
                             <div class="form-group-field">
-                                <label style="font-size: 12px; color: #a6a9b6;">Trigger</label>
+                                <label style="font-size: 12px; color: #a6a9b6;">Pilih Connector / Grup</label>
                                 <div class="custom-select-wrapper">
-                                    <select id="originTriggerSelect" class="custom-input-box"
-                                        onchange="renderOriginDecisions()">
-                                        <option value="keyword">Ketika kata kunci disebutkan</option>
-                                        <option value="summary">Ketika ringkasan dibuat</option>
-                                        <option value="received">Ketika pesan diterima</option>
-                                        <option value="rizz">Ketika Rizz disebut</option>
-                                        <option value="sender">Ketika orang tertentu mengirim pesan</option>
+                                    <select id="originConnectorSelect" class="custom-input-box">
+                                        <option value="Marketing Team">Marketing Team</option>
+                                        <option value="Customer Support">Customer Support</option>
+                                        <option value="Discord General">Discord General</option>
                                     </select>
                                 </div>
                             </div>
-                            <div id="originKeywordsBlock">
-                                <label style="font-size: 11px; color: #7f95ba;">Kata Kunci (Ketik lalu Enter)</label>
-                                <input type="text" id="tagInputBox" class="custom-input-box"
-                                    style="padding: 8px 12px; font-size: 13px;" placeholder="Tambah kata kunci...">
-                                <div class="d-flex flex-wrap gap-1 mt-2" id="keywordsChipsHolder" style="gap: 4px;">
-                                    <span class="tag-chip-pill">bug <i class="fa-solid fa-xmark"
-                                            onclick="removeTag(this)"></i></span>
-                                    <span class="tag-chip-pill">masalah <i class="fa-solid fa-xmark"
-                                            onclick="removeTag(this)"></i></span>
-                                    <span class="tag-chip-pill">kendala <i class="fa-solid fa-xmark"
-                                            onclick="removeTag(this)"></i></span>
-                                </div>
-                            </div>
-                            <div id="originSendersBlock" style="display: none;">
-                                <div class="d-flex justify-content-between align-items-center mb-1">
-                                    <label style="font-size: 11px; color: #7f95ba; margin: 0;">Pilih Anggota
-                                        Group</label>
-                                    <span id="selectedMemberCount"
-                                        style="font-size: 11px; color: #48bb78; font-weight: 700;">2 dipilih</span>
-                                </div>
-                                <small
-                                    style="color: #6b7280; font-size: 11px; display: block; margin-bottom: 8px;">Klik
-                                    nama anggota untuk memilih atau membatalkan pilihan.</small>
-                                <div class="d-flex flex-wrap" id="groupMembersList" style="gap: 6px;"></div>
-                            </div>
-                        </div>
-                        <div id="originTimeContainer" style="display: none;">
-                            <div class="time-select-container">
+                            <div id="originTriggerContainer" class="d-flex flex-column gap-3">
                                 <div class="form-group-field">
-                                    <label style="font-size: 12px; color: #a6a9b6;">Set Waktu Jam Eksekusi
-                                        (HH:MM)</label>
-                                    <div class="time-hhmm-row">
-                                        <input type="time" id="inputTimeSpecific" class="time-input-native"
-                                            value="09:00" step="3600">
-                                        <span style="font-size: 13px; font-weight: 700; color: #7f95ba;">WIB (Setiap
-                                            Hari)</span>
+                                    <label style="font-size: 12px; color: #a6a9b6;">Trigger</label>
+                                    <div class="custom-select-wrapper">
+                                        <select id="originTriggerSelect" class="custom-input-box" onchange="renderOriginDecisions()">
+                                            <option value="keyword">Ketika kata kunci disebutkan</option>
+                                            <option value="summary">Ketika ringkasan dibuat</option>
+                                            <option value="received">Ketika pesan diterima</option>
+                                            <option value="rizz">Ketika Rizz disebut</option>
+                                            <option value="sender">Ketika orang tertentu mengirim pesan</option>
+                                        </select>
                                     </div>
                                 </div>
-                                <small style="color: #7f95ba; font-size: 11px; line-height: 1.4;">Otomasi akan
-                                    dijalankan
-                                    otomatis tepat pada jam yang Anda tentukan sekali dalam 24 jam.</small>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="step-connector-wire"></div>
-                    <div class="workflow-step-card">
-                        <div
-                            class="d-flex justify-content-between align-items-center pb-2 border-bottom border-secondary">
-                            <span class="step-label action"><i class="fa-solid fa-circle mr-1"
-                                    style="font-size: 8px;"></i> Action</span>
-                            <span style="font-size: 11px; color: #7f95ba;">Tindakan</span>
-                        </div>
-                        <div class="form-group-field">
-                            <label style="font-size: 12px; color: #a6a9b6;">Kirim Ke</label>
-                            <div class="pill-toggle-switch">
-                                <button type="button" class="pill-toggle-btn active" id="btnSendGroup"
-                                    onclick="setTargetScope('group')">Ke Group</button>
-                                <button type="button" class="pill-toggle-btn" id="btnSendMe"
-                                    onclick="setTargetScope('me')">Ke Saya</button>
-                            </div>
-                        </div>
-                        <div class="form-group-field" id="targetConnectorBlock">
-                            <label style="font-size: 12px; color: #a6a9b6;">Pilih Connector / Grup Tujuan</label>
-                            <div class="custom-select-wrapper">
-                                <select id="actionConnectorSelect" class="custom-input-box"
-                                    onchange="onActionGroupChange()">
-                                    <option value="Product Team">Product Team</option>
-                                    <option value="Dev Ticket Support">Dev Ticket Support</option>
-                                    <option value="Engineering Desk">Engineering Desk</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="form-group-field">
-                            <label style="font-size: 12px; color: #a6a9b6;">Pesan yang Dikirim</label>
-                            <div class="custom-select-wrapper">
-                                <select id="actionPayloadType" class="custom-input-box"
-                                    onchange="renderActionDecisions()">
-                                    <option value="original">Teruskan Pesan Asli</option>
-                                    <option value="custom" selected>Teruskan dengan Pesan</option>
-                                    <option value="rizz">Jawaban dari Rizz</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div id="actionCustomMsgBlock" class="form-group-field">
-                            <label style="font-size: 11px; color: #7f95ba;">Pesan Tambahan</label>
-                            <textarea id="actionCustomText" class="custom-input-box" rows="2" style="font-size: 13px;"
-                                placeholder="Tulis pesan tambahan...">Tolong segera dicek kendala ini.</textarea>
-                            <div id="actionMentionWrapper" class="mt-2">
-                                <div class="d-flex justify-content-between align-items-center mb-1">
-                                    <label style="font-size: 11px; color: #7f95ba; margin: 0;">Mention Anggota
-                                        Grup</label>
-                                    <span id="selectedMentionCount"
-                                        style="font-size: 11px; color: #48bb78; font-weight: 700;">0 dipilih</span>
+                                <div id="originKeywordsBlock">
+                                    <label style="font-size: 11px; color: #7f95ba;">Kata Kunci (Ketik lalu Enter)</label>
+                                    <input type="text" id="tagInputBox" class="custom-input-box" style="padding: 8px 12px; font-size: 13px;" placeholder="Tambah kata kunci...">
+                                    <!-- Dibersihkan kontennya awalnya agar bisa dites validasi -->
+                                    <div class="d-flex flex-wrap gap-1 mt-2" id="keywordsChipsHolder" style="gap: 4px;"></div>
                                 </div>
-                                <small
-                                    style="color: #6b7280; font-size: 11px; display: block; margin-bottom: 8px;">Pilih
-                                    anggota dari grup tujuan untuk di-mention saat pesan diteruskan.</small>
-                                <div class="d-flex flex-wrap" id="actionMentionMembersList" style="gap: 6px;"></div>
+                                <div id="originSendersBlock" style="display: none;">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <label style="font-size: 11px; color: #7f95ba; margin: 0;">Pilih Anggota Group</label>
+                                        <span id="selectedMemberCount" style="font-size: 11px; color: #48bb78; font-weight: 700;">2 dipilih</span>
+                                    </div>
+                                    <small style="color: #6b7280; font-size: 11px; display: block; margin-bottom: 8px;">Klik nama anggota untuk memilih atau membatalkan pilihan.</small>
+                                    <div class="d-flex flex-wrap" id="groupMembersList" style="gap: 6px;"></div>
+                                </div>
+                            </div>
+                            <div id="originTimeContainer" style="display: none;">
+                                <div class="time-select-container">
+                                    <div class="form-group-field">
+                                        <label style="font-size: 12px; color: #a6a9b6;">Set Waktu Jam Eksekusi (HH:MM)</label>
+                                        <div class="time-hhmm-row">
+                                            <input type="time" id="inputTimeSpecific" class="time-input-native" value="09:00" step="3600">
+                                            <span style="font-size: 13px; font-weight: 700; color: #7f95ba;">WIB (Setiap Hari)</span>
+                                        </div>
+                                    </div>
+                                    <small style="color: #7f95ba; font-size: 11px; line-height: 1.4;">Otomasi akan dijalankan otomatis tepat pada jam yang Anda tentukan sekali dalam 24 jam.</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="step-connector-wire"></div>
+                        <div class="workflow-step-card">
+                            <div class="d-flex justify-content-between align-items-center pb-2 border-bottom border-secondary">
+                                <span class="step-label action"><i class="fa-solid fa-circle mr-1" style="font-size: 8px;"></i> Action</span>
+                                <span style="font-size: 11px; color: #7f95ba;">Tindakan</span>
+                            </div>
+                            <div class="form-group-field">
+                                <label style="font-size: 12px; color: #a6a9b6;">Kirim Ke</label>
+                                <div class="pill-toggle-switch">
+                                    <button type="button" class="pill-toggle-btn active" id="btnSendGroup" onclick="setTargetScope('group')">Ke Group</button>
+                                    <button type="button" class="pill-toggle-btn" id="btnSendMe" onclick="setTargetScope('me')">Ke Saya</button>
+                                </div>
+                            </div>
+                            <div class="form-group-field" id="targetConnectorBlock">
+                                <label style="font-size: 12px; color: #a6a9b6;">Pilih Connector / Grup Tujuan</label>
+                                <div class="custom-select-wrapper">
+                                    <select id="actionConnectorSelect" class="custom-input-box" onchange="onActionGroupChange()">
+                                        <option value="Product Team">Product Team</option>
+                                        <option value="Dev Ticket Support">Dev Ticket Support</option>
+                                        <option value="Engineering Desk">Engineering Desk</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group-field">
+                                <label style="font-size: 12px; color: #a6a9b6;">Pesan yang Dikirim</label>
+                                <div class="custom-select-wrapper">
+                                    <select id="actionPayloadType" class="custom-input-box" onchange="renderActionDecisions()">
+                                        <option value="original">Teruskan Pesan Asli</option>
+                                        <option value="custom" selected>Teruskan dengan Pesan</option>
+                                        <option value="rizz">Jawaban dari Rizz</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div id="actionCustomMsgBlock" class="form-group-field">
+                                <label style="font-size: 11px; color: #7f95ba;">Pesan Tambahan</label>
+                                <textarea id="actionCustomText" class="custom-input-box" rows="2" style="font-size: 13px;" placeholder="Tulis pesan tambahan...">Tolong segera dicek kendala ini.</textarea>
+                                <div id="actionMentionWrapper" class="mt-2">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <label style="font-size: 11px; color: #7f95ba; margin: 0;">Mention Anggota Grup</label>
+                                        <span id="selectedMentionCount" style="font-size: 11px; color: #48bb78; font-weight: 700;">0 dipilih</span>
+                                    </div>
+                                    <small style="color: #6b7280; font-size: 11px; display: block; margin-bottom: 8px;">Pilih anggota dari grup tujuan untuk di-mention saat pesan diteruskan.</small>
+                                    <div class="d-flex flex-wrap" id="actionMentionMembersList" style="gap: 6px;"></div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            </form>
         </div>
 
         <!-- Modal Delivery Log -->
         <div class="workflow-popup" id="deliveryLogModal">
-            <div class="workflow-shell"
-                style="max-width: 540px; height: auto; flex-direction: column; padding: 22px;">
+            <div class="workflow-shell" style="max-width: 540px; height: auto; flex-direction: column; padding: 22px;">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h3 id="logTitleText" style="font-size: 18px; margin: 0; font-weight: 700;">Delivery Log</h3>
-                    <button type="button" onclick="closeLogModal()" class="text-white border-0 bg-transparent"><i
-                            class="fa-solid fa-xmark"></i></button>
+                    <button type="button" onclick="closeLogModal()" class="text-white border-0 bg-transparent"><i class="fa-solid fa-xmark"></i></button>
                 </div>
                 <div class="d-flex flex-column gap-2" style="font-size: 13px; color: #a6a9b6;">
                     <div class="p-2 border-bottom border-secondary d-flex justify-content-between align-items-center">
                         <span>Forwarded message [Payment bug] &rarr; Product Team</span>
-                        <span class="badge badge-success">Success</span>
-                    </div>
-                    <div class="p-2 border-bottom border-secondary d-flex justify-content-between align-items-center">
-                        <span>Forwarded message [Server down] &rarr; Product Team</span>
                         <span class="badge badge-success">Success</span>
                     </div>
                 </div>
@@ -1252,7 +1175,6 @@
 
     <!-- ================= JAVASCRIPT HANDLERS ================= -->
     <script>
-        // 2. SCRIPT UNTUK MEMUAT SIDEBAR.HTML SECARA DINAMIS
         document.addEventListener('DOMContentLoaded', function() {
             fetch('../component/sidebar.html')
                 .then(response => {
@@ -1261,7 +1183,6 @@
                 })
                 .then(data => {
                     document.getElementById('sidebar-container').innerHTML = data;
-                    // Inisialisasi event listener mobile menu SETELAH sidebar dimuat
                     initMobileMenu();
                 })
                 .catch(error => console.error('Error loading sidebar:', error));
@@ -1283,12 +1204,17 @@
             }
         }
 
-        // === FUNGSI-FUNGSI ASLI DIPERTAHANKAN ===
+        // === FUNGSI TEMA DIKEMBALIKAN ===
         function applyTheme(theme) {
             document.documentElement.setAttribute('data-v2-theme', theme);
             const isDark = theme === 'dark';
-            document.getElementById('btnThemeDark').classList.toggle('is-active', isDark);
-            document.getElementById('btnThemeLight').classList.toggle('is-active', !isDark);
+            
+            const btnDark = document.getElementById('btnThemeDark');
+            if(btnDark) btnDark.classList.toggle('is-active', isDark);
+            
+            const btnLight = document.getElementById('btnThemeLight');
+            if(btnLight) btnLight.classList.toggle('is-active', !isDark);
+            
             const desktopLogo = document.getElementById('themeLogoDesktop');
             if (desktopLogo) {
                 desktopLogo.src = isDark ? 'https://app.sumrize.me/assets/img/logo/logo-white.png' :
@@ -1297,7 +1223,6 @@
         }
 
         const modal = document.getElementById('workflowBuilderModal');
-
         function openWorkflowModal() {
             modal.classList.add('is-open');
         }
@@ -1307,7 +1232,6 @@
         }
 
         let isRailCollapsed = false;
-
         function toggleRailCollapse() {
             isRailCollapsed = !isRailCollapsed;
             const rail = document.getElementById('settingsRail');
@@ -1327,7 +1251,6 @@
         }
 
         let currentType = 'trigger';
-
         function switchType(type) {
             currentType = type;
             document.getElementById('typeTriggerBtn').classList.toggle('active', type === 'trigger');
@@ -1351,33 +1274,13 @@
             if (val === 'sender') renderGroupMembers();
         }
 
-        const groupMembersData = [{
-                id: '1',
-                name: 'Jamal',
-                selected: true
-            }, {
-                id: '2',
-                name: 'Rahmat',
-                selected: true
-            },
-            {
-                id: '3',
-                name: 'Alfyan',
-                selected: false
-            }, {
-                id: '4',
-                name: 'Nahel',
-                selected: false
-            },
-            {
-                id: '5',
-                name: 'Dafinaa',
-                selected: false
-            }, {
-                id: '6',
-                name: 'Pak Rian',
-                selected: false
-            }
+        const groupMembersData = [
+            { id: '1', name: 'Jamal', selected: true }, 
+            { id: '2', name: 'Rahmat', selected: true },
+            { id: '3', name: 'Alfyan', selected: false }, 
+            { id: '4', name: 'Nahel', selected: false },
+            { id: '5', name: 'Dafinaa', selected: false }, 
+            { id: '6', name: 'Pak Rian', selected: false }
         ];
 
         function renderGroupMembers() {
@@ -1389,8 +1292,7 @@
                 if (member.selected) selectedCount++;
                 const chip = document.createElement('div');
                 chip.className = `member-select-chip ${member.selected ? 'selected' : ''}`;
-                chip.innerHTML =
-                    `<i class="chip-status-icon ${member.selected ? 'fa-solid fa-circle-check' : 'fa-regular fa-circle'}"></i><span>${member.name}</span>`;
+                chip.innerHTML = `<i class="chip-status-icon ${member.selected ? 'fa-solid fa-circle-check' : 'fa-regular fa-circle'}"></i><span>${member.name}</span>`;
                 chip.onclick = function() {
                     member.selected = !member.selected;
                     renderGroupMembers();
@@ -1402,53 +1304,23 @@
         }
 
         const groupMembersDatabase = {
-            'Product Team': [{
-                id: 'p1',
-                name: 'Jamal',
-                selected: true
-            }, {
-                id: 'p2',
-                name: 'Rahmat',
-                selected: false
-            }, {
-                id: 'p3',
-                name: 'Alfyan',
-                selected: false
-            }, {
-                id: 'p4',
-                name: 'Dian',
-                selected: false
-            }],
-            'Dev Ticket Support': [{
-                id: 'd1',
-                name: 'Budi Santoso',
-                selected: false
-            }, {
-                id: 'd2',
-                name: 'Bayu DevOps',
-                selected: false
-            }, {
-                id: 'd3',
-                name: 'Gilang Backend',
-                selected: true
-            }, {
-                id: 'd4',
-                name: 'Andi QA',
-                selected: false
-            }],
-            'Engineering Desk': [{
-                id: 'e1',
-                name: 'Farhan Architect',
-                selected: false
-            }, {
-                id: 'e2',
-                name: 'Rico System',
-                selected: false
-            }, {
-                id: 'e3',
-                name: 'Pak Taufan',
-                selected: true
-            }]
+            'Product Team': [
+                { id: 'p1', name: 'Jamal', selected: true }, 
+                { id: 'p2', name: 'Rahmat', selected: false }, 
+                { id: 'p3', name: 'Alfyan', selected: false }, 
+                { id: 'p4', name: 'Dian', selected: false }
+            ],
+            'Dev Ticket Support': [
+                { id: 'd1', name: 'Budi Santoso', selected: false }, 
+                { id: 'd2', name: 'Bayu DevOps', selected: false }, 
+                { id: 'd3', name: 'Gilang Backend', selected: true }, 
+                { id: 'd4', name: 'Andi QA', selected: false }
+            ],
+            'Engineering Desk': [
+                { id: 'e1', name: 'Farhan Architect', selected: false }, 
+                { id: 'e2', name: 'Rico System', selected: false }, 
+                { id: 'e3', name: 'Pak Taufan', selected: true }
+            ]
         };
 
         function renderMentionMembers() {
@@ -1463,8 +1335,7 @@
                 if (member.selected) selectedCount++;
                 const chip = document.createElement('div');
                 chip.className = `mention-select-chip ${member.selected ? 'selected' : ''}`;
-                chip.innerHTML =
-                    `<i class="${member.selected ? 'fa-solid fa-circle-check' : 'fa-regular fa-circle'}"></i><span>@${member.name}</span>`;
+                chip.innerHTML = `<i class="${member.selected ? 'fa-solid fa-circle-check' : 'fa-regular fa-circle'}"></i><span>@${member.name}</span>`;
                 chip.onclick = function() {
                     member.selected = !member.selected;
                     renderMentionMembers();
@@ -1480,7 +1351,6 @@
         }
 
         let activeTargetScope = 'group';
-
         function setTargetScope(scope) {
             activeTargetScope = scope;
             document.getElementById('btnSendGroup').classList.toggle('active', scope === 'group');
@@ -1506,13 +1376,15 @@
 
         const tagInput = document.getElementById('tagInputBox');
         tagInput.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter' && this.value.trim()) {
+            if (e.key === 'Enter') {
                 e.preventDefault();
-                const span = document.createElement('span');
-                span.className = 'tag-chip-pill';
-                span.innerHTML = `${this.value.trim()} <i class="fa-solid fa-xmark" onclick="removeTag(this)"></i>`;
-                document.getElementById('keywordsChipsHolder').appendChild(span);
-                this.value = '';
+                if (this.value.trim()) {
+                    const span = document.createElement('span');
+                    span.className = 'tag-chip-pill';
+                    span.innerHTML = `${this.value.trim()} <i class="fa-solid fa-xmark" onclick="removeTag(this)"></i>`;
+                    document.getElementById('keywordsChipsHolder').appendChild(span);
+                    this.value = '';
+                }
             }
         });
 
@@ -1520,11 +1392,31 @@
             icon.parentElement.remove();
         }
 
-        document.getElementById('btnSaveWorkflow').addEventListener('click', function() {
-            const name = document.getElementById('autoNameInput').value || 'Workflow Otomatis';
+        // Menangani Submit Form Beserta Validasi Kustom
+        document.getElementById('workflowForm').addEventListener('submit', function(e) {
+            e.preventDefault(); // Mencegah reload halaman
+            
+            // Validasi Kustom 1: Jika Trigger adalah "keyword", minimal 1 kata kunci harus ditambahkan.
+            if (currentType === 'trigger' && document.getElementById('originTriggerSelect').value === 'keyword') {
+                const chipCount = document.getElementById('keywordsChipsHolder').children.length;
+                if(chipCount === 0) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Minimal tambahkan satu kata kunci (ketik lalu enter)!',
+                        background: '#1c202c',
+                        color: '#ffffff',
+                        confirmButtonColor: '#ff4438'
+                    });
+                    return; // Hentikan eksekusi submit
+                }
+            }
+
+            // AMBIL DATA & SIMPAN (Jika Validasi Sukses)
+            const name = document.getElementById('autoNameInput').value;
             const origin = document.getElementById('originConnectorSelect').value;
-            const target = (activeTargetScope === 'group') ? document.getElementById('actionConnectorSelect')
-                .value : 'Ke Saya (Direct)';
+            const target = (activeTargetScope === 'group') ? document.getElementById('actionConnectorSelect').value : 'Ke Saya (Direct)';
+            
             let triggerLabel = '';
             if (currentType === 'time') {
                 const timeVal = document.getElementById('inputTimeSpecific').value || '09:00';
@@ -1537,30 +1429,48 @@
                 else if (triggerVal === 'rizz') triggerLabel = 'Rizz Disebut';
                 else triggerLabel = 'Pesan Diterima';
             }
-            const card = document.createElement('article');
-            card.className = 'automation-card';
-            card.innerHTML = `
-                <div class="automation-card-body">
-                    <div class="automation-card-meta-row"><span class="badge-active-tag">Active</span></div>
-                    <h3 class="automation-card-title">${name}</h3>
-                    <div class="flow-visual-box">
-                        <div class="flow-node-block">
-                            <div class="flow-node-title"><i class="fa-brands fa-whatsapp"></i> ${origin}</div>
-                            <div class="flow-node-sub">${triggerLabel}</div>
-                        </div>
-                        <div class="flow-arrow-separator"><i class="fa-solid fa-arrow-right-long"></i></div>
-                        <div class="flow-node-block">
-                            <div class="flow-node-title"><i class="fa-brands fa-whatsapp"></i> ${target}</div>
-                            <div class="flow-node-sub">Disposisi Chat</div>
+
+            // ANIMASI SUKSES DENGAN SWEETALERT2
+            Swal.fire({
+                icon: 'success',
+                title: 'Tersimpan!',
+                text: 'Automation berhasil ditambahkan.',
+                background: '#1c202c',
+                color: '#ffffff',
+                showConfirmButton: false,
+                timer: 1500
+            }).then(() => {
+                // Tambahkan Card ke DOM
+                const card = document.createElement('article');
+                card.className = 'automation-card';
+                card.innerHTML = `
+                    <div class="automation-card-body">
+                        <div class="automation-card-meta-row"><span class="badge-active-tag">Active</span></div>
+                        <h3 class="automation-card-title">${name}</h3>
+                        <div class="flow-visual-box">
+                            <div class="flow-node-block">
+                                <div class="flow-node-title"><i class="fa-brands fa-whatsapp"></i> ${origin}</div>
+                                <div class="flow-node-sub">${triggerLabel}</div>
+                            </div>
+                            <div class="flow-arrow-separator"><i class="fa-solid fa-arrow-right-long"></i></div>
+                            <div class="flow-node-block">
+                                <div class="flow-node-title"><i class="fa-brands fa-whatsapp"></i> ${target}</div>
+                                <div class="flow-node-sub">Disposisi Chat</div>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="automation-card-footer" onclick="openLogModal('${name}')">
-                    <i class="fa-solid fa-clock-rotate-left"></i> Delivery Log
-                </div>
-            `;
-            document.getElementById('automationListStage').appendChild(card);
-            closeWorkflowModal();
+                    <div class="automation-card-footer" onclick="openLogModal('${name}')">
+                        <i class="fa-solid fa-clock-rotate-left"></i> Delivery Log
+                    </div>
+                `;
+                document.getElementById('automationListStage').appendChild(card);
+                
+                // Reset Form
+                document.getElementById('workflowForm').reset();
+                document.getElementById('keywordsChipsHolder').innerHTML = ''; // Bersihkan pill kata kunci
+                
+                closeWorkflowModal();
+            });
         });
 
         function openLogModal(name) {
@@ -1576,7 +1486,7 @@
             renderMentionMembers();
             renderGroupMembers();
         });
-        // Tutup dropdown menu desktop jika area luar diklik
+
         document.addEventListener('click', function(e) {
             const deskMenu = document.getElementById('dashboardUserDropdownV3');
             if (deskMenu && !deskMenu.contains(e.target)) {
@@ -1584,7 +1494,5 @@
             }
         });
     </script>
-
 </body>
-
 </html>

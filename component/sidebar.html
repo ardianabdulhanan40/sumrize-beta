@@ -12397,52 +12397,52 @@
 
  </style>
  <!-- MOBILE HEADER (Tampil di Layar Kecil) -->
- <header class="mobile-header-bar d-flex d-lg-none align-items-center justify-content-between px-3">
-     <!-- Bagian Kiri: Menu & Logo -->
-     <div class="d-flex align-items-center gap-2">
-         <button type="button" class="mobile-dashboard-menu-btn-v3"
-             onclick="document.getElementById('mobileDashboardDrawerV3').classList.add('is-open'); document.getElementById('mobileDrawerOverlay').classList.add('is-open');">
-             <i class="fa-solid fa-bars"></i>
-         </button>
-         <a href="/"><img src="https://app.sumrize.me/assets/img/logo/logo-white.png" height="36"
-                 alt="Sumrize"></a>
-     </div>
+ <!-- MOBILE HEADER (Tampil di Layar Kecil) -->
+<header class="mobile-header-bar d-flex d-lg-none align-items-center justify-content-between px-3">
+    <!-- Bagian Kiri: Menu & Logo -->
+    <div class="d-flex align-items-center gap-3">
+        <button type="button" class="mobile-dashboard-menu-btn-v3"
+            onclick="document.getElementById('mobileDashboardDrawerV3').classList.add('is-open'); document.getElementById('mobileDrawerOverlay').classList.add('is-open');">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+        <a href="/"><img src="https://app.sumrize.me/assets/img/logo/logo-white.png" height="42" alt="Sumrize"></a>
+    </div>
 
-     <!-- Bagian Kanan: Profil Dropdown -->
-     <div class="mobile-header-profile dashboard-navbar-v3-actions">
-         <div class="dashboard-navbar-v3-dropdown-wrap">
-             <button class="dashboard-navbar-v3-control"
-                 onclick="document.getElementById('dashboardUserDropdownMobile').classList.toggle('is-open'); event.stopPropagation();">
-                 <span class="dashboard-navbar-v3-text-white fw-semibold">Yan</span>
-                 <i class="fa-solid fa-chevron-down text-white ml-1" style="font-size: 0.8rem;"></i>
-             </button>
-             <div class="dashboard-navbar-v3-dropdown" id="dashboardUserDropdownMobile">
-                 <div class="dashboard-navbar-v3-user-card">
-                     <div class="dashboard-navbar-v3-user-head">
-                         <strong>Yan</strong>
-                         <span>EXPLORE</span>
-                     </div>
-                 </div>
-                 <a href="javascript:;" class="dashboard-navbar-v3-item is-upgrade-action">
-                     <i class="fa-solid fa-rocket"></i>
-                     <span>Upgrade</span>
-                 </a>
-                 <a href="/setting" class="dashboard-navbar-v3-item">
-                     <i class="fa-solid fa-gear"></i>
-                     <span>Pengaturan</span>
-                 </a>
-                 <a href="javascript:;" class="dashboard-navbar-v3-item">
-                     <i class="fa-solid fa-language"></i>
-                     <span>Bahasa</span>
-                 </a>
-                 <a href="/?action=logout" class="dashboard-navbar-v3-item dashboard-navbar-v3-signout">
-                     <i class="fa-solid fa-arrow-right-from-bracket"></i>
-                     <span>Keluar</span>
-                 </a>
-             </div>
-         </div>
-     </div>
- </header>
+    <!-- Bagian Kanan: Profil Dropdown dengan Style Pill Baru -->
+    <div class="dashboard-navbar-v3-dropdown-wrap">
+        <button class="dashboard-navbar-v3-control m-0" 
+            style="min-height: 38px; padding: 0 16px; border-radius: 999px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #fff; gap: 8px;"
+            onclick="document.getElementById('dashboardUserDropdownMobile').classList.toggle('is-open'); event.stopPropagation();">
+            <span>Yan</span>
+            <i class="fa-solid fa-chevron-down" style="font-size: 10px; color: #a6a9b6;"></i>
+        </button>
+        
+        <div class="dashboard-navbar-v3-dropdown" id="dashboardUserDropdownMobile" style="right: 0; min-width: 200px;">
+            <div class="dashboard-navbar-v3-user-card">
+                <div class="dashboard-navbar-v3-user-head">
+                    <strong style="font-size: 16px;">Yan</strong>
+                    <span style="font-size: 11px;">EXPLORE</span>
+                </div>
+            </div>
+            <a href="javascript:;" class="dashboard-navbar-v3-item is-upgrade-action" style="color: #ffffff !important;">
+                <i class="fa-solid fa-rocket"></i>
+                <span>Upgrade</span>
+            </a>
+            <a href="/setting" class="dashboard-navbar-v3-item">
+                <i class="fa-solid fa-gear"></i>
+                <span>Pengaturan</span>
+            </a>
+            <a href="javascript:;" class="dashboard-navbar-v3-item">
+                <i class="fa-solid fa-language"></i>
+                <span>Bahasa</span>
+            </a>
+            <a href="/?action=logout" class="dashboard-navbar-v3-item dashboard-navbar-v3-signout">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                <span>Keluar</span>
+            </a>
+        </div>
+    </div>
+</header>
 
  <!-- MOBILE DRAWER MENU NAVIGASI -->
  <div class="mobile-dashboard-drawer-overlay-v3 d-lg-none" id="mobileDrawerOverlay"
@@ -12453,6 +12453,8 @@
                  class="fa-solid fa-house"></i> Beranda</span></a>
      <a href="automation.html" class="dashboard-sidebar-link-v3 is-active"><span class="left"><i
                  class="fa-solid fa-bolt"></i> Automation</span></a>
+     <a href="digest.html" class="dashboard-sidebar-link-v3 is-active"><span class="left"><i
+                 class="fa-solid fa-bolt"></i> Digest</span></a>
      <a href="/rizz" class="dashboard-sidebar-link-v3"><span class="left"><i
                  class="fa-solid fa-wand-magic-sparkles"></i> Ask Rizz</span></a>
      <a href="/referral" class="dashboard-sidebar-link-v3"><span class="left"><i class="fa-solid fa-gift"></i>
@@ -12476,6 +12478,8 @@
                                  class="fa-solid fa-house"></i> Beranda</span></a>
                      <a href="automation.html" class="dashboard-sidebar-link-v3 is-active"><span class="left"><i
                                  class="fa-solid fa-bolt"></i> Automation</span></a>
+                     <a href="digest.html" class="dashboard-sidebar-link-v3 is-active"><span class="left"><i
+                                 class="fa-solid fa-bolt"></i> Digest</span></a>
                      <a href="/rizz" class="dashboard-sidebar-link-v3"><span class="left"><i
                                  class="fa-solid fa-wand-magic-sparkles"></i> Ask Rizz</span></a>
                      <a href="/referral" class="dashboard-sidebar-link-v3"><span class="left"><i
