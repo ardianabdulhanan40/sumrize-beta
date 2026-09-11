@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8">
-    <base href="/dashboard/">
+    <base href="/sumrize-beta/dashboard/">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>Sumrize — Automation</title>
     <script>
@@ -22,7 +22,7 @@
                     sessionStorage.setItem('sumrize_plan_notice', 'Akses Dibatasi: Halaman Automation hanya dapat diakses oleh user Spark. Silakan aktifkan mode Spark untuk demo.');
                     window.location.replace('index.html');
                 }
-            } catch(e) {}
+            } catch (e) { }
         })();
     </script>
     <link rel="icon" type="image/png" href="https://app.sumrize.me/assets/img/logo/dark-bg.png">
@@ -940,7 +940,8 @@
                             <div class="dashboard-navbar-v3-user-card">
                                 <div class="dashboard-navbar-v3-user-head">
                                     <strong>Yan</strong>
-                                    <span class="user-plan-label" onclick="if(typeof toggleUserPlan==='function') toggleUserPlan();"
+                                    <span class="user-plan-label"
+                                        onclick="if(typeof toggleUserPlan==='function') toggleUserPlan();"
                                         title="Klik untuk simulasi ubah status plan">EXPLORE</span>
                                 </div>
                             </div>
