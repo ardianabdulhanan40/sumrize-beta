@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <base href="/dashboard/">
+    <base href="/sumrize-beta/dashboard/">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Sumrize - Daily Digest</title>
     <script>
@@ -1358,7 +1358,7 @@
                 updateThemeUI(savedTheme);
             }
 
-            fetch('../component/sidebar.html')
+            fetch('/component/sidebar.html')
                 .then(response => {
                     if (!response.ok) throw new Error('Gagal memuat sidebar');
                     return response.text();
@@ -1366,7 +1366,7 @@
                 .then(injectSidebar)
                 .catch(function () {
                     // Fallback path
-                    fetch('../component/sidebar.html')
+                    fetch('/component/sidebar.html')
                         .then(res => res.text())
                         .then(injectSidebar)
                         .catch(err => console.warn('Sidebar load skipped:', err));
