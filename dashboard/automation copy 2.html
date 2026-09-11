@@ -14,15 +14,6 @@
             } catch (e) { }
             var resolvedTheme = savedTheme || (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
             document.documentElement.setAttribute('data-v2-theme', resolvedTheme);
-
-            // Proteksi Akses Halaman Automation untuk Mode Explore
-            try {
-                var userPlan = localStorage.getItem('sumrize_user_plan') || 'explore';
-                if (userPlan !== 'spark') {
-                    sessionStorage.setItem('sumrize_plan_notice', 'Akses Dibatasi: Halaman Automation hanya dapat diakses oleh user Spark. Silakan aktifkan mode Spark untuk demo.');
-                    window.location.replace('index.html');
-                }
-            } catch(e) {}
         })();
     </script>
     <link rel="icon" type="image/png" href="https://app.sumrize.me/assets/img/logo/dark-bg.png">
@@ -940,8 +931,7 @@
                             <div class="dashboard-navbar-v3-user-card">
                                 <div class="dashboard-navbar-v3-user-head">
                                     <strong>Yan</strong>
-                                    <span class="user-plan-label" onclick="if(typeof toggleUserPlan==='function') toggleUserPlan();"
-                                        title="Klik untuk simulasi ubah status plan">EXPLORE</span>
+                                    <span>EXPLORE</span>
                                 </div>
                             </div>
                             <a href="javascript:;" class="dashboard-navbar-v3-item is-upgrade-action open-popup"

@@ -7832,7 +7832,7 @@
         }
 
         .container-wrapper-mobile-v2 .page-title {
-            margin-top: 1rem;
+            margin-top: 4.5rem;
         }
 
         .dashboard-topbar-v2,
@@ -11080,7 +11080,7 @@
         .dashboard-mobile-only-v2 .group-each .group-each-footer .open-popup .dot {
             right: -12px;
             padding: 1px 6px;
-            font-size: 8px; 
+            font-size: 8px;
         }
 
         .connector-overview-card-v2 {
@@ -11659,8 +11659,7 @@
                             <div class="dashboard-navbar-v3-user-card">
                                 <div class="dashboard-navbar-v3-user-head">
                                     <strong>Yan</strong>
-                                    <span class="user-plan-label" onclick="if(typeof toggleUserPlan==='function') toggleUserPlan();"
-                                        title="Klik untuk simulasi ubah status plan">EXPLORE</span>
+                                    <span>EXPLORE</span>
                                 </div>
                             </div>
                             <a href="javascript:;" class="dashboard-navbar-v3-item is-upgrade-action open-popup"
@@ -12958,21 +12957,9 @@
                 })
                 .then(data => {
                     // Masukkan HTML sidebar ke dalam container
-                    const container = document.getElementById('sidebar-container');
-                    if (!container) return;
-                    container.innerHTML = data;
-
-                    // Eksekusi ulang script bawaan sidebar.html agar fungsinya terikat sempurna
-                    container.querySelectorAll('script').forEach(oldScript => {
-                        const newScript = document.createElement('script');
-                        Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
-                        newScript.appendChild(document.createTextNode(oldScript.innerHTML));
-                        oldScript.parentNode.replaceChild(newScript, oldScript);
-                    });
+                    document.getElementById('sidebar-container').innerHTML = data;
 
                     // 3. JALANKAN FUNGSI UI SETELAH SIDEBAR MUNCUL
-                    if (typeof window.initMobileMenu === 'function') window.initMobileMenu();
-                    if (typeof window.updateUserPlanUI === 'function') window.updateUserPlanUI();
                     setActiveMenu();
                     updateThemeUI(savedTheme); // Sinkronkan tombol Terang/Gelap & Logo
                 })
@@ -17884,21 +17871,9 @@
                 })
                 .then(data => {
                     // Masukkan HTML sidebar ke dalam container
-                    const container = document.getElementById('sidebar-container');
-                    if (!container) return;
-                    container.innerHTML = data;
-
-                    // Eksekusi ulang script bawaan sidebar.html agar fungsinya terikat sempurna
-                    container.querySelectorAll('script').forEach(oldScript => {
-                        const newScript = document.createElement('script');
-                        Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
-                        newScript.appendChild(document.createTextNode(oldScript.innerHTML));
-                        oldScript.parentNode.replaceChild(newScript, oldScript);
-                    });
+                    document.getElementById('sidebar-container').innerHTML = data;
 
                     // 3. JALANKAN FUNGSI UI SETELAH SIDEBAR MUNCUL
-                    if (typeof window.initMobileMenu === 'function') window.initMobileMenu();
-                    if (typeof window.updateUserPlanUI === 'function') window.updateUserPlanUI();
                     setActiveMenu();
                     updateThemeUI(savedTheme); // Sinkronkan tombol Terang/Gelap & Logo
                 })

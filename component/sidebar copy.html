@@ -653,357 +653,12 @@
         text-transform: uppercase;
         letter-spacing: 0.5px;
         line-height: 1.2;
-        transition: all 0.2s ease;
     }
 
     .badge-spark-lock i {
         font-size: 9px !important;
         color: #ffffff !important;
         width: auto !important;
-    }
-
-    .badge-spark-unlocked {
-        background: rgba(34, 197, 94, 0.16);
-        border: 1px solid rgba(34, 197, 94, 0.35);
-        color: #4ade80 !important;
-        font-size: 9.5px;
-        font-weight: 700;
-        padding: 2px 6px;
-        border-radius: 4px;
-        display: inline-flex;
-        align-items: center;
-        gap: 4px;
-        text-transform: uppercase;
-        letter-spacing: 0.4px;
-    }
-
-    .dashboard-sidebar-link-v3.is-spark-locked {
-        opacity: 0.72;
-        transition: all 0.2s ease;
-    }
-
-    .dashboard-sidebar-link-v3.is-spark-locked:hover {
-        background: rgba(255, 68, 56, 0.08);
-        opacity: 0.95;
-    }
-
-    /* ========================================================
-       DEMO PLAN SWITCHER WIDGET (EXPLORE VS SPARK)
-       ======================================================== */
-    .dashboard-demo-plan-box {
-        background: rgba(35, 52, 83, 0.45);
-        border: 1px solid rgba(127, 149, 186, 0.22);
-        border-radius: 20px;
-        padding: 10px 12px;
-        margin-top: auto;
-        margin-bottom: 10px;
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-        transition: all 0.25s ease;
-    }
-
-    .dashboard-demo-plan-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 0 4px;
-    }
-
-    .dashboard-demo-plan-title {
-        font-size: 11px;
-        font-weight: 700;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-        color: #7f95ba;
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-    }
-
-    .dashboard-demo-plan-title i {
-        font-size: 11px;
-        color: #9ab4db;
-    }
-
-    .user-plan-badge {
-        font-size: 10px;
-        font-weight: 800;
-        letter-spacing: 0.06em;
-        padding: 2px 8px;
-        border-radius: 6px;
-        text-transform: uppercase;
-        transition: all 0.25s ease;
-    }
-
-    .user-plan-badge.badge-explore {
-        background: rgba(127, 149, 186, 0.2);
-        color: #a7bede;
-        border: 1px solid rgba(127, 149, 186, 0.3);
-    }
-
-    .user-plan-badge.badge-spark {
-        background: linear-gradient(135deg, #ff4438 0%, #ff8338 100%);
-        color: #ffffff;
-        box-shadow: 0 2px 8px rgba(255, 68, 56, 0.35);
-    }
-
-    .dashboard-demo-switch-pills {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 6px;
-        background: rgba(15, 23, 42, 0.6);
-        padding: 4px;
-        border-radius: 14px;
-    }
-
-    .dashboard-demo-plan-btn {
-        min-height: 34px;
-        border-radius: 10px;
-        border: 1px solid transparent;
-        background: transparent;
-        color: #9bb0ce;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 6px;
-        font-size: 12px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        padding: 0 8px;
-        position: relative;
-        z-index: 10;
-        pointer-events: auto !important;
-        user-select: none;
-    }
-
-    .dashboard-demo-plan-btn * {
-        pointer-events: none !important;
-    }
-
-    .dashboard-demo-plan-btn:hover {
-        color: #ffffff;
-        background: rgba(255, 255, 255, 0.06);
-    }
-
-    .dashboard-demo-plan-btn.is-active {
-        background: #111d2a;
-        color: #ffffff;
-        border-color: rgba(127, 149, 186, 0.35);
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
-    }
-
-    .dashboard-demo-plan-btn.is-spark-active.is-active {
-        background: linear-gradient(135deg, #e03226 0%, #ff5722 100%) !important;
-        color: #ffffff !important;
-        border-color: rgba(255, 255, 255, 0.2) !important;
-        box-shadow: 0 4px 12px rgba(224, 50, 38, 0.4) !important;
-    }
-
-    /* ========================================================
-       MODAL PERINGATAN DEMO (FALLBACK MODAL)
-       ======================================================== */
-    .sumrize-demo-modal-backdrop {
-        position: fixed;
-        inset: 0;
-        z-index: 9999;
-        background: rgba(7, 10, 18, 0.78);
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 18px;
-        animation: sumrizeFadeIn 0.2s ease;
-    }
-
-    .sumrize-demo-modal-card {
-        background: #171b26;
-        border: 1px solid rgba(127, 149, 186, 0.28);
-        box-shadow: 0 24px 60px rgba(0, 0, 0, 0.65);
-        border-radius: 24px;
-        width: 100%;
-        max-width: 440px;
-        padding: 28px 24px 22px;
-        text-align: center;
-        position: relative;
-        animation: sumrizeModalSlide 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-        box-sizing: border-box;
-    }
-
-    .sumrize-modal-close-btn {
-        position: absolute;
-        top: 14px;
-        right: 16px;
-        background: transparent;
-        border: 0;
-        color: #7f95ba;
-        font-size: 22px;
-        cursor: pointer;
-        line-height: 1;
-        padding: 4px;
-    }
-
-    .sumrize-modal-close-btn:hover {
-        color: #ffffff;
-    }
-
-    .sumrize-demo-modal-icon {
-        width: 58px;
-        height: 58px;
-        border-radius: 50%;
-        background: rgba(255, 68, 56, 0.14);
-        border: 1px solid rgba(255, 68, 56, 0.35);
-        color: #ff4438;
-        font-size: 24px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        margin-bottom: 16px;
-    }
-
-    .sumrize-demo-modal-title {
-        font-size: 20px;
-        font-weight: 700;
-        color: #ffffff;
-        margin: 0 0 10px;
-    }
-
-    .sumrize-demo-modal-desc {
-        font-size: 14px;
-        color: #c0c6d8;
-        line-height: 1.5;
-        margin: 0 0 14px;
-    }
-
-    .sumrize-demo-modal-info {
-        background: rgba(35, 52, 83, 0.35);
-        border: 1px solid rgba(127, 149, 186, 0.2);
-        border-radius: 12px;
-        padding: 10px 12px;
-        font-size: 12.5px;
-        color: #9ab4db;
-        display: flex;
-        align-items: flex-start;
-        gap: 8px;
-        text-align: left;
-        margin-bottom: 20px;
-        line-height: 1.45;
-    }
-
-    .sumrize-demo-modal-info i {
-        color: #45c8ff;
-        margin-top: 2px;
-        flex-shrink: 0;
-    }
-
-    .sumrize-demo-modal-actions {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 10px;
-    }
-
-    .sumrize-modal-btn {
-        min-height: 42px;
-        border-radius: 12px;
-        font-size: 13.5px;
-        font-weight: 600;
-        cursor: pointer;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-        transition: all 0.2s ease;
-        border: 0;
-        padding: 0 12px;
-    }
-
-    .sumrize-modal-btn.btn-cancel {
-        background: rgba(255, 255, 255, 0.06);
-        color: #c0c6d8;
-        border: 1px solid rgba(127, 149, 186, 0.2);
-    }
-
-    .sumrize-modal-btn.btn-cancel:hover {
-        background: rgba(255, 255, 255, 0.1);
-        color: #ffffff;
-    }
-
-    .sumrize-modal-btn.btn-confirm {
-        background: linear-gradient(135deg, #ff4438 0%, #ff6b38 100%);
-        color: #ffffff;
-        box-shadow: 0 4px 14px rgba(255, 68, 56, 0.35);
-    }
-
-    .sumrize-modal-btn.btn-confirm:hover {
-        opacity: 0.92;
-        transform: translateY(-1px);
-    }
-
-    /* ========================================================
-       TOAST NOTIFIKASI DEMO
-       ======================================================== */
-    .sumrize-demo-toast {
-        position: fixed;
-        bottom: 24px;
-        right: 24px;
-        z-index: 10000;
-        background: #171b26;
-        border: 1px solid rgba(127, 149, 186, 0.28);
-        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
-        border-radius: 16px;
-        padding: 12px 18px;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        max-width: 380px;
-        opacity: 0;
-        transform: translateY(16px);
-        transition: opacity 0.25s ease, transform 0.25s ease;
-        pointer-events: none;
-    }
-
-    .sumrize-demo-toast.is-shown {
-        opacity: 1;
-        transform: translateY(0);
-        pointer-events: auto;
-    }
-
-    .sumrize-toast-icon {
-        font-size: 20px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-    }
-
-    .sumrize-toast-content {
-        display: flex;
-        flex-direction: column;
-        gap: 2px;
-    }
-
-    .sumrize-toast-title {
-        font-size: 13.5px;
-        font-weight: 700;
-        color: #ffffff;
-    }
-
-    .sumrize-toast-desc {
-        font-size: 12px;
-        color: #a7bede;
-        line-height: 1.35;
-    }
-
-    @keyframes sumrizeFadeIn {
-        from { opacity: 0; }
-        to { opacity: 1; }
-    }
-
-    @keyframes sumrizeModalSlide {
-        from { opacity: 0; transform: translateY(12px) scale(0.96); }
-        to { opacity: 1; transform: translateY(0) scale(1); }
     }
 
     /* Automation Page Specifics */
@@ -1523,69 +1178,6 @@
     html[data-v2-theme="light"] .dashboard-navbar-v3-user-head strong {
         color: #2b241d;
     }
-
-    /* Light Mode Overrides for Demo Plan Switcher & Modal */
-    html[data-v2-theme="light"] .dashboard-demo-plan-box {
-        background: #ece4d7;
-        border-color: rgba(214, 197, 176, 0.8);
-    }
-
-    html[data-v2-theme="light"] .dashboard-demo-plan-title {
-        color: #645647;
-    }
-
-    html[data-v2-theme="light"] .dashboard-demo-switch-pills {
-        background: #dfd5c5;
-    }
-
-    html[data-v2-theme="light"] .dashboard-demo-plan-btn {
-        color: #55483a;
-    }
-
-    html[data-v2-theme="light"] .dashboard-demo-plan-btn:hover {
-        color: #1a1612;
-        background: rgba(0, 0, 0, 0.05);
-    }
-
-    html[data-v2-theme="light"] .dashboard-demo-plan-btn.is-active {
-        background: #ffffff;
-        color: #1a1612;
-        border-color: rgba(0, 0, 0, 0.1);
-    }
-
-    html[data-v2-theme="light"] .dashboard-demo-plan-btn.is-spark-active.is-active {
-        background: linear-gradient(135deg, #ff4438 0%, #ff7043 100%) !important;
-        color: #ffffff !important;
-    }
-
-    html[data-v2-theme="light"] .sumrize-demo-modal-card,
-    html[data-v2-theme="light"] .sumrize-demo-toast {
-        background: #fdfaf5;
-        border-color: rgba(214, 197, 176, 0.85);
-        color: #2b241d;
-    }
-
-    html[data-v2-theme="light"] .sumrize-demo-modal-title,
-    html[data-v2-theme="light"] .sumrize-toast-title {
-        color: #2b241d;
-    }
-
-    html[data-v2-theme="light"] .sumrize-demo-modal-desc,
-    html[data-v2-theme="light"] .sumrize-toast-desc {
-        color: #5a4f43;
-    }
-
-    html[data-v2-theme="light"] .sumrize-demo-modal-info {
-        background: #f4ede1;
-        border-color: rgba(214, 197, 176, 0.7);
-        color: #5a4f43;
-    }
-
-    html[data-v2-theme="light"] .sumrize-modal-btn.btn-cancel {
-        background: #f0e7da;
-        border-color: rgba(214, 197, 176, 0.85);
-        color: #4a4034;
-    }
 </style>
 <!-- MOBILE HEADER (Tampil di Layar Kecil Sesuai Desain Screenshot) -->
 <header class="mobile-header-bar d-flex d-lg-none align-items-center justify-content-between px-3">
@@ -1658,7 +1250,6 @@
     <a href="keyword-trigger.html" class="dashboard-sidebar-link-v3" data-requires="spark"
         onclick="closeMobileDrawer()">
         <span class="left"><i class="fa-solid fa-bolt"></i> <span>Keyword Trigger</span></span>
-        <span class="badge-spark-lock lock-badge"><i class="fa-solid fa-lock"></i> Spark</span>
     </a>
     <a href="/rizz" class="dashboard-sidebar-link-v3" onclick="closeMobileDrawer()">
         <span class="left"><i class="fa-solid fa-wand-magic-sparkles"></i> <span>Ask Rizz</span></span>
@@ -1669,26 +1260,6 @@
     <a href="/invoice" class="dashboard-sidebar-link-v3" onclick="closeMobileDrawer()">
         <span class="left"><i class="fa-solid fa-file-invoice"></i> <span>Invoice</span></span>
     </a>
-
-    <!-- Demo Mode Switcher Mobile -->
-    <div class="dashboard-demo-plan-box mobile-demo-box" id="demoPlanBoxMobile" style="margin-top: 10px; margin-bottom: 6px;">
-        <div class="dashboard-demo-plan-header">
-            <span class="dashboard-demo-plan-title"><i class="fa-solid fa-flask"></i> Status Demo</span>
-            <span class="user-plan-badge badge-explore" id="demoActivePlanBadgeMobile">EXPLORE</span>
-        </div>
-        <div class="dashboard-demo-switch-pills">
-            <button type="button" class="dashboard-demo-plan-btn is-active" id="btnPlanExploreMobile"
-                data-demo-plan="explore"
-                onclick="window.setUserPlan ? window.setUserPlan('explore') : null; if(typeof window.closeMobileDrawer==='function') window.closeMobileDrawer();" title="Beralih ke status Explore">
-                <i class="fa-regular fa-user"></i> <span>Explore</span>
-            </button>
-            <button type="button" class="dashboard-demo-plan-btn" id="btnPlanSparkMobile"
-                data-demo-plan="spark"
-                onclick="window.setUserPlan ? window.setUserPlan('spark') : null; if(typeof window.closeMobileDrawer==='function') window.closeMobileDrawer();" title="Beralih ke status Spark">
-                <i class="fa-solid fa-bolt"></i> <span>Spark</span>
-            </button>
-        </div>
-    </div>
 
     <!-- Bottom Handle Bar Pill -->
     <div class="mobile-drawer-bottom-bar">
@@ -1735,22 +1306,6 @@
         }
     };
     window.initMobileMenu();
-
-    // Fallback eksekusi script sidebar jika dimuat lewat innerHTML tanpa evaluasi script
-    var container = document.getElementById('sidebar-container') || document;
-    var scripts = container.querySelectorAll('script');
-    scripts.forEach(function(s) {
-        if (!s.dataset.executed) {
-            s.dataset.executed = 'true';
-            try {
-                var code = s.textContent || s.innerText;
-                var fn = new Function(code);
-                fn.call(window);
-            } catch (err) {
-                console.warn('Sidebar innerHTML fallback script error:', err);
-            }
-        }
-    });
 })()">
 
 <!-- SIDEBAR DESKTOP -->
@@ -1774,7 +1329,6 @@
                     </a>
                     <a href="keyword-trigger.html" class="dashboard-sidebar-link-v3" data-requires="spark">
                         <span class="left"><i class="fa-solid fa-bolt"></i> Keyword Trigger</span>
-                        <span class="badge-spark-lock lock-badge"><i class="fa-solid fa-lock"></i> Spark</span>
                     </a>
                     <a href="/rizz" class="dashboard-sidebar-link-v3"><span class="left"><i
                                 class="fa-solid fa-wand-magic-sparkles"></i> Ask Rizz</span></a>
@@ -1782,26 +1336,6 @@
                                 class="fa-solid fa-gift"></i> Referral</span></a>
                     <a href="/invoice" class="dashboard-sidebar-link-v3"><span class="left"><i
                                 class="fa-solid fa-file-invoice"></i> Invoice</span></a>
-                </div>
-            </div>
-
-            <!-- Demo Mode Switcher Desktop (Explore vs Spark) -->
-            <div class="dashboard-demo-plan-box" id="demoPlanBoxDesktop">
-                <div class="dashboard-demo-plan-header">
-                    <span class="dashboard-demo-plan-title"><i class="fa-solid fa-flask"></i> Status Demo</span>
-                    <span class="user-plan-badge badge-explore" id="demoActivePlanBadgeDesktop">EXPLORE</span>
-                </div>
-                <div class="dashboard-demo-switch-pills">
-                    <button type="button" class="dashboard-demo-plan-btn is-active" id="btnPlanExploreDesktop"
-                        data-demo-plan="explore"
-                        onclick="window.setUserPlan ? window.setUserPlan('explore') : null" title="Beralih ke status Explore">
-                        <i class="fa-regular fa-user"></i> <span>Explore</span>
-                    </button>
-                    <button type="button" class="dashboard-demo-plan-btn" id="btnPlanSparkDesktop"
-                        data-demo-plan="spark"
-                        onclick="window.setUserPlan ? window.setUserPlan('spark') : null" title="Beralih ke status Spark">
-                        <i class="fa-solid fa-bolt"></i> <span>Spark</span>
-                    </button>
                 </div>
             </div>
 
@@ -1818,33 +1352,6 @@
         </div>
     </div>
 </aside>
-
-<!-- MODAL PERINGATAN AKSES SPARK (FALLBACK TANPA SWEETALERT) -->
-<div id="sumrizeSparkLockModal" class="sumrize-demo-modal-backdrop" style="display:none;" onclick="if(event.target===this) closeSparkLockModal();">
-    <div class="sumrize-demo-modal-card">
-        <button type="button" class="sumrize-modal-close-btn" onclick="closeSparkLockModal()">&times;</button>
-        <div class="sumrize-demo-modal-icon"><i class="fa-solid fa-lock"></i></div>
-        <h3 class="sumrize-demo-modal-title">Akses Khusus Paket Spark</h3>
-        <p class="sumrize-demo-modal-desc">Menu <strong id="lockedFeatureTitle">Automation</strong> hanya tersedia untuk pengguna dengan status <strong>Spark</strong>.</p>
-        <div class="sumrize-demo-modal-info">
-            <i class="fa-solid fa-circle-info"></i>
-            <span>Untuk kebutuhan demonstrasi, Anda dapat langsung mengaktifkan status Spark untuk membuka menu ini.</span>
-        </div>
-        <div class="sumrize-demo-modal-actions">
-            <button type="button" class="sumrize-modal-btn btn-cancel" onclick="closeSparkLockModal()">Tetap di Explore</button>
-            <button type="button" class="sumrize-modal-btn btn-confirm" id="btnConfirmSwitchSpark"><i class="fa-solid fa-bolt"></i> Beralih ke Spark & Buka</button>
-        </div>
-    </div>
-</div>
-
-<!-- TOAST NOTIFIKASI DEMO -->
-<div id="sumrizeDemoToast" class="sumrize-demo-toast" style="display:none;">
-    <div class="sumrize-toast-icon" id="sumrizeToastIcon"><i class="fa-solid fa-circle-check"></i></div>
-    <div class="sumrize-toast-content">
-        <div class="sumrize-toast-title" id="sumrizeToastTitle">Status Diperbarui</div>
-        <div class="sumrize-toast-desc" id="sumrizeToastDesc">Mode demo berhasil diubah.</div>
-    </div>
-</div>
 
 <!-- SCRIPT LOGIKA GLOBAL -->
 <script>
@@ -2010,291 +1517,51 @@
         if (mobileLogo) mobileLogo.src = logoSrc;
         if (drawerLogo) drawerLogo.src = logoSrc;
     }
+
     // ==========================================
-    // 3. LOGIK STATUS PLAN & DEMO (EXPLORE / SPARK)
+    // 3. LOGIK STATUS PLAN (EXPLORE / SPARK)
     // ==========================================
-    window.currentUserPlan = localStorage.getItem('sumrize_user_plan') || 'explore';
-    window.targetSparkRedirectUrl = null;
+    let currentUserPlan = localStorage.getItem('sumrize_user_plan') || 'explore';
 
-    // Fungsi Utama: Mengubah status paket pengguna untuk keperluan demonstrasi
-    window.setUserPlan = function (plan, redirectUrl) {
-        window.currentUserPlan = (plan === 'spark') ? 'spark' : 'explore';
-        localStorage.setItem('sumrize_user_plan', window.currentUserPlan);
-
-        // Update semua UI (Badge, Pill, Tombol, Gembok)
-        if (typeof window.updateUserPlanUI === 'function') {
-            window.updateUserPlanUI();
-        }
-
-        let currentPath = window.location.pathname.split("/").pop().toLowerCase();
-        if (currentPath === "") currentPath = "index.html";
-        const isSparkPage = currentPath === 'automation.html' || currentPath === 'keyword-trigger.html';
-
-        if (window.currentUserPlan === 'spark') {
-            // Mode Spark Aktif: Berikan akses penuh
-            if (typeof window.showSumrizeToast === 'function') {
-                window.showSumrizeToast('Mode Spark Aktif', 'Akses menu Automation & Keyword Trigger berhasil dibuka.', 'success');
-            }
-            if (redirectUrl) {
-                setTimeout(function () {
-                    window.location.href = redirectUrl;
-                }, 350);
-            }
-        } else {
-            // Mode Explore Aktif: Jika user kembali ke mode explore saat berada di halaman Spark/Automation,
-            // akses langsung dicabut dan dialihkan kembali ke Beranda (index.html)
-            if (isSparkPage) {
-                sessionStorage.setItem('sumrize_plan_notice', 'Akses ke menu Spark dinonaktifkan karena Anda kembali ke mode Explore.');
-                window.location.href = 'index.html';
-                return;
-            } else {
-                if (typeof window.showSumrizeToast === 'function') {
-                    window.showSumrizeToast('Mode Explore Aktif', 'Menu Automation & Keyword Trigger sekarang terkunci.', 'warning');
-                }
-            }
-        }
-    };
-    var setUserPlan = window.setUserPlan;
-
-    // Fungsi sinkronisasi tampilan status user di seluruh halaman
-    window.updateUserPlanUI = function () {
-        window.currentUserPlan = localStorage.getItem('sumrize_user_plan') || 'explore';
-        const isSpark = (window.currentUserPlan === 'spark');
-
-        // 1. Update text label di navbar / profil dropdown
-        const planLabels = document.querySelectorAll('.user-plan-label, .dashboard-navbar-v3-user-head span');
+    function updateUserPlanUI() {
+        // Update label plan di Navbar
+        const planLabels = document.querySelectorAll('.user-plan-label');
         planLabels.forEach(label => {
-            label.innerText = window.currentUserPlan.toUpperCase();
-            if (isSpark) {
-                label.style.color = '#ff6b57';
-                label.style.fontWeight = '800';
-            } else {
-                label.style.color = '#7f95ba';
-                label.style.fontWeight = '700';
-            }
+            label.innerText = currentUserPlan.toUpperCase();
         });
 
-        // 2. Update widget demo switcher (Desktop & Mobile)
-        const badgeDesktop = document.getElementById('demoActivePlanBadgeDesktop');
-        const badgeMobile = document.getElementById('demoActivePlanBadgeMobile');
-        const btnExpDesktop = document.getElementById('btnPlanExploreDesktop');
-        const btnExpMobile = document.getElementById('btnPlanExploreMobile');
-        const btnSparkDesktop = document.getElementById('btnPlanSparkDesktop');
-        const btnSparkMobile = document.getElementById('btnPlanSparkMobile');
-
-        [badgeDesktop, badgeMobile].forEach(b => {
-            if (!b) return;
-            b.innerText = window.currentUserPlan.toUpperCase();
-            if (isSpark) {
-                b.className = 'user-plan-badge badge-spark';
-            } else {
-                b.className = 'user-plan-badge badge-explore';
-            }
-        });
-
-        [btnExpDesktop, btnExpMobile].forEach(btn => {
-            if (!btn) return;
-            btn.classList.toggle('is-active', !isSpark);
-        });
-
-        [btnSparkDesktop, btnSparkMobile].forEach(btn => {
-            if (!btn) return;
-            btn.classList.toggle('is-active', isSpark);
-            btn.classList.toggle('is-spark-active', isSpark);
-        });
-
-        // 3. Update status gembok & styling link pada menu Spark
+        // Logika menyembunyikan atau memunculkan ikon gembok "Spark"
         const sparkLinks = document.querySelectorAll('a[data-requires="spark"]');
         sparkLinks.forEach(link => {
             const lockBadge = link.querySelector('.lock-badge');
-            if (isSpark) {
-                link.classList.remove('is-spark-locked');
-                if (lockBadge) {
-                    lockBadge.style.display = 'none';
-                }
+            if (currentUserPlan === 'spark') {
+                if (lockBadge) lockBadge.style.display = 'none';
             } else {
-                link.classList.add('is-spark-locked');
-                if (lockBadge) {
-                    lockBadge.style.display = 'inline-flex';
-                }
+                if (lockBadge) lockBadge.style.display = 'inline-flex';
             }
         });
-    };
-    var updateUserPlanUI = window.updateUserPlanUI;
+    }
 
-    // Event delegation KHUSUS untuk tombol demo switcher (Explore & Spark)
-    // Menggunakan capturing phase (true) agar klik langsung diproses sebelum dicegah hal lain
-    document.addEventListener('click', function (e) {
-        const btnSpark = e.target.closest('#btnPlanSparkDesktop, #btnPlanSparkMobile, [data-demo-plan="spark"]');
-        if (btnSpark) {
-            e.preventDefault();
-            e.stopPropagation();
-            if (typeof window.setUserPlan === 'function') {
-                window.setUserPlan('spark');
-            }
-            if (typeof window.closeMobileDrawer === 'function') {
-                window.closeMobileDrawer();
-            }
-            return;
-        }
+    document.addEventListener('DOMContentLoaded', () => {
+        updateUserPlanUI();
 
-        const btnExp = e.target.closest('#btnPlanExploreDesktop, #btnPlanExploreMobile, [data-demo-plan="explore"]');
-        if (btnExp) {
-            e.preventDefault();
-            e.stopPropagation();
-            if (typeof window.setUserPlan === 'function') {
-                window.setUserPlan('explore');
-            }
-            if (typeof window.closeMobileDrawer === 'function') {
-                window.closeMobileDrawer();
-            }
-            return;
-        }
-    }, true);
-
-    // Fungsi verifikasi hak akses halaman saat ini
-    window.checkPageAccessOnLoad = function () {
-        window.currentUserPlan = localStorage.getItem('sumrize_user_plan') || 'explore';
-        let currentPath = window.location.pathname.split("/").pop().toLowerCase();
-        if (currentPath === "") currentPath = "index.html";
-
-        const isSparkPage = currentPath === 'automation.html' || currentPath === 'keyword-trigger.html';
-
-        if (isSparkPage && window.currentUserPlan !== 'spark') {
-            sessionStorage.setItem('sumrize_plan_notice', 'Akses Dibatasi: Halaman ' + (currentPath === 'automation.html' ? 'Automation' : 'Keyword Trigger') + ' hanya dapat diakses oleh user Spark.');
-            window.location.replace('index.html');
-            return;
-        }
-
-        // Tampilkan pesan jika ada notifikasi dari pengalihan sebelumnya
-        const pendingNotice = sessionStorage.getItem('sumrize_plan_notice');
-        if (pendingNotice) {
-            sessionStorage.removeItem('sumrize_plan_notice');
-            setTimeout(function () {
-                if (typeof window.showSumrizeToast === 'function') {
-                    window.showSumrizeToast('Pemberitahuan Akses', pendingNotice, 'warning');
-                }
-            }, 300);
-        }
-    };
-    var checkPageAccessOnLoad = window.checkPageAccessOnLoad;
-
-    // Intersepsi klik pada menu Spark menggunakan Event Capturing
-    // Memastikan klik langsung diblokir di mode explore meskipun sidebar dimuat lewat AJAX
-    document.addEventListener('click', function (e) {
-        // Jangan blokir jika target klik adalah tombol demo switcher
-        if (e.target.closest('[data-demo-plan], #btnPlanSparkDesktop, #btnPlanSparkMobile, #btnPlanExploreDesktop, #btnPlanExploreMobile')) {
-            return;
-        }
-
-        const sparkLink = e.target.closest('a[data-requires="spark"]');
-        if (sparkLink) {
-            window.currentUserPlan = localStorage.getItem('sumrize_user_plan') || 'explore';
-            if (window.currentUserPlan !== 'spark') {
-                e.preventDefault();
-                e.stopPropagation();
-                if (typeof window.closeMobileDrawer === 'function') window.closeMobileDrawer();
-
-                const targetHref = sparkLink.getAttribute('href') || 'automation.html';
-                const linkTitle = sparkLink.querySelector('.left span:last-child')?.innerText?.trim() || 'Automation';
-                window.showSparkRestrictedNotice(linkTitle, targetHref);
-            }
-        }
-    }, true);
-
-    // Fungsi menampilkan notifikasi / modal pembatasan Spark
-    window.showSparkRestrictedNotice = function (title, targetHref) {
-        window.targetSparkRedirectUrl = targetHref;
-
-        // Jika SweetAlert2 terpasang pada halaman
-        if (typeof Swal !== 'undefined') {
-            Swal.fire({
-                icon: 'warning',
-                title: 'Akses Khusus Paket Spark',
-                html: 'Menu <b>' + title + '</b> hanya dapat diakses oleh user dengan status paket <b>Spark</b>.<br><br><span style="font-size:13px; color:#9ab4db;">Untuk keperluan demonstrasi, Anda dapat langsung mengaktifkan mode Spark melalui tombol di bawah:</span>',
-                showCancelButton: true,
-                confirmButtonText: '<i class="fa-solid fa-bolt"></i> Beralih ke Spark & Buka',
-                cancelButtonText: 'Tetap di Explore',
-                confirmButtonColor: '#ff4438',
-                cancelButtonColor: '#2b354d',
-                background: '#161a25',
-                color: '#ffffff'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    window.setUserPlan('spark', targetHref);
+        // Pencegahan klik jika status bukan 'spark'
+        const restrictedLinks = document.querySelectorAll('a[data-requires="spark"]');
+        restrictedLinks.forEach(link => {
+            link.addEventListener('click', function (e) {
+                if (currentUserPlan !== 'spark') {
+                    e.preventDefault();
+                    alert('Menu ini khusus untuk paket Spark. Silakan upgrade ke Spark untuk menggunakan Automation.');
                 }
             });
-        } else {
-            // Gunakan Fallback Modal bawaan sidebar
-            const modal = document.getElementById('sumrizeSparkLockModal');
-            const featureTitle = document.getElementById('lockedFeatureTitle');
-            const confirmBtn = document.getElementById('btnConfirmSwitchSpark');
-            if (modal) {
-                if (featureTitle) featureTitle.innerText = title;
-                if (confirmBtn) {
-                    confirmBtn.onclick = function () {
-                        window.closeSparkLockModal();
-                        window.setUserPlan('spark', targetHref);
-                    };
-                }
-                modal.style.display = 'flex';
-            } else {
-                if (confirm('Akses Khusus Paket Spark!\n\nMenu ' + title + ' memerlukan paket Spark.\n\nBeralih ke mode Spark untuk membuka halaman ini?')) {
-                    window.setUserPlan('spark', targetHref);
-                }
-            }
-        }
-    };
-    var showSparkRestrictedNotice = window.showSparkRestrictedNotice;
+        });
+    });
 
-    window.closeSparkLockModal = function () {
-        const modal = document.getElementById('sumrizeSparkLockModal');
-        if (modal) modal.style.display = 'none';
-    };
-    var closeSparkLockModal = window.closeSparkLockModal;
-
-    // Fungsi Toast Notifikasi Ringan
-    let toastTimer = null;
-    window.showSumrizeToast = function (title, desc, type) {
-        const toast = document.getElementById('sumrizeDemoToast');
-        const iconEl = document.getElementById('sumrizeToastIcon');
-        const titleEl = document.getElementById('sumrizeToastTitle');
-        const descEl = document.getElementById('sumrizeToastDesc');
-        if (!toast) return;
-
-        if (titleEl) titleEl.innerText = title;
-        if (descEl) descEl.innerText = desc;
-
-        if (iconEl) {
-            if (type === 'success') {
-                iconEl.innerHTML = '<i class="fa-solid fa-circle-check" style="color: #4ade80;"></i>';
-            } else if (type === 'warning') {
-                iconEl.innerHTML = '<i class="fa-solid fa-circle-exclamation" style="color: #facc15;"></i>';
-            } else {
-                iconEl.innerHTML = '<i class="fa-solid fa-circle-info" style="color: #60a5fa;"></i>';
-            }
-        }
-
-        toast.style.display = 'flex';
-        toast.classList.add('is-shown');
-
-        if (toastTimer) clearTimeout(toastTimer);
-        toastTimer = setTimeout(function () {
-            toast.classList.remove('is-shown');
-            setTimeout(function () { toast.style.display = 'none'; }, 300);
-        }, 3200);
-    };
-    var showSumrizeToast = window.showSumrizeToast;
-
-    // Fungsi klik tulisan EXPLORE untuk simulasi toggle sederhana
-    window.toggleUserPlan = function () {
-        window.currentUserPlan = localStorage.getItem('sumrize_user_plan') || 'explore';
-        const nextPlan = (window.currentUserPlan === 'explore') ? 'spark' : 'explore';
-        window.setUserPlan(nextPlan);
-    };
-    var toggleUserPlan = window.toggleUserPlan;
-
-    // Jalankan inisialisasi status plan & proteksi akses saat script dieksekusi
-    window.checkPageAccessOnLoad();
-    window.updateUserPlanUI();
+    // Fungsi trigger click tulisan EXPLORE untuk simulasi perubahan status
+    function toggleUserPlan() {
+        currentUserPlan = currentUserPlan === 'explore' ? 'spark' : 'explore';
+        localStorage.setItem('sumrize_user_plan', currentUserPlan);
+        updateUserPlanUI();
+        alert('Simulasi: Status user diubah menjadi ' + currentUserPlan.toUpperCase());
+    }
 </script>
