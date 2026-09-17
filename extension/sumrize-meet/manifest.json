@@ -1,53 +1,46 @@
 {
-    "manifest_version": 3,
+  "manifest_version": 3,
+  "name": "Sumrize Meeting Assistant",
+  "version": "1.1.0",
+  "description": "Sumrize Meeting Assistant – transcript Google Meet via tab audio + STT",
 
-    "name": "Sumrize Meeting Assistant",
+  "permissions": [
+    "storage",
+    "tabs",
+    "scripting",
+    "activeTab",
+    "tabCapture",
+    "offscreen"
+  ],
 
-    "version": "1.0.0",
+  "host_permissions": [
+    "https://meet.google.com/*",
+    "http://localhost/*"
+  ],
 
-    "description": "Sumrize Meeting Assistant untuk menangkap transcript Google Meet.",
+  "externally_connectable": {
+    "matches": ["http://localhost:3000/*"]
+  },
 
-    "permissions": [
-        "storage",
-        "tabs",
-        "scripting"
-    ],
+  "background": {
+    "service_worker": "background/service-worker.js",
+    "type": "module"
+  },
 
-    "host_permissions": [
-        "https://meet.google.com/*",
-        "http://localhost/*"
-    ],
+  "action": {
+    "default_title": "Sumrize Meeting Assistant",
+    "default_popup": "popup/popup.html"
+  },
 
-    "externally_connectable": {
-        "matches": [
-            "http://localhost:3000/*"
-        ]
-    },
-
-    "background": {
-        "service_worker": "background/service-worker.js",
-        "type": "module"
-    },
-
-    "action": {
-        "default_title": "Sumrize Meeting Assistant",
-        "default_popup": "popup/popup.html"
-    },
-
-    "content_scripts": [
-        {
-            "matches": [
-                "https://meet.google.com/*"
-            ],
-            "js": [
-                "utils/logger.js",
-                "utils/storage.js",
-                "content/meet-detector.js",
-                "content/transcript-buffer.js",
-                "content/caption-observer.js",
-                "content/transcript-collector.js"
-            ],
-            "run_at": "document_idle"
-        }
-    ]
+  "content_scripts": [
+    {
+      "matches": ["https://meet.google.com/*"],
+      "js": [
+        "utils/storage.js",
+        "content/meet-detector.js",
+        "content/transcript-collector.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ]
 }

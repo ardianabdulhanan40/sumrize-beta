@@ -1,631 +1,352 @@
 /**
  * content/caption-observer.js
+ * Membaca Live Captions Google Meet (struktur DOM 2025–2026)
+ * dan mengirim data satu per satu ke collector.
  *
- * Google Meet Caption Observer
- *
- * Membaca caption Google Meet yang sudah dirender di DOM.
- * Karena struktur DOM Google Meet dapat berubah, observer menggunakan
- * beberapa strategi pencarian dan fallback.
+ * PENTING: Live Captions (CC) HARUS aktif di Google Meet.
  */
 (function (global) {
   "use strict";
 
   if (global.__SUMRIZE_CAPTION_OBSERVER_LOADED__) {
-    console.warn("[Sumrize] Caption observer sudah dimuat. Skip duplicate.");
+    console.log("[Sumrize Transcript] Caption observer sudah pernah dimuat.");
     return;
   }
-
   global.__SUMRIZE_CAPTION_OBSERVER_LOADED__ = true;
 
-  const DEBUG_PREFIX = "[Sumrize Caption]";
+  const LOG_PREFIX = "[Sumrize Transcript]";
 
-  function log(...args) {
-    console.log(DEBUG_PREFIX, ...args);
-  }
+  const CONFIG = {
+    pollInterval: 700,
+    maxTextLength: 500,
+    minTextLength: 2,
+    maxSpeakerLength: 80
+  };
 
-  function warn(...args) {
-    console.warn(DEBUG_PREFIX, ...args);
-  }
+  // ========== SELECTORS (prioritas) ==========
+  const CAPTION_CONTAINER_SELECTORS = [
+    '[role="region"][aria-label*="caption" i]',
+    '[role="region"][aria-label*="Captions"]',
+    '[role="region"][aria-label*="subtitle" i]',
+    '[role="region"][aria-label*="자막"]',
+    '[jsname="dsyhDe"]'
+  ];
+
+  const CAPTION_ITEM_SELECTORS = [
+    ".nMcdL.bj4p3b",
+    ".nMcdL",
+    '[class*="nMcdL"]'
+  ];
+
+  const SPEAKER_SELECTORS = [
+    ".NWpY1d",
+    ".zQRpq",
+    ".iOzk7",
+    '[class*="NWpY1d"]'
+  ];
+
+  const TEXT_SELECTORS = [
+    ".ygicle.VbkSUe",
+    ".bh44bd.VbkSUe",
+    ".ygicle",
+    ".VbkSUe",
+    '[class*="ygicle"]'
+  ];
+
+  const UI_PATTERNS = [
+    "your transcript has been paused",
+    "to resume transcribing",
+    "live transcript",
+    "transcribing:",
+    "settings",
+    "captions",
+    "cc",
+    "mute",
+    "unmute",
+    "microphone",
+    "camera",
+    "participants",
+    "chat",
+    "leave call",
+    "leave meeting",
+    "tutup panggilan",
+    "devices",
+    "more options",
+    "orang lain mungkin masih dapat melihat video"
+  ];
+
+  /* ========== Utility ========== */
 
   function normalizeText(text) {
     return String(text || "")
+      .replace(/\u00a0/g, " ")
       .replace(/\s+/g, " ")
       .trim();
   }
 
-  /**
-   * Selector yang umum digunakan Google Meet.
-   * Tidak bergantung hanya pada satu selector.
-   */
-  const GoogleMeetAdapter = {
-    containerSelectors: [
-      '[jsname="dsyhDe"]',
-      '[aria-live="polite"]',
-      '[aria-live="assertive"]',
-      '[role="log"]',
-      '[data-caption-container]',
-      '[data-message-text]',
-      '[jscontroller*="caption"]',
-      '[jsname*="caption" i]',
-      '[class*="caption" i]',
-    ],
-
-    lineSelectors: [
-      '[jsname="tgaKEf"]',
-      '[data-caption-line]',
-      '[data-message-text]',
-      '[data-message-id]',
-      '[class*="caption-line" i]',
-      '[class*="caption-text" i]',
-      '[class*="caption" i]',
-    ],
-
-    speakerSelectors: [
-      '[jsname="YSxPC"]',
-      '.speaker-name',
-      '[class*="speaker" i]',
-      '[class*="name" i]',
-    ],
-
-    /**
-     * Cari semua kandidat container caption.
-     */
-    findContainers() {
-      const results = [];
-      const seen = new Set();
-
-      for (const selector of this.containerSelectors) {
-        let elements = [];
-
-        try {
-          elements = document.querySelectorAll(selector);
-        } catch (err) {
-          continue;
-        }
-
-        elements.forEach((element) => {
-          if (seen.has(element)) return;
-
-          const text = normalizeText(element.textContent);
-
-          /*
-           * Hindari memasukkan element besar seperti body/main
-           * sebagai container caption.
-           */
-          if (
-            text.length > 0 &&
-            text.length < 2000
-          ) {
-            seen.add(element);
-            results.push(element);
-          }
-        });
-      }
-
-      return results;
-    },
-
-    /**
-     * Cari container terbaik.
-     */
-    findBestContainer() {
-      const containers = this.findContainers();
-
-      if (!containers.length) {
-        return null;
-      }
-
-      /*
-       * Prioritaskan container yang paling kecil.
-       * Container caption biasanya lebih kecil dibanding
-       * parent besar seperti main/dialog.
-       */
-      containers.sort((a, b) => {
-        const aLength = normalizeText(a.textContent).length;
-        const bLength = normalizeText(b.textContent).length;
-
-        return aLength - bLength;
-      });
-
-      const container = containers[0];
-
-      log(
-        "Candidate caption container ditemukan:",
-        container,
-        "text:",
-        normalizeText(container.textContent).slice(0, 150)
+  function isVisible(el) {
+    if (!el || el.nodeType !== Node.ELEMENT_NODE) return false;
+    try {
+      const rect = el.getBoundingClientRect();
+      const style = window.getComputedStyle(el);
+      return (
+        rect.width > 0 &&
+        rect.height > 0 &&
+        style.display !== "none" &&
+        style.visibility !== "hidden" &&
+        parseFloat(style.opacity || "1") > 0
       );
+    } catch {
+      return false;
+    }
+  }
 
-      return container;
-    },
+  function containsUiText(text) {
+    if (!text) return true;
+    const lower = text.toLowerCase();
+    return UI_PATTERNS.some((p) => lower.includes(p));
+  }
 
-    /**
-     * Cari line caption di dalam container.
-     */
-    findLines(container) {
-      const results = [];
-      const seen = new Set();
+  function isValidText(text) {
+    if (!text) return false;
+    if (text.length < CONFIG.minTextLength) return false;
+    if (text.length > CONFIG.maxTextLength) return false;
+    if (containsUiText(text)) return false;
+    return true;
+  }
 
-      for (const selector of this.lineSelectors) {
-        let elements = [];
+  /* ========== Caption Observer ========== */
 
+  class SumrizeCaptionObserver {
+    constructor(options = {}) {
+      this.onCaption =
+        typeof options.onCaption === "function" ? options.onCaption : () => {};
+      this.running = false;
+      this.mutationObserver = null;
+      this.pollIntervalId = null;
+      this.sequence = 0;
+      this.seenKeys = new Set();
+      this.lastSpeaker = "Unknown";
+      this._warnedNoContainer = false;
+    }
+
+    log(...args) {
+      console.log(LOG_PREFIX, ...args);
+    }
+
+    warn(...args) {
+      console.warn(LOG_PREFIX, ...args);
+    }
+
+    findCaptionContainer() {
+      for (const selector of CAPTION_CONTAINER_SELECTORS) {
         try {
-          elements = container.querySelectorAll(selector);
-        } catch (err) {
-          continue;
-        }
-
-        elements.forEach((element) => {
-          if (seen.has(element)) return;
-
-          const text = normalizeText(element.textContent);
-
-          if (text) {
-            seen.add(element);
-            results.push(element);
-          }
-        });
-
-        /*
-         * Kalau sudah menemukan kandidat yang masuk akal,
-         * tidak perlu terus mengambil selector yang terlalu umum.
-         */
-        if (results.length > 0) {
-          break;
-        }
+          const el = document.querySelector(selector);
+          if (el && isVisible(el)) return el;
+        } catch {}
       }
-
-      return results;
-    },
-
-    /**
-     * Ambil nama speaker.
-     */
-    extractSpeaker(element) {
-      for (const selector of this.speakerSelectors) {
-        try {
-          const speakerElement = element.querySelector(selector);
-
-          if (speakerElement) {
-            const speaker = normalizeText(
-              speakerElement.textContent
-            );
-
-            if (speaker) {
-              return speaker;
-            }
-          }
-        } catch (err) {
-          // Ignore selector error.
-        }
-      }
-
-      /*
-       * Fallback: cek attribute yang mungkin berisi nama.
-       */
-      const possibleAttributes = [
-        "data-speaker",
-        "data-speaker-name",
-        "aria-label",
-        "title",
-      ];
-
-      for (const attribute of possibleAttributes) {
-        const value = normalizeText(
-          element.getAttribute(attribute)
-        );
-
-        if (
-          value &&
-          value.length < 100 &&
-          !/caption|subtitle|teks otomatis|live caption/i.test(value)
-        ) {
-          return value;
-        }
-      }
-
-      return "Unknown";
-    },
-
-    /**
-     * Ambil text caption.
-     */
-    extractText(element) {
-      /*
-       * Clone element supaya kita bisa menghapus
-       * node speaker tanpa mengubah DOM asli.
-       */
-      const clone = element.cloneNode(true);
-
-      for (const selector of this.speakerSelectors) {
-        try {
-          clone.querySelectorAll(selector).forEach((speaker) => {
-            speaker.remove();
-          });
-        } catch (err) {
-          // Ignore.
-        }
-      }
-
-      return normalizeText(clone.textContent);
-    },
-
-    /**
-     * Ambil caption dari satu element.
-     */
-    extractLine(element) {
-      const speaker = this.extractSpeaker(element);
-      const text = this.extractText(element);
-
-      return {
-        speaker,
-        text,
-      };
-    },
-
-    /**
-     * Mencoba mencari tombol Captions.
-     */
-    findCaptionButton() {
-      const elements = document.querySelectorAll(
-        'button, [role="button"]'
-      );
-
-      for (const element of elements) {
-        const ariaLabel = normalizeText(
-          element.getAttribute("aria-label")
-        );
-
-        const text = normalizeText(
-          element.textContent
-        );
-
-        const combined = `${ariaLabel} ${text}`;
-
-        if (
-          /captions/i.test(combined) ||
-          /live captions/i.test(combined) ||
-          /teks otomatis/i.test(combined) ||
-          /subtitle/i.test(combined)
-        ) {
-          return element;
-        }
-      }
-
       return null;
-    },
+    }
 
-    enableCaptions() {
-      const button = this.findCaptionButton();
+    findCaptionItems(container) {
+      if (!container) return [];
 
-      if (!button) {
-        log("Tombol Captions belum ditemukan.");
-        return false;
+      for (const selector of CAPTION_ITEM_SELECTORS) {
+        try {
+          const items = container.querySelectorAll(selector);
+          if (items.length > 0) {
+            return Array.from(items).filter(isVisible);
+          }
+        } catch {}
+      }
+      return [];
+    }
+
+    extractSpeaker(item) {
+      for (const selector of SPEAKER_SELECTORS) {
+        try {
+          const el = item.querySelector(selector);
+          if (!el) continue;
+          const name = normalizeText(el.innerText || el.textContent);
+          if (
+            name &&
+            name.length >= 2 &&
+            name.length <= CONFIG.maxSpeakerLength &&
+            !containsUiText(name)
+          ) {
+            return name;
+          }
+        } catch {}
+      }
+      return null;
+    }
+
+    extractText(item) {
+      for (const selector of TEXT_SELECTORS) {
+        try {
+          const el = item.querySelector(selector);
+          if (!el) continue;
+          const text = normalizeText(el.innerText || el.textContent);
+          if (isValidText(text)) return text;
+        } catch {}
       }
 
-      const label = normalizeText(
-        button.getAttribute("aria-label")
+      // Fallback: clone & hapus speaker
+      try {
+        const clone = item.cloneNode(true);
+        SPEAKER_SELECTORS.forEach((sel) => {
+          clone.querySelectorAll(sel).forEach((n) => n.remove());
+        });
+        const text = normalizeText(clone.innerText || clone.textContent);
+        if (isValidText(text)) return text;
+      } catch {}
+
+      return "";
+    }
+
+    processItem(item) {
+      const speaker =
+        this.extractSpeaker(item) || this.lastSpeaker || "Unknown";
+      const text = this.extractText(item);
+
+      if (!isValidText(text)) return null;
+      if (text.toLowerCase() === speaker.toLowerCase()) return null;
+
+      this.lastSpeaker = speaker;
+      return { speaker, text };
+    }
+
+    emit(data) {
+      if (!data) return;
+
+      const key = `${data.speaker}::${data.text}`;
+      if (this.seenKeys.has(key)) return;
+      this.seenKeys.add(key);
+
+      // Batasi memory
+      if (this.seenKeys.size > 300) {
+        const arr = Array.from(this.seenKeys);
+        this.seenKeys = new Set(arr.slice(-150));
+      }
+
+      this.sequence++;
+
+      const transcript = {
+        speaker: data.speaker,
+        text: data.text,
+        sequence: this.sequence,
+        timestamp: new Date().toISOString()
+      };
+
+      this.log(
+        `Transcript #${transcript.sequence} | Speaker: ${transcript.speaker} | "${transcript.text}" | ${transcript.timestamp}`
       );
-
-      /*
-       * Jangan klik kalau tombol terlihat seperti
-       * tombol untuk mematikan caption.
-       */
-      if (
-        /turn off captions/i.test(label) ||
-        /matikan teks otomatis/i.test(label)
-      ) {
-        log("Captions sudah aktif.");
-        return true;
-      }
 
       try {
-        button.click();
-        log("Mencoba mengaktifkan Captions.");
-        return true;
+        this.onCaption(transcript);
       } catch (err) {
-        warn("Gagal klik tombol Captions:", err);
-        return false;
+        this.warn("Error onCaption:", err);
       }
-    },
-  };
+    }
 
-  class CaptionObserver {
-    constructor({ onCaption }) {
-      this.onCaption = onCaption;
+    scan() {
+      if (!this.running) return;
 
-      this.observer = null;
-      this.documentObserver = null;
+      const container = this.findCaptionContainer();
+      if (!container) {
+        if (!this._warnedNoContainer) {
+          this.warn(
+            "Caption container belum ditemukan. Pastikan Live Captions (CC) sudah AKTIF di Google Meet."
+          );
+          this._warnedNoContainer = true;
+        }
+        return;
+      }
 
-      this.containerEl = null;
+      this._warnedNoContainer = false;
 
-      this.pollTimer = null;
+      const items = this.findCaptionItems(container);
 
-      this.captionCount = 0;
+      if (items.length === 0) {
+        // Fallback: ambil text langsung dari container (jika pendek)
+        const direct = normalizeText(container.innerText);
+        if (isValidText(direct) && direct.length < 250) {
+          this.emit({
+            speaker: this.lastSpeaker || "Unknown",
+            text: direct
+          });
+        }
+        return;
+      }
 
-      this.lastText = "";
-      this.lastSpeaker = "";
-
-      this.running = false;
-
-      this.processTimer = null;
+      items.forEach((item) => {
+        const data = this.processItem(item);
+        if (data) this.emit(data);
+      });
     }
 
     start() {
       if (this.running) {
-        log("Observer sudah berjalan.");
-        return true;
+        this.log("Observer sudah berjalan.");
+        return;
       }
 
       this.running = true;
+      this.sequence = 0;
+      this.seenKeys.clear();
+      this.lastSpeaker = "Unknown";
+      this._warnedNoContainer = false;
 
-      log("Memulai Caption Observer...");
+      this.log("Memulai observer Live Transcript Google Meet...");
 
-      /*
-       * Jangan mengandalkan caption sudah aktif.
-       * Coba aktifkan setelah observer berjalan.
-       */
-      GoogleMeetAdapter.enableCaptions();
-
-      /*
-       * Cari container sekarang.
-       */
-      this._findAndAttach();
-
-      /*
-       * Google Meet sering membuat element caption
-       * beberapa detik setelah tombol Captions ditekan.
-       *
-       * Karena itu kita monitor perubahan seluruh document
-       * sampai container ditemukan.
-       */
-      this.documentObserver = new MutationObserver(() => {
-        if (!this.running) return;
-
-        if (!this.containerEl) {
-          this._findAndAttach();
-          return;
-        }
-
-        this._scheduleProcess();
-      });
-
-      this.documentObserver.observe(document.body, {
-        childList: true,
-        subtree: true,
-      });
-
-      /*
-       * Fallback polling.
-       */
-      this.pollTimer = setInterval(() => {
-        if (!this.running) return;
-
-        if (!this.containerEl) {
-          GoogleMeetAdapter.enableCaptions();
-          this._findAndAttach();
-        } else {
-          this._processContainer();
-        }
-      }, 1500);
-
-      return Boolean(this.containerEl);
-    }
-
-    _findAndAttach() {
-      const container = GoogleMeetAdapter.findBestContainer();
-
-      if (!container) {
-        log(
-          "Caption container belum ditemukan. Menunggu perubahan DOM..."
-        );
-        return false;
-      }
-
-      if (container === this.containerEl) {
-        return true;
-      }
-
-      this.containerEl = container;
-
-      this._attachObserver();
-
-      return true;
-    }
-
-    _attachObserver() {
-      if (this.observer) {
-        this.observer.disconnect();
-        this.observer = null;
-      }
-
-      if (!this.containerEl) {
-        return;
-      }
-
-      log(
-        "Memasang MutationObserver pada caption container:",
-        this.containerEl
-      );
-
-      this.observer = new MutationObserver(() => {
-        this._scheduleProcess();
-      });
-
-      this.observer.observe(this.containerEl, {
-        childList: true,
-        subtree: true,
-        characterData: true,
-      });
-
-      global.SumrizeLogger?.info(
-        "Caption observer aktif."
-      );
-
-      this._processContainer();
-    }
-
-    _scheduleProcess() {
-      if (this.processTimer) {
-        return;
-      }
-
-      this.processTimer = setTimeout(() => {
-        this.processTimer = null;
-
-        if (!this.running) return;
-
-        this._processContainer();
-      }, 100);
-    }
-
-    _processContainer() {
-      if (!this.containerEl) {
-        return;
-      }
-
-      const lines = GoogleMeetAdapter.findLines(
-        this.containerEl
-      );
-
-      /*
-       * Kalau selector line tidak menemukan apa pun,
-       * coba gunakan container sebagai fallback.
-       */
-      const targets =
-        lines.length > 0
-          ? lines
-          : [this.containerEl];
-
-      for (const element of targets) {
-        const result =
-          GoogleMeetAdapter.extractLine(element);
-
-        const speaker = normalizeText(
-          result.speaker || "Unknown"
-        );
-
-        const text = normalizeText(
-          result.text
-        );
-
-        if (!text) {
-          continue;
-        }
-
-        /*
-         * Hindari mengirim teks UI Google Meet.
-         */
-        if (this._isProbablyUiText(text)) {
-          continue;
-        }
-
-        /*
-         * Hindari caption yang sama dikirim berkali-kali.
-         */
-        if (
-          text === this.lastText &&
-          speaker === this.lastSpeaker
-        ) {
-          continue;
-        }
-
-        this.lastText = text;
-        this.lastSpeaker = speaker;
-
-        this.captionCount += 1;
-
-        log(
-          `Caption #${this.captionCount}:`,
-          {
-            speaker,
-            text,
-          }
-        );
-
-        if (this.captionCount === 1) {
-          global.SumrizeLogger?.info(
-            "Caption Google Meet pertama diterima."
-          );
-        }
-
-        try {
-          this.onCaption?.({
-            speaker,
-            text,
+      try {
+        this.mutationObserver = new MutationObserver(() => this.scan());
+        if (document.body) {
+          this.mutationObserver.observe(document.body, {
+            childList: true,
+            subtree: true,
+            characterData: true
           });
-        } catch (err) {
-          console.error(
-            `${DEBUG_PREFIX} onCaption error:`,
-            err
-          );
         }
+      } catch (err) {
+        this.warn("MutationObserver gagal:", err);
       }
-    }
 
-    _isProbablyUiText(text) {
-      const lower = text.toLowerCase();
+      this.pollIntervalId = setInterval(() => this.scan(), CONFIG.pollInterval);
+      this.scan();
 
-      const uiPatterns = [
-        "turn on captions",
-        "turn off captions",
-        "live captions",
-        "captions",
-        "teks otomatis",
-        "matikan teks otomatis",
-        "aktifkan teks otomatis",
-        "present now",
-        "more options",
-        "more options",
-        "leave call",
-        "join now",
-        "ask to join",
-      ];
-
-      return uiPatterns.some((pattern) =>
-        lower === pattern ||
-        lower.includes(pattern)
-      );
+      this.log("Observer Live Transcript aktif.");
     }
 
     stop() {
-      log("Menghentikan Caption Observer...");
+      if (!this.running) return;
 
+      this.log("Menghentikan observer...");
       this.running = false;
 
-      if (this.observer) {
-        this.observer.disconnect();
-        this.observer = null;
+      if (this.mutationObserver) {
+        try {
+          this.mutationObserver.disconnect();
+        } catch {}
+        this.mutationObserver = null;
       }
 
-      if (this.documentObserver) {
-        this.documentObserver.disconnect();
-        this.documentObserver = null;
+      if (this.pollIntervalId) {
+        clearInterval(this.pollIntervalId);
+        this.pollIntervalId = null;
       }
 
-      if (this.pollTimer) {
-        clearInterval(this.pollTimer);
-        this.pollTimer = null;
-      }
+      this.log(`Observer berhenti. Total transcript: ${this.sequence}`);
+    }
 
-      if (this.processTimer) {
-        clearTimeout(this.processTimer);
-        this.processTimer = null;
-      }
-
-      this.containerEl = null;
-
-      log(
-        `Caption Observer berhenti. Total caption: ${this.captionCount}`
-      );
+    reset() {
+      this.seenKeys.clear();
+      this.sequence = 0;
+      this.lastSpeaker = "Unknown";
+      this.log("History transcript di-reset.");
     }
   }
 
-  global.SumrizeGoogleMeetAdapter =
-    GoogleMeetAdapter;
-
-  global.SumrizeCaptionObserver =
-    CaptionObserver;
-
-  log("Caption Observer module loaded.");
+  global.SumrizeCaptionObserver = SumrizeCaptionObserver;
+  console.log(`${LOG_PREFIX} Caption observer berhasil dimuat.`);
 })(window);

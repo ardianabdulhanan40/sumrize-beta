@@ -1,37 +1,35 @@
 /**
  * api/api-client.js
  *
- * API Client untuk Sumrize Meeting Assistant
+ * HTTP client untuk komunikasi dengan backend Sumrize.
+ * Dipakai di Service Worker (background).
+ *
+ * Endpoint:
+ * - POST /start.php
+ * - POST /transcript.php
+ * - POST /stop.php
+ * - GET  /session.php?id=...
+ * - POST /transcribe.php   (audio chunk → STT)
  */
 
 (function (global) {
-
-    const DEFAULT_BASE_URL =
-        "http://localhost/sumrize-beta/api/meeting";
-
+    "use strict";
 
     /* =========================================================
-       ERROR NORMALIZER
+       CONFIG
+       ========================================================= */
+
+    const DEFAULT_BASE_URL = "http://localhost/sumrize-api/api/meeting";
+
+    /* =========================================================
+       HELPERS
        ========================================================= */
 
     function normalizeError(error) {
-
-        if (!error) {
-            return "Unknown error";
-        }
-
-        if (typeof error === "string") {
-            return error;
-        }
-
-        if (error instanceof Error) {
-            return error.message;
-        }
-
-        if (typeof error.message === "string") {
-            return error.message;
-        }
-
+        if (!error) return "Unknown error";
+        if (typeof error === "string") return error;
+        if (error instanceof Error) return error.message;
+        if (typeof error.message === "string") return error.message;
         try {
             return JSON.stringify(error);
         } catch {
@@ -39,446 +37,168 @@
         }
     }
 
-
-    /* =========================================================
-       TOKEN
-       ========================================================= */
-
     async function getToken() {
-
         if (!global.SumrizeStorage) {
-            throw new Error(
-                "SumrizeStorage tidak tersedia."
-            );
+            throw new Error("SumrizeStorage tidak tersedia.");
         }
 
-        const token =
-            await global.SumrizeStorage.getAuthToken();
+        const token = await global.SumrizeStorage.getAuthToken();
 
         if (!token) {
             throw new Error(
-                "Auth token belum tersedia. Silakan login ke dashboard."
+                "Auth token tidak ditemukan. Silakan login di dashboard Sumrize."
             );
         }
 
         return token;
     }
 
-
-    /* =========================================================
-       BASE URL
-       ========================================================= */
-
     async function getBaseUrl() {
-
         if (!global.SumrizeStorage) {
             return DEFAULT_BASE_URL;
         }
 
         try {
-
-            const baseUrl =
-                await global.SumrizeStorage.getApiBaseUrl();
-
-            return (
-                baseUrl ||
-                DEFAULT_BASE_URL
+            const saved = await global.SumrizeStorage.getApiBaseUrl();
+            if (typeof saved === "string" && saved.trim()) {
+                return saved.replace(/\/$/, "");
+            }
+        } catch (error) {
+            console.warn(
+                "[Sumrize API] Gagal membaca API base URL dari storage:",
+                normalizeError(error)
             );
-
-        } catch {
-
-            return DEFAULT_BASE_URL;
         }
+
+        return DEFAULT_BASE_URL;
     }
 
-
     /* =========================================================
-       GENERIC REQUEST
+       CORE REQUEST (JSON)
        ========================================================= */
 
-    async function request(
-        endpoint,
-        options = {}
-    ) {
+    async function request(path, options = {}) {
+        const token = await getToken();
+        const baseUrl = await getBaseUrl();
 
-        const token =
-            await getToken();
+        const cleanPath = String(path || "").replace(/^\//, "");
+        const url = `${baseUrl}/${cleanPath}`;
 
-        const baseUrl =
-            await getBaseUrl();
-
-        const url =
-            `${baseUrl}/${endpoint}`;
-
-
-        console.log(
-            "[Sumrize API] Request:",
-            options.method || "GET",
-            url
-        );
-
-
+        const method = (options.method || "GET").toUpperCase();
         const headers = {
-
-            "Content-Type":
-                "application/json",
-
-            "Authorization":
-                `Bearer ${token}`,
-
+            Authorization: `Bearer ${token}`,
+            Accept: "application/json",
             ...(options.headers || {})
         };
 
+        const fetchOptions = {
+            method,
+            headers
+        };
+
+        if (method !== "GET" && method !== "HEAD") {
+            headers["Content-Type"] = "application/json";
+            fetchOptions.body = JSON.stringify(options.body || {});
+        }
+
+        console.log("[Sumrize API] Request:", {
+            url,
+            method,
+            body: options.body || null
+        });
 
         let response;
 
         try {
-
-            response =
-                await fetch(
-                    url,
-                    {
-                        ...options,
-                        headers
-                    }
-                );
-
+            response = await fetch(url, fetchOptions);
         } catch (error) {
-
             throw new Error(
                 `Tidak dapat terhubung ke backend: ${normalizeError(error)}`
             );
         }
 
-
-        const rawText =
-            await response.text();
-
-
+        const rawText = await response.text();
         let data = null;
 
-
         if (rawText) {
-
             try {
-
-                data =
-                    JSON.parse(rawText);
-
+                data = JSON.parse(rawText);
             } catch {
-
-                data = {
-                    raw: rawText
-                };
-
+                data = { raw: rawText };
             }
-
         }
 
-
-        console.log(
-            "[Sumrize API] Response:",
-            {
-                status: response.status,
-                data
-            }
-        );
-
-
-        /* =====================================================
-           HTTP ERROR
-           ===================================================== */
+        console.log("[Sumrize API] Response:", {
+            url,
+            status: response.status,
+            data
+        });
 
         if (!response.ok) {
-
-            console.error(
-                "[Sumrize API] HTTP Error:",
-                data
-            );
-
-
-            let message =
+            const message =
+                data?.message ||
+                data?.error ||
+                data?.raw ||
                 `HTTP ${response.status}`;
-
-
-            if (data) {
-
-                if (
-                    typeof data.message ===
-                    "string"
-                ) {
-
-                    message =
-                        data.message;
-
-                } else if (
-                    typeof data.error ===
-                    "string"
-                ) {
-
-                    message =
-                        data.error;
-
-                } else if (
-                    data.error &&
-                    typeof data.error.message ===
-                    "string"
-                ) {
-
-                    message =
-                        data.error.message;
-
-                } else {
-
-                    try {
-
-                        message =
-                            JSON.stringify(data);
-
-                    } catch {
-
-                        message =
-                            `HTTP ${response.status}`;
-
-                    }
-
-                }
-
-            }
-
-
-            const error =
-                new Error(message);
-
-            error.status =
-                response.status;
-
-            error.response =
-                data;
-
-            throw error;
+            throw new Error(String(message));
         }
 
-
-        /* =====================================================
-           BACKEND ERROR
-           ===================================================== */
-
-        if (
-            data &&
-            data.ok === false
-        ) {
-
-            let message =
-                "Request gagal.";
-
-
-            if (
-                typeof data.message ===
-                "string"
-            ) {
-
-                message =
-                    data.message;
-
-            } else if (
-                typeof data.error ===
-                "string"
-            ) {
-
-                message =
-                    data.error;
-
-            }
-
-
-            const error =
-                new Error(message);
-
-            error.response =
-                data;
-
-            throw error;
+        if (data && typeof data === "object" && data.ok === false) {
+            throw new Error(
+                data.message || data.error || "Request gagal di backend."
+            );
         }
-
 
         return data;
     }
-
 
     /* =========================================================
        CREATE MEETING SESSION
        ========================================================= */
 
-    async function createMeetingSession({
-        meetCode,
-        title
-    }) {
-
+    async function createMeetingSession({ meetCode, title }) {
         if (!meetCode) {
-
-            throw new Error(
-                "Meet code wajib diisi."
-            );
-
+            throw new Error("Meet code wajib diisi.");
         }
 
+        const payload = {
+            meet_code: meetCode,
+            title: title || `Google Meet - ${meetCode}`
+        };
 
-        console.log(
-            "[Sumrize API] Creating meeting session:",
-            meetCode
-        );
+        console.log("[Sumrize API] Create meeting session:", payload);
 
+        const data = await request("start.php", {
+            method: "POST",
+            body: payload
+        });
 
-        const response =
-            await request(
-                "create.php",
-                {
-                    method: "POST",
-
-                    body:
-                        JSON.stringify({
-
-                            connector:
-                                "google_meet",
-
-                            meetCode:
-                                meetCode,
-
-                            title:
-                                title ||
-                                `Google Meet - ${meetCode}`
-
-                        })
-                }
-            );
-
-
-        console.log(
-            "[Sumrize API] Raw create response:",
-            response
-        );
-
-
-        /*
-         * Backend create.php kemungkinan mengembalikan
-         * salah satu struktur berikut:
-         *
-         * 1.
-         * {
-         *   ok: true,
-         *   meetingSessionId: "ms_xxx"
-         * }
-         *
-         * 2.
-         * {
-         *   ok: true,
-         *   id: "ms_xxx"
-         * }
-         *
-         * 3.
-         * {
-         *   ok: true,
-         *   data: {
-         *      id: "ms_xxx"
-         *   }
-         * }
-         *
-         * 4.
-         * {
-         *   ok: true,
-         *   meeting_session: {
-         *      id: "ms_xxx"
-         *   }
-         * }
-         *
-         * 5.
-         * {
-         *   ok: true,
-         *   meeting_session_id: "ms_xxx"
-         * }
-         */
-
-
-        let meetingSessionId =
-            response?.meetingSessionId ||
-            response?.meeting_session_id ||
-            response?.id ||
-            response?.data?.meetingSessionId ||
-            response?.data?.meeting_session_id ||
-            response?.data?.id ||
-            response?.meeting_session?.meetingSessionId ||
-            response?.meeting_session?.meeting_session_id ||
-            response?.meeting_session?.id ||
-            response?.meetingSession?.meetingSessionId ||
-            response?.meetingSession?.meeting_session_id ||
-            response?.meetingSession?.id ||
+        const meetingSessionId =
+            data?.meetingSessionId ||
+            data?.meeting_session_id ||
+            data?.id ||
+            data?.data?.meetingSessionId ||
+            data?.data?.meeting_session_id ||
+            data?.data?.id ||
             null;
 
-
-        /*
-         * Beberapa backend memakai:
-         *
-         * {
-         *   ok: true,
-         *   data: {
-         *      meeting_session: {
-         *          id: "ms_xxx"
-         *      }
-         *   }
-         * }
-         */
-
         if (!meetingSessionId) {
-
-            meetingSessionId =
-                response?.data?.meeting_session?.id ||
-                response?.data?.meeting_session?.meetingSessionId ||
-                response?.data?.meeting_session?.meeting_session_id ||
-                response?.data?.meetingSession?.id ||
-                response?.data?.meetingSession?.meetingSessionId ||
-                response?.data?.meetingSession?.meeting_session_id ||
-                null;
-        }
-
-
-        console.log(
-            "[Sumrize API] Detected meetingSessionId:",
-            meetingSessionId
-        );
-
-
-        if (!meetingSessionId) {
-
             console.error(
-                "[Sumrize API] ID session tidak ditemukan.",
-                {
-                    response
-                }
+                "[Sumrize API] Meeting session response invalid:",
+                data
             );
-
             throw new Error(
-                "Meeting session berhasil dibuat tetapi ID session tidak ditemukan."
+                "Backend tidak mengembalikan meeting session ID."
             );
         }
-
 
         return {
-
             ok: true,
-
             meetingSessionId,
-
             meetCode,
-
-            state:
-                "capturing",
-
-            raw:
-                response
+            raw: data
         };
     }
-
 
     /* =========================================================
        SEND TRANSCRIPT
@@ -491,155 +211,209 @@
         timestamp,
         sequence
     }) {
-
         if (!meetingSessionId) {
-
-            throw new Error(
-                "Meeting session ID wajib diisi."
-            );
-
+            throw new Error("Meeting session ID wajib diisi.");
         }
 
-
-        if (!text) {
-
-            throw new Error(
-                "Transcript text wajib diisi."
-            );
-
+        if (!text || !String(text).trim()) {
+            throw new Error("Transcript text kosong.");
         }
 
+        const payload = {
+            meeting_session_id: meetingSessionId,
+            speaker: speaker || "Unknown",
+            text: String(text).trim(),
+            timestamp: timestamp || new Date().toISOString(),
+            sequence: Number.isFinite(sequence) ? sequence : null
+        };
 
-        return await request(
-            "transcript.php",
-            {
-                method: "POST",
+        console.log("[Sumrize API] Send transcript:", payload);
 
-                body:
-                    JSON.stringify({
+        const data = await request("transcript.php", {
+            method: "POST",
+            body: payload
+        });
 
-                        id:
-                            meetingSessionId,
-
-                        meetingSessionId:
-                            meetingSessionId,
-
-                        speaker:
-                            speaker ||
-                            "Unknown",
-
-                        text,
-
-                        timestamp:
-                            timestamp ||
-                            null,
-
-                        sequence:
-                            sequence ??
-                            null
-
-                    })
-            }
-        );
+        return {
+            ok: true,
+            raw: data
+        };
     }
-
 
     /* =========================================================
        STOP MEETING SESSION
        ========================================================= */
 
-    async function stopMeetingSession({
-        meetingSessionId
-    }) {
-
+    async function stopMeetingSession({ meetingSessionId }) {
         if (!meetingSessionId) {
-
-            throw new Error(
-                "Meeting session ID wajib diisi untuk STOP."
-            );
-
+            throw new Error("Meeting session ID wajib diisi.");
         }
 
+        const payload = {
+            meeting_session_id: meetingSessionId
+        };
 
-        console.log(
-            "[Sumrize API] Stopping meeting session:",
-            meetingSessionId
-        );
+        console.log("[Sumrize API] Stop meeting session:", payload);
 
+        const data = await request("stop.php", {
+            method: "POST",
+            body: payload
+        });
 
-        return await request(
-            "stop.php",
-            {
-                method: "POST",
-
-                body:
-                    JSON.stringify({
-
-                        id:
-                            meetingSessionId,
-
-                        meetingSessionId:
-                            meetingSessionId
-
-                    })
-            }
-        );
+        return {
+            ok: true,
+            raw: data
+        };
     }
-
 
     /* =========================================================
        GET MEETING SESSION
        ========================================================= */
 
-    async function getMeetingSession({
-        meetingSessionId
-    }) {
-
+    async function getMeetingSession(meetingSessionId) {
         if (!meetingSessionId) {
+            throw new Error("Meeting session ID wajib diisi.");
+        }
 
+        const data = await request(
+            `session.php?id=${encodeURIComponent(meetingSessionId)}`,
+            { method: "GET" }
+        );
+
+        return {
+            ok: true,
+            raw: data
+        };
+    }
+
+    /* =========================================================
+       TRANSCRIBE AUDIO (multipart — jangan pakai request())
+       ========================================================= */
+
+    async function transcribeAudio({
+        meetingSessionId,
+        audioBlob,
+        mimeType,
+        sequence,
+        timestamp
+    }) {
+        if (!meetingSessionId) {
+            throw new Error("Meeting session ID wajib diisi.");
+        }
+
+        if (!audioBlob) {
+            throw new Error("Audio blob kosong.");
+        }
+
+        const token = await getToken();
+        const baseUrl = await getBaseUrl();
+        const url = `${baseUrl}/transcribe.php`;
+
+        const form = new FormData();
+        form.append(
+            "audio",
+            audioBlob,
+            `chunk-${sequence ?? 0}.webm`
+        );
+        form.append("meeting_session_id", meetingSessionId);
+        form.append("sequence", String(sequence ?? 0));
+        form.append(
+            "timestamp",
+            timestamp || new Date().toISOString()
+        );
+        if (mimeType) {
+            form.append("mime_type", mimeType);
+        }
+
+        console.log("[Sumrize API] Transcribe audio:", {
+            sequence,
+            size: audioBlob.size,
+            mimeType: mimeType || audioBlob.type || "audio/webm"
+        });
+
+        let response;
+
+        try {
+            response = await fetch(url, {
+                method: "POST",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    Accept: "application/json"
+                    // Jangan set Content-Type — browser set multipart boundary
+                },
+                body: form
+            });
+        } catch (error) {
             throw new Error(
-                "Meeting session ID wajib diisi."
+                `Tidak dapat terhubung ke backend STT: ${normalizeError(error)}`
             );
         }
 
+        const rawText = await response.text();
+        let data = null;
 
-        return await request(
-            "detail.php?id=" +
-            encodeURIComponent(
-                meetingSessionId
-            ),
-            {
-                method: "GET"
+        if (rawText) {
+            try {
+                data = JSON.parse(rawText);
+            } catch {
+                data = { raw: rawText };
             }
-        );
-    }
+        }
 
+        console.log("[Sumrize API] Transcribe response:", {
+            status: response.status,
+            data
+        });
+
+        if (!response.ok) {
+            const message =
+                data?.message ||
+                data?.error ||
+                data?.raw ||
+                `HTTP ${response.status}`;
+            throw new Error(String(message));
+        }
+
+        if (data && typeof data === "object" && data.ok === false) {
+            throw new Error(
+                data.message || data.error || "Transcribe gagal di backend."
+            );
+        }
+
+        const text = String(
+            data?.text ||
+                data?.transcript ||
+                data?.data?.text ||
+                data?.data?.transcript ||
+                ""
+        ).trim();
+
+        return {
+            ok: true,
+            text,
+            speaker: data?.speaker || data?.data?.speaker || "Unknown",
+            raw: data
+        };
+    }
 
     /* =========================================================
        EXPORT
        ========================================================= */
 
     global.SumrizeApi = {
-
         request,
-
         getToken,
-
         getBaseUrl,
-
         createMeetingSession,
-
         sendTranscript,
-
         stopMeetingSession,
-
-        getMeetingSession
-
+        getMeetingSession,
+        transcribeAudio
     };
 
-
+    console.log("[Sumrize] API client loaded");
     console.log(
-        "[Sumrize] API Client loaded"
+        "[Sumrize] SumrizeApi methods:",
+        Object.keys(global.SumrizeApi)
     );
-
 })(globalThis);

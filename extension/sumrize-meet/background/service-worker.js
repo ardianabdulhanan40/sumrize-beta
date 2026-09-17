@@ -1,906 +1,394 @@
 /**
  * background/service-worker.js
- *
- * Service Worker untuk Sumrize Meeting Assistant.
- *
- * Tugas:
- * - Menangani komunikasi Popup ↔ Content Script
- * - Membuat Meeting Session
- * - Mengirim transcript ke backend
- * - Menghentikan Meeting Session
- * - Menerima auth token dari Dashboard
  */
-
-
-/*
-|--------------------------------------------------------------------------
-| LOAD DEPENDENCIES
-|--------------------------------------------------------------------------
-|
-| Manifest menggunakan:
-| "type": "module"
-|
-| Jadi TIDAK menggunakan importScripts().
-|
-*/
-
 import "../utils/storage.js";
 import "../api/api-client.js";
 
+console.log("[Sumrize] Service Worker loaded");
 
-console.log(
-    "[Sumrize] Service Worker loaded"
-);
-
-console.log(
-    "[Sumrize] Storage:",
-    typeof globalThis.SumrizeStorage
-);
-
-console.log(
-    "[Sumrize] API:",
-    typeof globalThis.SumrizeApi
-);
-
-
-/*
-|--------------------------------------------------------------------------
-| ERROR NORMALIZER
-|--------------------------------------------------------------------------
-*/
+let audioCaptureState = {
+  active: false,
+  tabId: null,
+  meetingSessionId: null,
+  chunkIndex: 0
+};
 
 function normalizeError(error) {
-
-    if (!error) {
-        return "Unknown error";
-    }
-
-    if (
-        typeof error === "string"
-    ) {
-        return error;
-    }
-
-    if (
-        error instanceof Error
-    ) {
-        return error.message;
-    }
-
-    if (
-        typeof error.message === "string"
-    ) {
-        return error.message;
-    }
-
-    try {
-        return JSON.stringify(error);
-    } catch {
-        return String(error);
-    }
+  if (!error) return "Unknown error";
+  if (typeof error === "string") return error;
+  if (error instanceof Error) return error.message;
+  if (typeof error?.message === "string") return error.message;
+  try {
+    return JSON.stringify(error);
+  } catch {
+    return String(error);
+  }
 }
 
+async function ensureOffscreenDocument() {
+  const contexts = await chrome.runtime.getContexts({
+    contextTypes: ["OFFSCREEN_DOCUMENT"]
+  });
+  if (contexts.length > 0) return;
 
-/*
-|--------------------------------------------------------------------------
-| POPUP MESSAGE HANDLER
-|--------------------------------------------------------------------------
-*/
+  await chrome.offscreen.createDocument({
+    url: "offscreen.html",
+    reasons: ["USER_MEDIA"],
+    justification: "Capture Google Meet tab audio for transcription"
+  });
+}
 
-chrome.runtime.onMessage.addListener(
-    (
-        message,
-        sender,
-        sendResponse
-    ) => {
-
-        if (!message?.type) {
-            return;
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | GET STATE
-        |--------------------------------------------------------------------------
-        */
-
-        if (
-            message.type ===
-            "POPUP_GET_STATE"
-        ) {
-
-            handleGetState()
-                .then((result) => {
-
-                    sendResponse({
-                        ok: true,
-                        state: result
-                    });
-
-                })
-                .catch((error) => {
-
-                    console.error(
-                        "[Sumrize] Get state failed:",
-                        error
-                    );
-
-                    sendResponse({
-                        ok: false,
-                        error:
-                            normalizeError(
-                                error
-                            )
-                    });
-                });
-
-            return true;
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | START CAPTURE
-        |--------------------------------------------------------------------------
-        */
-
-        if (
-            message.type ===
-            "POPUP_START_CAPTURE"
-        ) {
-
-            startCapture(message)
-                .then((result) => {
-
-                    sendResponse({
-                        ok: true,
-                        ...result
-                    });
-
-                })
-                .catch((error) => {
-
-                    console.error(
-                        "[Sumrize] Start capture failed:",
-                        error
-                    );
-
-                    sendResponse({
-                        ok: false,
-                        error:
-                            normalizeError(
-                                error
-                            )
-                    });
-                });
-
-            return true;
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | STOP CAPTURE
-        |--------------------------------------------------------------------------
-        */
-
-        if (
-            message.type ===
-            "POPUP_STOP_CAPTURE"
-        ) {
-
-            stopCapture(message)
-                .then((result) => {
-
-                    sendResponse({
-                        ok: true,
-                        ...result
-                    });
-
-                })
-                .catch((error) => {
-
-                    console.error(
-                        "[Sumrize] Stop capture failed:",
-                        error
-                    );
-
-                    sendResponse({
-                        ok: false,
-                        error:
-                            normalizeError(
-                                error
-                            )
-                    });
-                });
-
-            return true;
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | CREATE MEETING SESSION
-        |--------------------------------------------------------------------------
-        */
-
-        if (
-            message.type ===
-            "CREATE_MEETING_SESSION"
-        ) {
-
-            createMeeting(message)
-                .then((result) => {
-
-                    sendResponse({
-                        ok: true,
-                        ...result
-                    });
-
-                })
-                .catch((error) => {
-
-                    console.error(
-                        "[Sumrize] Create meeting failed:",
-                        error
-                    );
-
-                    sendResponse({
-                        ok: false,
-                        error:
-                            normalizeError(
-                                error
-                            )
-                    });
-                });
-
-            return true;
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | TRANSCRIPT SEGMENT
-        |--------------------------------------------------------------------------
-        */
-
-        if (
-            message.type ===
-            "TRANSCRIPT_SEGMENT"
-        ) {
-
-            handleTranscript(message)
-                .then((result) => {
-
-                    sendResponse({
-                        ok: true,
-                        ...result
-                    });
-
-                })
-                .catch((error) => {
-
-                    console.error(
-                        "[Sumrize] Transcript failed:",
-                        error
-                    );
-
-                    sendResponse({
-                        ok: false,
-                        error:
-                            normalizeError(
-                                error
-                            )
-                    });
-                });
-
-            return true;
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | STOP MEETING SESSION
-        |--------------------------------------------------------------------------
-        */
-
-        if (
-            message.type ===
-            "STOP_MEETING_SESSION"
-        ) {
-
-            stopMeeting(message)
-                .then((result) => {
-
-                    sendResponse({
-                        ok: true,
-                        ...result
-                    });
-
-                })
-                .catch((error) => {
-
-                    console.error(
-                        "[Sumrize] Stop meeting failed:",
-                        error
-                    );
-
-                    sendResponse({
-                        ok: false,
-                        error:
-                            normalizeError(
-                                error
-                            )
-                    });
-                });
-
-            return true;
-        }
+async function closeOffscreenDocument() {
+  try {
+    const contexts = await chrome.runtime.getContexts({
+      contextTypes: ["OFFSCREEN_DOCUMENT"]
+    });
+    if (contexts.length > 0) {
+      await chrome.offscreen.closeDocument();
     }
-);
+  } catch (err) {
+    console.warn("[Sumrize] close offscreen:", normalizeError(err));
+  }
+}
 
+async function sendToOffscreen(payload, retries = 8) {
+  await ensureOffscreenDocument();
 
-/*
-|--------------------------------------------------------------------------
-| GET STATE
-|--------------------------------------------------------------------------
-*/
+  for (let i = 0; i < retries; i++) {
+    try {
+      return await chrome.runtime.sendMessage({
+        ...payload,
+        target: "offscreen"
+      });
+    } catch (err) {
+      const msg = normalizeError(err);
+      if (
+        msg.includes("Receiving end does not exist") ||
+        msg.includes("Could not establish connection")
+      ) {
+        await new Promise((r) => setTimeout(r, 250));
+        continue;
+      }
+      throw err;
+    }
+  }
+  throw new Error("Offscreen document tidak merespons.");
+}
+
+/* ========== MESSAGE ========== */
+
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (!message?.type) return;
+
+  if (message.type === "POPUP_GET_STATE") {
+    handleGetState()
+      .then((state) =>
+        sendResponse({ ok: true, state, audioCapture: { ...audioCaptureState } })
+      )
+      .catch((e) => sendResponse({ ok: false, error: normalizeError(e) }));
+    return true;
+  }
+
+  if (message.type === "POPUP_START_CAPTURE") {
+    startCaptureViaContent(message)
+      .then((r) => sendResponse({ ok: true, ...r }))
+      .catch((e) => sendResponse({ ok: false, error: normalizeError(e) }));
+    return true;
+  }
+
+  if (message.type === "POPUP_STOP_CAPTURE") {
+    stopCaptureViaContent(message)
+      .then((r) => sendResponse({ ok: true, ...r }))
+      .catch((e) => sendResponse({ ok: false, error: normalizeError(e) }));
+    return true;
+  }
+
+  if (message.type === "CREATE_MEETING_SESSION") {
+    createMeeting(message)
+      .then((r) => sendResponse({ ok: true, ...r }))
+      .catch((e) => sendResponse({ ok: false, error: normalizeError(e) }));
+    return true;
+  }
+
+  if (message.type === "TRANSCRIPT_SEGMENT") {
+    handleTranscript(message)
+      .then((r) => sendResponse({ ok: true, ...r }))
+      .catch((e) => sendResponse({ ok: false, error: normalizeError(e) }));
+    return true;
+  }
+
+  if (message.type === "STOP_MEETING_SESSION") {
+    stopMeeting(message)
+      .then((r) => sendResponse({ ok: true, ...r }))
+      .catch((e) => sendResponse({ ok: false, error: normalizeError(e) }));
+    return true;
+  }
+
+  if (message.type === "START_AUDIO_CAPTURE") {
+    startAudioCapture(message)
+      .then((r) => sendResponse({ ok: true, ...r }))
+      .catch((e) => sendResponse({ ok: false, error: normalizeError(e) }));
+    return true;
+  }
+
+  if (message.type === "STOP_AUDIO_CAPTURE") {
+    stopAudioCapture()
+      .then((r) => sendResponse({ ok: true, ...r }))
+      .catch((e) => sendResponse({ ok: false, error: normalizeError(e) }));
+    return true;
+  }
+
+  if (message.type === "AUDIO_CHUNK") {
+    handleAudioChunk(message)
+      .then((r) => sendResponse({ ok: true, ...r }))
+      .catch((e) => {
+        console.warn("[Sumrize] chunk error:", normalizeError(e));
+        sendResponse({ ok: false, error: normalizeError(e) });
+      });
+    return true;
+  }
+});
 
 async function handleGetState() {
-
-    if (
-        !globalThis.SumrizeStorage
-    ) {
-
-        throw new Error(
-            "SumrizeStorage tidak tersedia."
-        );
-    }
-
-    return await globalThis.SumrizeStorage
-        .getAll();
+  if (!globalThis.SumrizeStorage) throw new Error("SumrizeStorage tidak tersedia.");
+  return await globalThis.SumrizeStorage.getAll();
 }
 
+async function resolveMeetTabId(preferredId) {
+  if (preferredId) return preferredId;
 
-/*
-|--------------------------------------------------------------------------
-| START CAPTURE
-|--------------------------------------------------------------------------
-*/
+  const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
+  const tab = tabs?.[0];
+  if (!tab?.id) throw new Error("Tab aktif tidak ditemukan.");
+  if (!tab.url?.includes("meet.google.com")) {
+    throw new Error("Buka tab Google Meet dulu, lalu Start Capture.");
+  }
+  return tab.id;
+}
 
-async function startCapture(message) {
+async function startCaptureViaContent(message) {
+  const tabId = await resolveMeetTabId(message?.tabId);
 
-    console.log(
-        "[Sumrize] Start capture request"
-    );
-
-
-    let tabId =
-        message?.tabId || null;
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Jika popup tidak mengirim tabId,
-    | cari active tab.
-    |--------------------------------------------------------------------------
-    */
-
-    if (!tabId) {
-
-        const tabs =
-            await chrome.tabs.query({
-                active: true,
-                currentWindow: true
-            });
-
-
-        const activeTab =
-            tabs?.[0];
-
-
-        if (!activeTab?.id) {
-
-            throw new Error(
-                "Tab Google Meet tidak ditemukan."
-            );
-        }
-
-
-        tabId =
-            activeTab.id;
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Pastikan API tersedia
-    |--------------------------------------------------------------------------
-    */
-
-    if (
-        !globalThis.SumrizeApi
-    ) {
-
-        throw new Error(
-            "SumrizeApi tidak tersedia."
-        );
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Kirim perintah ke Content Script
-    |--------------------------------------------------------------------------
-    */
-
-    const response =
-        await chrome.tabs.sendMessage(
-            tabId,
-            {
-                type:
-                    "POPUP_START_CAPTURE"
-            }
-        );
-
-
+  try {
+    const response = await chrome.tabs.sendMessage(tabId, {
+      type: "POPUP_START_CAPTURE"
+    });
     if (!response?.ok) {
-
-        throw new Error(
-            response?.error ||
-            "Content script gagal memulai capture."
-        );
+      throw new Error(response?.error || "Content script gagal start.");
     }
-
-
     return response;
+  } catch (err) {
+    const msg = normalizeError(err);
+    if (
+      msg.includes("Receiving end does not exist") ||
+      msg.includes("Could not establish connection")
+    ) {
+      throw new Error(
+        "Content script belum siap. Refresh tab Google Meet (F5), lalu coba lagi."
+      );
+    }
+    throw err;
+  }
 }
 
+async function stopCaptureViaContent(message) {
+  const tabId = await resolveMeetTabId(message?.tabId);
 
-/*
-|--------------------------------------------------------------------------
-| STOP CAPTURE
-|--------------------------------------------------------------------------
-*/
+  if (audioCaptureState.active) {
+    try {
+      await stopAudioCapture();
+    } catch {}
+  }
 
-async function stopCapture(message) {
-
-    console.log(
-        "[Sumrize] Stop capture request"
-    );
-
-
-    let tabId =
-        message?.tabId || null;
-
-
-    if (!tabId) {
-
-        const tabs =
-            await chrome.tabs.query({
-                active: true,
-                currentWindow: true
-            });
-
-
-        const activeTab =
-            tabs?.[0];
-
-
-        if (!activeTab?.id) {
-
-            throw new Error(
-                "Tab Google Meet tidak ditemukan."
-            );
-        }
-
-
-        tabId =
-            activeTab.id;
-    }
-
-
-    const response =
-        await chrome.tabs.sendMessage(
-            tabId,
-            {
-                type:
-                    "POPUP_STOP_CAPTURE"
-            }
-        );
-
-
+  try {
+    const response = await chrome.tabs.sendMessage(tabId, {
+      type: "POPUP_STOP_CAPTURE"
+    });
     if (!response?.ok) {
-
-        throw new Error(
-            response?.error ||
-            "Content script gagal menghentikan capture."
-        );
+      throw new Error(response?.error || "Content script gagal stop.");
     }
-
-
     return response;
+  } catch (err) {
+    const msg = normalizeError(err);
+    if (
+      msg.includes("Receiving end does not exist") ||
+      msg.includes("Could not establish connection")
+    ) {
+      return { ok: true, note: "Content script sudah tidak aktif." };
+    }
+    throw err;
+  }
 }
-
-
-/*
-|--------------------------------------------------------------------------
-| CREATE MEETING SESSION
-|--------------------------------------------------------------------------
-*/
 
 async function createMeeting(message) {
+  if (!globalThis.SumrizeApi?.createMeetingSession) {
+    throw new Error("SumrizeApi.createMeetingSession tidak tersedia.");
+  }
+  const meetCode = message?.meetCode;
+  if (!meetCode) throw new Error("Meet code tidak tersedia.");
 
-    console.log(
-        "[Sumrize] Create meeting session request"
-    );
-
-
-    if (
-        !globalThis.SumrizeApi
-    ) {
-
-        throw new Error(
-            "SumrizeApi tidak tersedia."
-        );
-    }
-
-
-    if (
-        typeof
-            globalThis.SumrizeApi
-                .createMeetingSession !==
-            "function"
-    ) {
-
-        throw new Error(
-            "SumrizeApi.createMeetingSession tidak tersedia."
-        );
-    }
-
-
-    const meetCode =
-        message?.meetCode;
-
-
-    if (!meetCode) {
-
-        throw new Error(
-            "Meet code tidak tersedia."
-        );
-    }
-
-
-    const title =
-        message?.title ||
-        `Google Meet - ${meetCode}`;
-
-
-    console.log(
-        "[Sumrize] Creating meeting session:",
-        meetCode
-    );
-
-
-    const response =
-        await globalThis.SumrizeApi
-            .createMeetingSession({
-
-                meetCode,
-
-                title
-            });
-
-
-    return response;
+  return await globalThis.SumrizeApi.createMeetingSession({
+    meetCode,
+    title: message?.title || `Google Meet - ${meetCode}`
+  });
 }
-
-
-/*
-|--------------------------------------------------------------------------
-| SEND TRANSCRIPT
-|--------------------------------------------------------------------------
-*/
-
-async function handleTranscript(message) {
-
-    if (
-        !globalThis.SumrizeApi
-    ) {
-
-        throw new Error(
-            "SumrizeApi tidak tersedia."
-        );
-    }
-
-
-    if (
-        typeof
-            globalThis.SumrizeApi
-                .sendTranscript !==
-            "function"
-    ) {
-
-        throw new Error(
-            "SumrizeApi.sendTranscript tidak tersedia."
-        );
-    }
-
-
-    const meetingSessionId =
-        message?.meetingSessionId;
-
-
-    if (!meetingSessionId) {
-
-        throw new Error(
-            "Meeting session ID tidak tersedia."
-        );
-    }
-
-
-    if (!message?.text) {
-
-        throw new Error(
-            "Transcript text tidak tersedia."
-        );
-    }
-
-
-    return await globalThis.SumrizeApi
-        .sendTranscript({
-
-            meetingSessionId,
-
-            speaker:
-                message.speaker ||
-                "Unknown",
-
-            text:
-                message.text,
-
-            timestamp:
-                message.timestamp,
-
-            sequence:
-                message.sequence
-        });
-}
-
-
-/*
-|--------------------------------------------------------------------------
-| STOP MEETING SESSION
-|--------------------------------------------------------------------------
-*/
 
 async function stopMeeting(message) {
+  if (!globalThis.SumrizeApi?.stopMeetingSession) {
+    throw new Error("SumrizeApi.stopMeetingSession tidak tersedia.");
+  }
+  const meetingSessionId = message?.meetingSessionId;
+  if (!meetingSessionId) throw new Error("meetingSessionId kosong.");
 
-    console.log(
-        "[Sumrize] Stop meeting session request:",
-        message
-    );
-
-
-    if (!globalThis.SumrizeApi) {
-
-        throw new Error(
-            "SumrizeApi tidak tersedia."
-        );
-    }
-
-
-    if (
-        typeof globalThis.SumrizeApi
-            .stopMeetingSession !==
-        "function"
-    ) {
-
-        throw new Error(
-            "SumrizeApi.stopMeetingSession tidak tersedia."
-        );
-    }
-
-
-    const meetingSessionId =
-        message?.meetingSessionId;
-
-
-    if (!meetingSessionId) {
-
-        throw new Error(
-            "Meeting session ID tidak tersedia untuk STOP."
-        );
-    }
-
-
-    console.log(
-        "[Sumrize] Sending STOP for:",
-        meetingSessionId
-    );
-
-
-    const response =
-        await globalThis.SumrizeApi
-            .stopMeetingSession({
-
-                meetingSessionId
-
-            });
-
-
-    console.log(
-        "[Sumrize] STOP backend response:",
-        response
-    );
-
-
-    return response;
+  return await globalThis.SumrizeApi.stopMeetingSession({ meetingSessionId });
 }
 
+async function handleTranscript(message) {
+  if (!globalThis.SumrizeApi?.sendTranscript) {
+    throw new Error("SumrizeApi.sendTranscript tidak tersedia.");
+  }
+  if (!message?.meetingSessionId) throw new Error("meetingSessionId kosong.");
+  if (!message?.text) throw new Error("text kosong.");
 
-/*
-|--------------------------------------------------------------------------
-| EXTERNAL AUTH BRIDGE
-|--------------------------------------------------------------------------
-|
-| Dashboard:
-| http://localhost:3000
-|
-| Dashboard localStorage
-|        ↓
-| SUMRIZE_AUTH_TOKEN
-|        ↓
-| Service Worker
-|        ↓
-| chrome.storage.local
-|
-|--------------------------------------------------------------------------
-*/
+  return await globalThis.SumrizeApi.sendTranscript({
+    meetingSessionId: message.meetingSessionId,
+    speaker: message.speaker || "Unknown",
+    text: message.text,
+    timestamp: message.timestamp,
+    sequence: message.sequence
+  });
+}
 
-chrome.runtime.onMessageExternal.addListener(
-    (
-        message,
-        sender,
-        sendResponse
-    ) => {
+async function startAudioCapture(message) {
+  if (audioCaptureState.active) {
+    return { active: true, ...audioCaptureState };
+  }
 
-        try {
+  const meetingSessionId = message?.meetingSessionId;
+  if (!meetingSessionId) {
+    throw new Error("meetingSessionId wajib untuk audio capture.");
+  }
 
-            const senderUrl =
-                sender?.url || "";
+  const tabId = await resolveMeetTabId(message?.tabId);
+  const streamId = await chrome.tabCapture.getMediaStreamId({
+    targetTabId: tabId
+  });
 
+  if (!streamId) throw new Error("Gagal mendapatkan streamId.");
 
-            const origin =
-                senderUrl
-                    ? new URL(
-                        senderUrl
-                    ).origin
-                    : "";
+  const offRes = await sendToOffscreen({
+    type: "START_TAB_AUDIO",
+    streamId
+  });
 
+  if (!offRes?.ok) {
+    throw new Error(offRes?.error || "Offscreen gagal start.");
+  }
 
-            /*
-            |--------------------------------------------------------------------------
-            | SECURITY CHECK
-            |--------------------------------------------------------------------------
-            */
+  audioCaptureState = {
+    active: true,
+    tabId,
+    meetingSessionId,
+    chunkIndex: 0
+  };
 
-            if (
-                origin !==
-                "http://localhost:3000"
-            ) {
+  console.log("[Sumrize] Audio capture started", audioCaptureState);
+  return { active: true, tabId, meetingSessionId };
+}
 
-                sendResponse({
+async function stopAudioCapture() {
+  if (!audioCaptureState.active) return { active: false };
 
-                    ok: false,
+  try {
+    await sendToOffscreen({ type: "STOP_TAB_AUDIO" });
+  } catch (err) {
+    console.warn("[Sumrize] stop offscreen:", normalizeError(err));
+  }
 
-                    error:
-                        "Origin tidak diizinkan."
-                });
+  await closeOffscreenDocument();
 
-                return;
-            }
+  audioCaptureState = {
+    active: false,
+    tabId: null,
+    meetingSessionId: null,
+    chunkIndex: 0
+  };
 
+  console.log("[Sumrize] Audio capture stopped");
+  return { active: false };
+}
 
-            /*
-            |--------------------------------------------------------------------------
-            | AUTH TOKEN
-            |--------------------------------------------------------------------------
-            */
+async function handleAudioChunk(message) {
+  if (!audioCaptureState.active || !audioCaptureState.meetingSessionId) {
+    return { skipped: true };
+  }
 
-            if (
-                message?.type ===
-                "SUMRIZE_AUTH_TOKEN"
-            ) {
+  const { buffer, mimeType, timestamp } = message;
+  if (!buffer?.length) return { skipped: true };
 
+  audioCaptureState.chunkIndex += 1;
+  const sequence = audioCaptureState.chunkIndex;
 
-                if (!message.token) {
+  const blob = new Blob([new Uint8Array(buffer)], {
+    type: mimeType || "audio/webm"
+  });
 
-                    sendResponse({
+  console.log(`[Sumrize] Audio chunk #${sequence} size=${blob.size}`);
 
-                        ok: false,
+  if (!globalThis.SumrizeApi?.transcribeAudio) {
+    console.warn("[Sumrize] transcribeAudio belum diimplementasi di api-client.");
+    return { skipped: true, reason: "no transcribeAudio" };
+  }
 
-                        error:
-                            "Auth token kosong."
-                    });
+  const stt = await globalThis.SumrizeApi.transcribeAudio({
+    meetingSessionId: audioCaptureState.meetingSessionId,
+    audioBlob: blob,
+    mimeType: mimeType || "audio/webm",
+    sequence,
+    timestamp: timestamp || new Date().toISOString()
+  });
 
-                    return;
-                }
+  const text = stt?.text?.trim();
+  if (!text) {
+    console.log(`[Sumrize] Chunk #${sequence}: empty`);
+    return { ok: true, empty: true };
+  }
 
+  console.log(`[Sumrize] STT #${sequence}: "${text}"`);
 
-                globalThis.SumrizeStorage
-                    .setAuthToken(
-                        message.token
-                    )
+  await handleTranscript({
+    meetingSessionId: audioCaptureState.meetingSessionId,
+    speaker: stt.speaker || "Unknown",
+    text,
+    timestamp: timestamp || new Date().toISOString(),
+    sequence
+  });
 
-                    .then(() => {
+  return { ok: true, text, sequence };
+}
 
-                        console.log(
-                            "[Sumrize] Auth token berhasil disimpan."
-                        );
-
-
-                        sendResponse({
-
-                            ok: true
-                        });
-
-                    })
-
-                    .catch((error) => {
-
-                        console.error(
-
-                            "[Sumrize] Gagal menyimpan auth token:",
-
-                            error
-                        );
-
-
-                        sendResponse({
-
-                            ok: false,
-
-                            error:
-                                normalizeError(
-                                    error
-                                )
-                        });
-                    });
-
-
-                return true;
-            }
-
-
-            sendResponse({
-
-                ok: false,
-
-                error:
-                    "Message type external tidak dikenal."
-            });
-
-        } catch (error) {
-
-            console.error(
-
-                "[Sumrize] External message error:",
-
-                error
-            );
-
-
-            sendResponse({
-
-                ok: false,
-
-                error:
-                    normalizeError(
-                        error
-                    )
-            });
-        }
+/* External auth (dashboard localhost) */
+chrome.runtime.onMessageExternal.addListener((message, sender, sendResponse) => {
+  try {
+    const origin = sender?.url ? new URL(sender.url).origin : "";
+    if (origin !== "http://localhost:3000") {
+      sendResponse({ ok: false, error: "Origin tidak diizinkan." });
+      return;
     }
-);
+
+    if (message?.type === "SUMRIZE_AUTH_TOKEN") {
+      if (!message.token) {
+        sendResponse({ ok: false, error: "Auth token kosong." });
+        return;
+      }
+      globalThis.SumrizeStorage.setAuthToken(message.token)
+        .then(() => sendResponse({ ok: true }))
+        .catch((e) => sendResponse({ ok: false, error: normalizeError(e) }));
+      return true;
+    }
+
+    sendResponse({ ok: false, error: "Message type tidak dikenal." });
+  } catch (e) {
+    sendResponse({ ok: false, error: normalizeError(e) });
+  }
+});
