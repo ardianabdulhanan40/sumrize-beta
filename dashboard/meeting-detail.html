@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <title>Meeting Detail - Sumrize</title>
+  <style>
+    body { font-family: sans-serif; max-width: 800px; margin: 24px auto; }
+    section { margin-bottom: 24px; }
+    .transcript-line { margin-bottom: 6px; }
+    .transcript-line .speaker { font-weight: 600; }
+    #ask-rizz-answer { background: #f4f5f7; padding: 12px; border-radius: 8px; white-space: pre-wrap; }
+    .status { font-size: 12px; padding: 2px 8px; border-radius: 999px; background: #eef0f4; }
+  </style>
+</head>
+<body>
+  <a href="meeting.html">&larr; Kembali ke Meeting Library</a>
+  <h1 id="meeting-title">Memuat...</h1>
+  <span id="meeting-status" class="status"></span>
+
+  <section>
+    <h2>Summary</h2>
+    <p id="meeting-summary">-</p>
+  </section>
+
+  <section>
+    <h2>Action Items</h2>
+    <ul id="action-items-list"></ul>
+  </section>
+
+  <section>
+    <h2>Decisions</h2>
+    <ul id="decisions-list"></ul>
+  </section>
+
+  <section>
+    <h2>Follow-up</h2>
+    <ul id="follow-ups-list"></ul>
+  </section>
+
+  <section>
+    <h2>Ask Rizz</h2>
+    <p><em>Pertanyaan hanya akan dijawab berdasarkan meeting ini.</em></p>
+    <input type="text" id="ask-rizz-input" placeholder="Tanyakan sesuatu tentang meeting ini..." style="width: 70%;" />
+    <button id="ask-rizz-btn">Tanya</button>
+    <div id="ask-rizz-answer" style="display:none; margin-top: 12px;"></div>
+  </section>
+
+  <section>
+    <h2>Transcript</h2>
+    <div id="transcript-container"></div>
+  </section>
+
+  <section>
+    <button id="copy-share-btn">Copy Summary</button>
+  </section>
+
+  <script>
+    // TODO: sesuaikan dengan mekanisme auth token existing Sumrize dashboard.
+    const AUTH_TOKEN = localStorage.getItem("sumrize_auth_token");
+    const API_BASE = "/api/meeting";
+
+    const params = new URLSearchParams(window.location.search);
+    const meetingSessionId = params.get("id");
+
+    async function apiGet(path) {
+      const res = await fetch(`${API_BASE}${path}`, {
+        headers: { Authorization: `Bearer ${AUTH_TOKEN}` },
+      });
+      return res.json();
+    }
+
+    async function apiPost(path, body) {
+      const res = await fetch(`${API_BASE}${path}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${AUTH_TOKEN}`,
+        },
+        body: JSON.stringify(body),
+      });
+      return res.json();
+    }
+
+    function renderList(elId, items, formatter) {
+      const el = document.getElementById(elId);
+      el.innerHTML = "";
+      if (!items || items.length === 0) {
+        el.innerHTML = "<li><em>Tidak ada data.</em></li>";
+        return;
+      }
+      items.forEach((item) => {
+        const li = document.createElement("li");
+        li.textContent = formatter(item);
+        el.appendChild(li);
+      });
+    }
+
+    async function loadDetail() {
+      if (!meetingSessionId) {
+        document.getElementById("meeting-title").textContent = "Meeting session tidak ditemukan.";
+        return;
+      }
+      const result = await apiGet(`/detail.php?id=${encodeURIComponent(meetingSessionId)}`);
+      if (!result.ok) {
+        document.getElementById("meeting-title").textContent = `Error: ${result.error?.message || "gagal memuat"}`;
+        return;
+      }
+
+      const { meetingSession, transcript, actionItems, decisions, followUps } = result;
+      document.getElementById("meeting-title").textContent = meetingSession.title;
+      document.getElementById("meeting-status").textContent = meetingSession.status;
+      document.getElementById("meeting-summary").textContent = meetingSession.summary || "Belum ada summary.";
+
+      renderList("action-items-list", actionItems, (a) => `${a.task} ${a.assignee ? `(PIC: ${a.assignee})` : ""} ${a.deadline ? `- deadline ${a.deadline}` : ""}`);
+      renderList("decisions-list", decisions, (d) => d.decision);
+      renderList("follow-ups-list", followUps, (f) => f.description);
+
+      const container = document.getElementById("transcript-container");
+      container.innerHTML = "";
+      transcript.forEach((line) => {
+        const div = document.createElement("div");
+        div.className = "transcript-line";
+        div.innerHTML = `<span class="speaker">${line.speaker}:</span> ${line.text}`;
+        container.appendChild(div);
+      });
+    }
+
+    document.getElementById("ask-rizz-btn").addEventListener("click", async () => {
+      const question = document.getElementById("ask-rizz-input").value.trim();
+      if (!question) return;
+      const answerBox = document.getElementById("ask-rizz-answer");
+      answerBox.style.display = "block";
+      answerBox.textContent = "Memproses...";
+
+      const result = await apiPost("/ask-rizz.php", { meetingSessionId, question });
+      answerBox.textContent = result.ok ? result.answer : `Error: ${result.error?.message}`;
+    });
+
+    document.getElementById("copy-share-btn").addEventListener("click", () => {
+      const summary = document.getElementById("meeting-summary").textContent;
+      navigator.clipboard.writeText(summary).then(() => alert("Summary disalin ke clipboard."));
+    });
+
+    loadDetail();
+  </script>
+</body>
+</html>

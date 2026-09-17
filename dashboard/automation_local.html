@@ -3,24 +3,33 @@
 
 <head>
     <meta charset="utf-8">
-      <base href="/sumrize-beta/dashboard/">
+    <base href="/dashboard/">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>Sumrize — Automation</title>
     <script>
-    (function() {
-        var savedTheme = null;
-        try {
-            savedTheme = localStorage.getItem('sumrize_v2_theme');
-        } catch (e) {}
-        var resolvedTheme = savedTheme || (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
-        document.documentElement.setAttribute('data-v2-theme', resolvedTheme);
-    })();
-</script>
+        (function () {
+            var savedTheme = null;
+            try {
+                savedTheme = localStorage.getItem('sumrize_v2_theme');
+            } catch (e) { }
+            var resolvedTheme = savedTheme || (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+            document.documentElement.setAttribute('data-v2-theme', resolvedTheme);
+
+            // Proteksi Akses Halaman Automation untuk Mode Explore
+            try {
+                var userPlan = localStorage.getItem('sumrize_user_plan') || 'explore';
+                if (userPlan !== 'spark') {
+                    sessionStorage.setItem('sumrize_plan_notice', 'Akses Dibatasi: Halaman Automation hanya dapat diakses oleh user Spark. Silakan aktifkan mode Spark untuk demo.');
+                    window.location.replace('/dashboard/index_local.html');
+                }
+            } catch (e) { }
+        })();
+    </script>
     <link rel="icon" type="image/png" href="https://app.sumrize.me/assets/img/logo/dark-bg.png">
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-    
+
     <!-- TAMBAHAN: SweetAlert2 untuk Animasi Sukses dan Error -->
     <link href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-dark@4/dark.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -48,7 +57,7 @@
         html,
         body {
             max-width: 100%;
-            overflow-x: hidden !important;
+            overflow-x: clip !important;
             background: rgb(29, 29, 29);
             font-family: "Urbanist", sans-serif;
             color: #fcfbf8;
@@ -77,14 +86,35 @@
             align-items: start;
         }
 
+        #sidebar-container {
+            position: -webkit-sticky;
+            position: sticky;
+            top: 24px;
+            z-index: 100;
+            align-self: start;
+            height: -moz-fit-content;
+            height: fit-content;
+        }
+
+        @media (max-width: 991.98px) {
+            #sidebar-container {
+                position: static !important;
+                height: auto !important;
+                display: contents;
+            }
+        }
+
         .dashboard-sidebar-v3 {
             width: 260px;
             gap: 28px;
+            position: -webkit-sticky;
             position: sticky;
             top: 24px;
             display: flex;
             flex-direction: column;
-            min-height: calc(100dvh - 48px);
+            height: calc(100dvh - 48px);
+            max-height: calc(100dvh - 48px);
+            align-self: start;
         }
 
         .dashboard-sidebar-v3-brand {
@@ -623,7 +653,8 @@
             border-color: #ff4438;
         }
 
-        .member-select-chip, .mention-select-chip {
+        .member-select-chip,
+        .mention-select-chip {
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.12);
             color: #94a3b8;
@@ -639,13 +670,15 @@
             transition: all 0.2s ease;
         }
 
-        .member-select-chip:hover, .mention-select-chip:hover {
+        .member-select-chip:hover,
+        .mention-select-chip:hover {
             background: rgba(255, 255, 255, 0.1);
             color: #fff;
             border-color: rgba(255, 255, 255, 0.25);
         }
 
-        .member-select-chip.selected, .mention-select-chip.selected {
+        .member-select-chip.selected,
+        .mention-select-chip.selected {
             background: rgba(72, 187, 120, 0.18) !important;
             border-color: #48bb78 !important;
             color: #48bb78 !important;
@@ -894,34 +927,40 @@
                         <i class="fa-solid fa-plus"></i> Tambah Automation
                     </button>
                     <div class="dashboard-navbar-v3-dropdown-wrap">
-                        <button type="button" class="dashboard-navbar-v3-control"
-                            onclick="document.getElementById('dashboardUserDropdownV3').classList.toggle('is-open'); event.stopPropagation();">
+                        <button type="button"
+                            class="dashboard-navbar-v3-control dashboard-navbar-v3-user-toggle toggle-dashboard-navbar-v3-dropdown"
+                            data-target="user" aria-haspopup="true" aria-expanded="false"
+                            aria-controls="dashboardUserDropdownV3">
                             <span class="dashboard-navbar-v3-avatar">Y</span>
                             <span class="dashboard-navbar-v3-user-name">Yan</span>
-                            <i class="fa-solid fa-chevron-down" style="font-size: 12px; margin-left: 4px;"></i>
+                            <i class="fa-light fa-chevron-down"></i>
                         </button>
-
-                        <div class="dashboard-navbar-v3-dropdown" id="dashboardUserDropdownV3">
+                        <div class="dashboard-navbar-v3-dropdown dashboard-navbar-v3-user-dropdown" data-dropdown="user"
+                            id="dashboardUserDropdownV3" aria-hidden="true">
                             <div class="dashboard-navbar-v3-user-card">
                                 <div class="dashboard-navbar-v3-user-head">
-                                    <strong style="color: white; font-size: 16px;">Yan</strong>
-                                    <span style="color: #7f95ba; font-size: 11px; font-weight: 700; letter-spacing: 0.1em;">EXPLORE</span>
+                                    <strong>Yan</strong>
+                                    <span class="user-plan-label"
+                                        onclick="if(typeof toggleUserPlan==='function') toggleUserPlan();"
+                                        title="Klik untuk simulasi ubah status plan">EXPLORE</span>
                                 </div>
                             </div>
-                            <a href="javascript:;" class="dashboard-navbar-v3-item is-upgrade-action open-popup" data-action="upgrade">
-                                <i class="fa-solid fa-rocket"></i>
-                                <span style="font-weight: bold;">Upgrade</span>
+                            <a href="javascript:;" class="dashboard-navbar-v3-item is-upgrade-action open-popup"
+                                data-id="EXPLORE" data-title="Upgrade Account"
+                                data-subtitle="Choose the Perfect Plan for You" data-action="upgrade">
+                                <i class="fa-solid fa-rocket-launch"></i>
+                                <span>Upgrade</span>
                             </a>
                             <a href="/setting" class="dashboard-navbar-v3-item">
-                                <i class="fa-solid fa-gear"></i>
+                                <i class="fa-light fa-gear-complex"></i>
                                 <span>Pengaturan</span>
                             </a>
-                            <a href="https://sumrize.me/contact-us" target="_blank" class="dashboard-navbar-v3-item">
-                                <i class="fa-solid fa-circle-info"></i>
-                                <span>Bantuan</span>
+                            <a href="javascript:;" class="dashboard-navbar-v3-item">
+                                <i class="fa-solid fa-language"></i>
+                                <span>Bahasa</span>
                             </a>
                             <a href="/?action=logout" class="dashboard-navbar-v3-item dashboard-navbar-v3-signout">
-                                <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                                <i class="fa-light fa-arrow-right-from-bracket"></i>
                                 <span>Keluar</span>
                             </a>
                         </div>
@@ -933,7 +972,8 @@
             <section class="d-flex d-lg-none flex-column mb-4 mt-5">
                 <div>
                     <h1 style="font-size: 28px; margin: 0; color: #fcfbf8; font-weight: bold;">Automation</h1>
-                    <p style="color: #a6a9b6; margin: 4px 0 16px; font-size: 13px;">Ringkasan aktivitas dan automasi Anda</p>
+                    <p style="color: #a6a9b6; margin: 4px 0 16px; font-size: 13px;">Ringkasan aktivitas dan automasi
+                        Anda</p>
                 </div>
 
                 <button type="button" class="dashboard-add-btn-v2 w-100" onclick="openWorkflowModal()">
@@ -1019,49 +1059,66 @@
         <!-- ================= MODAL WORKFLOW BUILDER ================= -->
         <div class="workflow-popup" id="workflowBuilderModal">
             <!-- TAMBAHAN: Dibungkus dengan form agar HTML5 Validation (required) berfungsi -->
-            <form id="workflowForm" style="display: flex; justify-content: center; align-items: center; width: 100%; margin: 0;">
+            <form id="workflowForm"
+                style="display: flex; justify-content: center; align-items: center; width: 100%; margin: 0;">
                 <div class="workflow-shell">
                     <aside class="workflow-settings-rail" id="settingsRail">
                         <div class="d-flex justify-content-between align-items-center">
                             <h3 style="font-size: 20px; font-weight: 700; margin: 0;">New Automation</h3>
-                            <button type="button" onclick="closeWorkflowModal()" class="border-0 bg-transparent text-white" style="font-size: 18px;">
+                            <button type="button" onclick="closeWorkflowModal()"
+                                class="border-0 bg-transparent text-white" style="font-size: 18px;">
                                 <i class="fa-solid fa-xmark"></i>
                             </button>
                         </div>
                         <button type="button" class="mobile-rail-toggle" onclick="toggleRailCollapse()">
-                            <span id="railToggleText"><i class="fa-solid fa-eye-slash mr-1"></i> Sembunyikan Detail Form</span>
+                            <span id="railToggleText"><i class="fa-solid fa-eye-slash mr-1"></i> Sembunyikan Detail
+                                Form</span>
                             <i class="fa-solid fa-chevron-down" id="railToggleIcon"></i>
                         </button>
                         <div class="rail-collapsible-content" id="railContent">
                             <div class="form-group-field mb-3">
-                                <label style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: #a6a9b6;">Automation Name</label>
+                                <label
+                                    style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: #a6a9b6;">Automation
+                                    Name</label>
                                 <!-- TAMBAHAN: Atribut required -->
-                                <input type="text" id="autoNameInput" class="custom-input-box" placeholder="Nama alur" required>
+                                <input type="text" id="autoNameInput" class="custom-input-box" placeholder="Nama alur"
+                                    required>
                             </div>
                             <div class="form-group-field mb-3">
-                                <label style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: #a6a9b6;">Description</label>
+                                <label
+                                    style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: #a6a9b6;">Description</label>
                                 <!-- TAMBAHAN: Atribut required -->
-                                <textarea id="autoDescInput" class="custom-input-box" rows="2" placeholder="Deskripsi alur..." required></textarea>
+                                <textarea id="autoDescInput" class="custom-input-box" rows="2"
+                                    placeholder="Deskripsi alur..." required></textarea>
                             </div>
                             <div class="form-group-field mb-3">
-                                <label style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: #a6a9b6;">Automation Type</label>
+                                <label
+                                    style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: #a6a9b6;">Automation
+                                    Type</label>
                                 <div class="pill-toggle-switch">
-                                    <button type="button" class="pill-toggle-btn active" id="typeTriggerBtn" onclick="switchType('trigger')">Trigger</button>
-                                    <button type="button" class="pill-toggle-btn" id="typeTimeBtn" onclick="switchType('time')">Time</button>
+                                    <button type="button" class="pill-toggle-btn active" id="typeTriggerBtn"
+                                        onclick="switchType('trigger')">Trigger</button>
+                                    <button type="button" class="pill-toggle-btn" id="typeTimeBtn"
+                                        onclick="switchType('time')">Time</button>
                                 </div>
                             </div>
                             <div class="d-flex justify-content-between pt-3" style="gap: 12px;">
-                                <button type="button" onclick="closeWorkflowModal()" class="btn btn-secondary flex-fill mr-2" style="border-radius: 12px; font-size: 13px; min-height: 44px;">Batalkan</button>
+                                <button type="button" onclick="closeWorkflowModal()"
+                                    class="btn btn-secondary flex-fill mr-2"
+                                    style="border-radius: 12px; font-size: 13px; min-height: 44px;">Batalkan</button>
                                 <!-- PERUBAHAN: Ubah button type="button" menjadi type="submit" -->
-                                <button type="submit" id="btnSaveWorkflow" class="btn btn-primary flex-fill ml-2" style="border-radius: 12px; font-size: 13px; min-height: 44px; background: #ff4438 !important; border: 0;">Simpan</button>
+                                <button type="submit" id="btnSaveWorkflow" class="btn btn-primary flex-fill ml-2"
+                                    style="border-radius: 12px; font-size: 13px; min-height: 44px; background: #ff4438 !important; border: 0;">Simpan</button>
                             </div>
                         </div>
                     </aside>
 
                     <div class="workflow-canvas-area">
                         <div class="workflow-step-card">
-                            <div class="d-flex justify-content-between align-items-center pb-2 border-bottom border-secondary">
-                                <span class="step-label origin"><i class="fa-solid fa-circle mr-1" style="font-size: 8px;"></i> Origin</span>
+                            <div
+                                class="d-flex justify-content-between align-items-center pb-2 border-bottom border-secondary">
+                                <span class="step-label origin"><i class="fa-solid fa-circle mr-1"
+                                        style="font-size: 8px;"></i> Origin</span>
                                 <span style="font-size: 11px; color: #7f95ba;">Pemicu Awal</span>
                             </div>
                             <div class="form-group-field">
@@ -1078,7 +1135,8 @@
                                 <div class="form-group-field">
                                     <label style="font-size: 12px; color: #a6a9b6;">Trigger</label>
                                     <div class="custom-select-wrapper">
-                                        <select id="originTriggerSelect" class="custom-input-box" onchange="renderOriginDecisions()">
+                                        <select id="originTriggerSelect" class="custom-input-box"
+                                            onchange="renderOriginDecisions()">
                                             <option value="keyword">Ketika kata kunci disebutkan</option>
                                             <option value="summary">Ketika ringkasan dibuat</option>
                                             <option value="received">Ketika pesan diterima</option>
@@ -1088,50 +1146,67 @@
                                     </div>
                                 </div>
                                 <div id="originKeywordsBlock">
-                                    <label style="font-size: 11px; color: #7f95ba;">Kata Kunci (Ketik lalu Enter)</label>
-                                    <input type="text" id="tagInputBox" class="custom-input-box" style="padding: 8px 12px; font-size: 13px;" placeholder="Tambah kata kunci...">
+                                    <label style="font-size: 11px; color: #7f95ba;">Kata Kunci (Ketik lalu
+                                        Enter)</label>
+                                    <input type="text" id="tagInputBox" class="custom-input-box"
+                                        style="padding: 8px 12px; font-size: 13px;" placeholder="Tambah kata kunci...">
                                     <!-- Dibersihkan kontennya awalnya agar bisa dites validasi -->
-                                    <div class="d-flex flex-wrap gap-1 mt-2" id="keywordsChipsHolder" style="gap: 4px;"></div>
+                                    <div class="d-flex flex-wrap gap-1 mt-2" id="keywordsChipsHolder" style="gap: 4px;">
+                                    </div>
                                 </div>
                                 <div id="originSendersBlock" style="display: none;">
                                     <div class="d-flex justify-content-between align-items-center mb-1">
-                                        <label style="font-size: 11px; color: #7f95ba; margin: 0;">Pilih Anggota Group</label>
-                                        <span id="selectedMemberCount" style="font-size: 11px; color: #48bb78; font-weight: 700;">2 dipilih</span>
+                                        <label style="font-size: 11px; color: #7f95ba; margin: 0;">Pilih Anggota
+                                            Group</label>
+                                        <span id="selectedMemberCount"
+                                            style="font-size: 11px; color: #48bb78; font-weight: 700;">2 dipilih</span>
                                     </div>
-                                    <small style="color: #6b7280; font-size: 11px; display: block; margin-bottom: 8px;">Klik nama anggota untuk memilih atau membatalkan pilihan.</small>
+                                    <small
+                                        style="color: #6b7280; font-size: 11px; display: block; margin-bottom: 8px;">Klik
+                                        nama anggota untuk memilih atau membatalkan pilihan.</small>
                                     <div class="d-flex flex-wrap" id="groupMembersList" style="gap: 6px;"></div>
                                 </div>
                             </div>
                             <div id="originTimeContainer" style="display: none;">
                                 <div class="time-select-container">
                                     <div class="form-group-field">
-                                        <label style="font-size: 12px; color: #a6a9b6;">Set Waktu Jam Eksekusi (HH:MM)</label>
+                                        <label style="font-size: 12px; color: #a6a9b6;">Set Waktu Jam Eksekusi
+                                            (HH:MM)</label>
                                         <div class="time-hhmm-row">
-                                            <input type="time" id="inputTimeSpecific" class="time-input-native" value="09:00" step="3600">
-                                            <span style="font-size: 13px; font-weight: 700; color: #7f95ba;">WIB (Setiap Hari)</span>
+                                            <input type="time" id="inputTimeSpecific" class="time-input-native"
+                                                value="09:00" step="3600">
+                                            <span style="font-size: 13px; font-weight: 700; color: #7f95ba;">WIB (Setiap
+                                                Hari)</span>
                                         </div>
                                     </div>
-                                    <small style="color: #7f95ba; font-size: 11px; line-height: 1.4;">Otomasi akan dijalankan otomatis tepat pada jam yang Anda tentukan sekali dalam 24 jam.</small>
+                                    <small style="color: #7f95ba; font-size: 11px; line-height: 1.4;">Otomasi akan
+                                        dijalankan otomatis tepat pada jam yang Anda tentukan sekali dalam 24
+                                        jam.</small>
                                 </div>
                             </div>
                         </div>
                         <div class="step-connector-wire"></div>
                         <div class="workflow-step-card">
-                            <div class="d-flex justify-content-between align-items-center pb-2 border-bottom border-secondary">
-                                <span class="step-label action"><i class="fa-solid fa-circle mr-1" style="font-size: 8px;"></i> Action</span>
+                            <div
+                                class="d-flex justify-content-between align-items-center pb-2 border-bottom border-secondary">
+                                <span class="step-label action"><i class="fa-solid fa-circle mr-1"
+                                        style="font-size: 8px;"></i> Action</span>
                                 <span style="font-size: 11px; color: #7f95ba;">Tindakan</span>
                             </div>
                             <div class="form-group-field">
                                 <label style="font-size: 12px; color: #a6a9b6;">Kirim Ke</label>
                                 <div class="pill-toggle-switch">
-                                    <button type="button" class="pill-toggle-btn active" id="btnSendGroup" onclick="setTargetScope('group')">Ke Group</button>
-                                    <button type="button" class="pill-toggle-btn" id="btnSendMe" onclick="setTargetScope('me')">Ke Saya</button>
+                                    <button type="button" class="pill-toggle-btn active" id="btnSendGroup"
+                                        onclick="setTargetScope('group')">Ke Group</button>
+                                    <button type="button" class="pill-toggle-btn" id="btnSendMe"
+                                        onclick="setTargetScope('me')">Ke Saya</button>
                                 </div>
                             </div>
                             <div class="form-group-field" id="targetConnectorBlock">
                                 <label style="font-size: 12px; color: #a6a9b6;">Pilih Connector / Grup Tujuan</label>
                                 <div class="custom-select-wrapper">
-                                    <select id="actionConnectorSelect" class="custom-input-box" onchange="onActionGroupChange()">
+                                    <select id="actionConnectorSelect" class="custom-input-box"
+                                        onchange="onActionGroupChange()">
                                         <option value="Product Team">Product Team</option>
                                         <option value="Dev Ticket Support">Dev Ticket Support</option>
                                         <option value="Engineering Desk">Engineering Desk</option>
@@ -1141,7 +1216,8 @@
                             <div class="form-group-field">
                                 <label style="font-size: 12px; color: #a6a9b6;">Pesan yang Dikirim</label>
                                 <div class="custom-select-wrapper">
-                                    <select id="actionPayloadType" class="custom-input-box" onchange="renderActionDecisions()">
+                                    <select id="actionPayloadType" class="custom-input-box"
+                                        onchange="renderActionDecisions()">
                                         <option value="original">Teruskan Pesan Asli</option>
                                         <option value="custom" selected>Teruskan dengan Pesan</option>
                                         <option value="rizz">Jawaban dari Rizz</option>
@@ -1150,13 +1226,19 @@
                             </div>
                             <div id="actionCustomMsgBlock" class="form-group-field">
                                 <label style="font-size: 11px; color: #7f95ba;">Pesan Tambahan</label>
-                                <textarea id="actionCustomText" class="custom-input-box" rows="2" style="font-size: 13px;" placeholder="Tulis pesan tambahan...">Tolong segera dicek kendala ini.</textarea>
+                                <textarea id="actionCustomText" class="custom-input-box" rows="2"
+                                    style="font-size: 13px;"
+                                    placeholder="Tulis pesan tambahan...">Tolong segera dicek kendala ini.</textarea>
                                 <div id="actionMentionWrapper" class="mt-2">
                                     <div class="d-flex justify-content-between align-items-center mb-1">
-                                        <label style="font-size: 11px; color: #7f95ba; margin: 0;">Mention Anggota Grup</label>
-                                        <span id="selectedMentionCount" style="font-size: 11px; color: #48bb78; font-weight: 700;">0 dipilih</span>
+                                        <label style="font-size: 11px; color: #7f95ba; margin: 0;">Mention Anggota
+                                            Grup</label>
+                                        <span id="selectedMentionCount"
+                                            style="font-size: 11px; color: #48bb78; font-weight: 700;">0 dipilih</span>
                                     </div>
-                                    <small style="color: #6b7280; font-size: 11px; display: block; margin-bottom: 8px;">Pilih anggota dari grup tujuan untuk di-mention saat pesan diteruskan.</small>
+                                    <small
+                                        style="color: #6b7280; font-size: 11px; display: block; margin-bottom: 8px;">Pilih
+                                        anggota dari grup tujuan untuk di-mention saat pesan diteruskan.</small>
                                     <div class="d-flex flex-wrap" id="actionMentionMembersList" style="gap: 6px;"></div>
                                 </div>
                             </div>
@@ -1171,7 +1253,8 @@
             <div class="workflow-shell" style="max-width: 540px; height: auto; flex-direction: column; padding: 22px;">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h3 id="logTitleText" style="font-size: 18px; margin: 0; font-weight: 700;">Delivery Log</h3>
-                    <button type="button" onclick="closeLogModal()" class="text-white border-0 bg-transparent"><i class="fa-solid fa-xmark"></i></button>
+                    <button type="button" onclick="closeLogModal()" class="text-white border-0 bg-transparent"><i
+                            class="fa-solid fa-xmark"></i></button>
                 </div>
                 <div class="d-flex flex-column gap-2" style="font-size: 13px; color: #a6a9b6;">
                     <div class="p-2 border-bottom border-secondary d-flex justify-content-between align-items-center">
@@ -1185,126 +1268,182 @@
 
     <!-- ================= JAVASCRIPT HANDLERS ================= -->
     <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // 1. Pastikan HTML sudah menggunakan tema dari LocalStorage sebelum sidebar dimuat
-        let savedTheme = localStorage.getItem('sumrize_v2_theme') || 'dark';
-        document.documentElement.setAttribute('data-v2-theme', savedTheme);
+        document.addEventListener('DOMContentLoaded', function () {
+            // 1. Pastikan HTML sudah menggunakan tema dari LocalStorage sebelum sidebar dimuat
+            let savedTheme = localStorage.getItem('sumrize_v2_theme') || 'dark';
+            document.documentElement.setAttribute('data-v2-theme', savedTheme);
+            // 2. Muat Sidebar secara dinamis
+            function injectSidebar(data) {
+                const container = document.getElementById('sidebar-container');
+                if (!container) return;
+                container.innerHTML = data;
+                container.querySelectorAll('script').forEach(oldScript => {
+                    const newScript = document.createElement('script');
+                    Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+                    newScript.appendChild(document.createTextNode(oldScript.innerHTML));
+                    oldScript.parentNode.replaceChild(newScript, oldScript);
+                });
+                if (typeof window.initMobileMenu === 'function') window.initMobileMenu();
+                setActiveMenu();
+                updateThemeUI(savedTheme);
+            }
 
-        // 2. Muat Sidebar secara dinamis
-        fetch('/component/sidebar.html')
-            .then(response => {
-                if (!response.ok) throw new Error('Gagal memuat sidebar');
-                return response.text();
-            })
-            .then(data => {
-                // Masukkan HTML sidebar ke dalam container
-                document.getElementById('sidebar-container').innerHTML = data;
-                
-                // 3. JALANKAN FUNGSI UI SETELAH SIDEBAR MUNCUL
-                if (typeof initMobileMenu === 'function') initMobileMenu(); // Hanya jika halaman tsb punya fungsi mobile menu
-                setActiveMenu(); 
-                updateThemeUI(savedTheme); // Sinkronkan tombol Terang/Gelap & Logo
-            })
-            .catch(error => console.error('Error loading sidebar:', error));
+            fetch('/component/sidebar_local.html')
+                .then(response => {
+                    if (!response.ok) throw new Error('Gagal memuat sidebar');
+                    return response.text();
+                })
+                .then(injectSidebar)
+                .catch(() => {
+                    fetch('/component/sidebar_local.html')
+                        .then(res => res.text())
+                        .then(injectSidebar)
+                        .catch(err => console.warn('Sidebar load skipped:', err));
+                });
 
-        // Panggil fungsi inisiasi khusus halaman tertentu (misal: digest.html)
-        if (typeof updateSchedulePanelState === 'function') updateSchedulePanelState();
-    });
+            // Panggil fungsi inisiasi khusus halaman tertentu (misal: digest.html)
+            if (typeof updateSchedulePanelState === 'function') updateSchedulePanelState();
+        });
 
-    // --- FUNGSI: Tandai Menu Sidebar yang Aktif ---
-    function setActiveMenu() {
-        let currentPath = window.location.pathname.split("/").pop();
-        if (currentPath === "") currentPath = "index.html"; 
+        // --- FUNGSI: Tandai Menu Sidebar yang Aktif ---
+        function setActiveMenu() {
+            let currentPath = window.location.pathname.split("/").pop();
+            if (currentPath === "") currentPath = "index.html";
 
-        const sidebarLinks = document.querySelectorAll('.dashboard-sidebar-link-v3');
-        sidebarLinks.forEach(link => {
-            link.classList.remove('is-active');
-            const linkHref = link.getAttribute('href');
-            if (linkHref) {
-                const cleanHref = linkHref.startsWith('/') ? linkHref.substring(1) : linkHref;
-                if (cleanHref === currentPath) {
-                    link.classList.add('is-active');
+            const sidebarLinks = document.querySelectorAll('.dashboard-sidebar-link-v3');
+            sidebarLinks.forEach(link => {
+                link.classList.remove('is-active');
+                const linkHref = link.getAttribute('href');
+                if (linkHref) {
+                    const cleanHref = linkHref.startsWith('/') ? linkHref.substring(1) : linkHref;
+                    if (cleanHref === currentPath) {
+                        link.classList.add('is-active');
+                    }
                 }
+            });
+        }
+
+        // --- FUNGSI: Aksi Saat Tombol Terang/Gelap Diklik ---
+        function applyTheme(theme) {
+            document.documentElement.setAttribute('data-v2-theme', theme);
+            localStorage.setItem('sumrize_v2_theme', theme);
+            updateThemeUI(theme);
+        }
+
+        // --- FUNGSI: Sinkronisasi Tombol & Logo di Sidebar ---
+        function updateThemeUI(theme) {
+            const isDark = theme === 'dark';
+
+            // Atur tombol switch Terang/Gelap
+            const btnDark = document.getElementById('btnThemeDark');
+            const btnLight = document.getElementById('btnThemeLight');
+            if (btnDark) btnDark.classList.toggle('is-active', isDark);
+            if (btnLight) btnLight.classList.toggle('is-active', !isDark);
+
+            // Atur perubahan gambar Logo sesuai mode
+            const desktopLogo = document.getElementById('themeLogoDesktop');
+            if (desktopLogo) {
+                desktopLogo.src = isDark
+                    ? 'https://app.sumrize.me/assets/img/logo/logo-white.png'
+                    : 'https://app.sumrize.me/assets/img/logo/logo-black.png';
+            }
+        }
+
+        // Fungsi toggle mobile menu
+        function initMobileMenu() {
+            const mobileBtn = document.getElementById('mobileMenuBtn');
+            const drawer = document.getElementById('mobileDashboardDrawerV3');
+            const overlay = document.getElementById('mobileDrawerOverlay');
+            const icon = document.getElementById('mobileMenuIcon');
+            if (mobileBtn && drawer && overlay) {
+                mobileBtn.onclick = function (e) {
+                    e.preventDefault();
+                    if (typeof window.toggleMobileDrawer === 'function') {
+                        window.toggleMobileDrawer();
+                    } else {
+                        const isOpen = drawer.classList.toggle('is-open');
+                        overlay.classList.toggle('is-open', isOpen);
+                        if (icon) {
+                            icon.classList.toggle('fa-xmark', isOpen);
+                            icon.classList.toggle('fa-bars', !isOpen);
+                        }
+                    }
+                };
+                overlay.onclick = function (e) {
+                    e.preventDefault();
+                    if (typeof window.closeMobileDrawer === 'function') {
+                        window.closeMobileDrawer();
+                    } else {
+                        drawer.classList.remove('is-open');
+                        overlay.classList.remove('is-open');
+                        if (icon) {
+                            icon.classList.remove('fa-xmark');
+                            icon.classList.add('fa-bars');
+                        }
+                    }
+                };
+            }
+        }
+
+        // Handler untuk Toggle Dropdown User Desktop & Mobile
+        document.addEventListener('click', function (e) {
+            const toggleBtn = e.target.closest('.toggle-dashboard-navbar-v3-dropdown, .dashboard-navbar-v3-user-toggle');
+            if (toggleBtn) {
+                e.preventDefault();
+                e.stopPropagation();
+                const target = toggleBtn.getAttribute('data-target') || 'user';
+                const dropdown = document.querySelector('.dashboard-navbar-v3-dropdown[data-dropdown="' + target + '"]') || document.getElementById('dashboardUserDropdownV3');
+                if (dropdown) {
+                    const willOpen = !dropdown.classList.contains('is-open');
+                    document.querySelectorAll('.dashboard-navbar-v3-dropdown').forEach(d => d.classList.remove('is-open'));
+                    document.querySelectorAll('.toggle-dashboard-navbar-v3-dropdown').forEach(b => b.setAttribute('aria-expanded', 'false'));
+                    if (willOpen) {
+                        dropdown.classList.add('is-open');
+                        toggleBtn.setAttribute('aria-expanded', 'true');
+                    }
+                }
+                return;
+            }
+
+            if (!e.target.closest('.dashboard-navbar-v3-dropdown-wrap')) {
+                document.querySelectorAll('.dashboard-navbar-v3-dropdown').forEach(d => d.classList.remove('is-open'));
+                document.querySelectorAll('.toggle-dashboard-navbar-v3-dropdown').forEach(b => b.setAttribute('aria-expanded', 'false'));
             }
         });
-    }
 
-    // --- FUNGSI: Aksi Saat Tombol Terang/Gelap Diklik ---
-    function applyTheme(theme) {
-        document.documentElement.setAttribute('data-v2-theme', theme);
-        localStorage.setItem('sumrize_v2_theme', theme);
-        updateThemeUI(theme);
-    }
+        // Fungsi Tema Mode Terang/Gelap
+        // function applyTheme(theme) {
+        //     document.documentElement.setAttribute('data-v2-theme', theme);
+        //     localStorage.setItem('sumrize_v2_theme', theme);
 
-    // --- FUNGSI: Sinkronisasi Tombol & Logo di Sidebar ---
-    function updateThemeUI(theme) {
-        const isDark = theme === 'dark';
-        
-        // Atur tombol switch Terang/Gelap
-        const btnDark = document.getElementById('btnThemeDark');
-        const btnLight = document.getElementById('btnThemeLight');
-        if (btnDark) btnDark.classList.toggle('is-active', isDark);
-        if (btnLight) btnLight.classList.toggle('is-active', !isDark);
+        //     const isDark = theme === 'dark';
+        //     updateThemeButtons(theme);
 
-        // Atur perubahan gambar Logo sesuai mode
-        const desktopLogo = document.getElementById('themeLogoDesktop');
-        if (desktopLogo) {
-            desktopLogo.src = isDark 
-                ? 'https://app.sumrize.me/assets/img/logo/logo-white.png' 
-                : 'https://app.sumrize.me/assets/img/logo/logo-black.png';
+        //     const desktopLogo = document.getElementById('themeLogoDesktop');
+        //     if (desktopLogo) {
+        //         desktopLogo.src = isDark ? 'https://app.sumrize.me/assets/img/logo/logo-white.png' :
+        //             'https://app.sumrize.me/assets/img/logo/logo-black.png';
+        //     }
+        // }
+
+        function updateThemeButtons(theme) {
+            const btnDark = document.getElementById('btnThemeDark');
+            const btnLight = document.getElementById('btnThemeLight');
+            if (btnDark && btnLight) {
+                btnDark.classList.toggle('is-active', theme === 'dark');
+                btnLight.classList.toggle('is-active', theme === 'light');
+            }
         }
-    }
 
-    // Fungsi toggle mobile menu bawaan
-    function initMobileMenu() {
-        const mobileBtn = document.getElementById('mobileMenuBtn');
-        const drawer = document.getElementById('mobileDashboardDrawerV3');
-        const overlay = document.getElementById('mobileDrawerOverlay');
-        if (mobileBtn && drawer && overlay) {
-            mobileBtn.addEventListener('click', () => {
-                drawer.classList.toggle('is-open');
-                overlay.classList.toggle('is-open');
-            });
-            overlay.addEventListener('click', () => {
-                drawer.classList.remove('is-open');
-                overlay.classList.remove('is-open');
-            });
+        // Fungsi modal (tetap sama)
+        const modal = document.getElementById('workflowBuilderModal');
+        function openWorkflowModal() {
+            modal.classList.add('is-open');
         }
-    }
 
-    // Fungsi Tema Mode Terang/Gelap
-    // function applyTheme(theme) {
-    //     document.documentElement.setAttribute('data-v2-theme', theme);
-    //     localStorage.setItem('sumrize_v2_theme', theme);
-        
-    //     const isDark = theme === 'dark';
-    //     updateThemeButtons(theme);
-        
-    //     const desktopLogo = document.getElementById('themeLogoDesktop');
-    //     if (desktopLogo) {
-    //         desktopLogo.src = isDark ? 'https://app.sumrize.me/assets/img/logo/logo-white.png' :
-    //             'https://app.sumrize.me/assets/img/logo/logo-black.png';
-    //     }
-    // }
-
-    function updateThemeButtons(theme) {
-        const btnDark = document.getElementById('btnThemeDark');
-        const btnLight = document.getElementById('btnThemeLight');
-        if (btnDark && btnLight) {
-            btnDark.classList.toggle('is-active', theme === 'dark');
-            btnLight.classList.toggle('is-active', theme === 'light');
+        function closeWorkflowModal() {
+            modal.classList.remove('is-open');
         }
-    }
-
-    // Fungsi modal (tetap sama)
-    const modal = document.getElementById('workflowBuilderModal');
-    function openWorkflowModal() {
-        modal.classList.add('is-open');
-    }
-
-    function closeWorkflowModal() {
-        modal.classList.remove('is-open');
-    }
 
         let isRailCollapsed = false;
         function toggleRailCollapse() {
@@ -1350,11 +1489,11 @@
         }
 
         const groupMembersData = [
-            { id: '1', name: 'Jamal', selected: true }, 
+            { id: '1', name: 'Jamal', selected: true },
             { id: '2', name: 'Rahmat', selected: true },
-            { id: '3', name: 'Alfyan', selected: false }, 
+            { id: '3', name: 'Alfyan', selected: false },
             { id: '4', name: 'Nahel', selected: false },
-            { id: '5', name: 'Dafinaa', selected: false }, 
+            { id: '5', name: 'Dafinaa', selected: false },
             { id: '6', name: 'Pak Rian', selected: false }
         ];
 
@@ -1368,7 +1507,7 @@
                 const chip = document.createElement('div');
                 chip.className = `member-select-chip ${member.selected ? 'selected' : ''}`;
                 chip.innerHTML = `<i class="chip-status-icon ${member.selected ? 'fa-solid fa-circle-check' : 'fa-regular fa-circle'}"></i><span>${member.name}</span>`;
-                chip.onclick = function() {
+                chip.onclick = function () {
                     member.selected = !member.selected;
                     renderGroupMembers();
                 };
@@ -1380,20 +1519,20 @@
 
         const groupMembersDatabase = {
             'Product Team': [
-                { id: 'p1', name: 'Jamal', selected: true }, 
-                { id: 'p2', name: 'Rahmat', selected: false }, 
-                { id: 'p3', name: 'Alfyan', selected: false }, 
+                { id: 'p1', name: 'Jamal', selected: true },
+                { id: 'p2', name: 'Rahmat', selected: false },
+                { id: 'p3', name: 'Alfyan', selected: false },
                 { id: 'p4', name: 'Dian', selected: false }
             ],
             'Dev Ticket Support': [
-                { id: 'd1', name: 'Budi Santoso', selected: false }, 
-                { id: 'd2', name: 'Bayu DevOps', selected: false }, 
-                { id: 'd3', name: 'Gilang Backend', selected: true }, 
+                { id: 'd1', name: 'Budi Santoso', selected: false },
+                { id: 'd2', name: 'Bayu DevOps', selected: false },
+                { id: 'd3', name: 'Gilang Backend', selected: true },
                 { id: 'd4', name: 'Andi QA', selected: false }
             ],
             'Engineering Desk': [
-                { id: 'e1', name: 'Farhan Architect', selected: false }, 
-                { id: 'e2', name: 'Rico System', selected: false }, 
+                { id: 'e1', name: 'Farhan Architect', selected: false },
+                { id: 'e2', name: 'Rico System', selected: false },
                 { id: 'e3', name: 'Pak Taufan', selected: true }
             ]
         };
@@ -1411,7 +1550,7 @@
                 const chip = document.createElement('div');
                 chip.className = `mention-select-chip ${member.selected ? 'selected' : ''}`;
                 chip.innerHTML = `<i class="${member.selected ? 'fa-solid fa-circle-check' : 'fa-regular fa-circle'}"></i><span>@${member.name}</span>`;
-                chip.onclick = function() {
+                chip.onclick = function () {
                     member.selected = !member.selected;
                     renderMentionMembers();
                 };
@@ -1450,7 +1589,7 @@
         }
 
         const tagInput = document.getElementById('tagInputBox');
-        tagInput.addEventListener('keydown', function(e) {
+        tagInput.addEventListener('keydown', function (e) {
             if (e.key === 'Enter') {
                 e.preventDefault();
                 if (this.value.trim()) {
@@ -1468,13 +1607,13 @@
         }
 
         // Menangani Submit Form Beserta Validasi Kustom
-        document.getElementById('workflowForm').addEventListener('submit', function(e) {
+        document.getElementById('workflowForm').addEventListener('submit', function (e) {
             e.preventDefault(); // Mencegah reload halaman
-            
+
             // Validasi Kustom 1: Jika Trigger adalah "keyword", minimal 1 kata kunci harus ditambahkan.
             if (currentType === 'trigger' && document.getElementById('originTriggerSelect').value === 'keyword') {
                 const chipCount = document.getElementById('keywordsChipsHolder').children.length;
-                if(chipCount === 0) {
+                if (chipCount === 0) {
                     Swal.fire({
                         icon: 'error',
                         title: 'Oops...',
@@ -1491,7 +1630,7 @@
             const name = document.getElementById('autoNameInput').value;
             const origin = document.getElementById('originConnectorSelect').value;
             const target = (activeTargetScope === 'group') ? document.getElementById('actionConnectorSelect').value : 'Ke Saya (Direct)';
-            
+
             let triggerLabel = '';
             if (currentType === 'time') {
                 const timeVal = document.getElementById('inputTimeSpecific').value || '09:00';
@@ -1539,11 +1678,11 @@
                     </div>
                 `;
                 document.getElementById('automationListStage').appendChild(card);
-                
+
                 // Reset Form
                 document.getElementById('workflowForm').reset();
                 document.getElementById('keywordsChipsHolder').innerHTML = ''; // Bersihkan pill kata kunci
-                
+
                 closeWorkflowModal();
             });
         });
@@ -1557,17 +1696,107 @@
             document.getElementById('deliveryLogModal').classList.remove('is-open');
         }
 
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             renderMentionMembers();
             renderGroupMembers();
         });
 
-        document.addEventListener('click', function(e) {
+        document.addEventListener('click', function (e) {
             const deskMenu = document.getElementById('dashboardUserDropdownV3');
             if (deskMenu && !deskMenu.contains(e.target)) {
                 deskMenu.classList.remove('is-open');
             }
         });
     </script>
+    <script>
+        (function () {
+            "use strict";
+
+            var PRO_STYLE_CLASSES = [
+                "fa-light", "fal",
+                "fa-thin", "fat",
+                "fa-duotone", "fad",
+                "fa-sharp-solid", "fass",
+                "fa-sharp-regular", "fasr",
+                "fa-sharp-light", "fasl",
+                "fa-sharp-thin", "fast",
+                "fa-sharp-duotone", "fasd",
+                "fa-sharp"
+            ];
+
+            var PRO_ICON_NAME_MAP = {
+                "fa-gear-complex": "fa-gear",
+                "fa-rocket-launch": "fa-rocket",
+                "fa-grid-2": "fa-table-cells",
+                "fa-file-invoice": "fa-file-invoice",
+                "fa-arrow-right-long": "fa-arrow-right-long"
+            };
+
+            function normalizeIcon(el) {
+                if (!el || !el.classList || el.getAttribute("data-icon-fixed") === "1") return;
+
+                var classes = Array.prototype.slice.call(el.classList);
+                var changed = false;
+
+                classes.forEach(function (cls) {
+                    if (PRO_ICON_NAME_MAP.hasOwnProperty(cls) && PRO_ICON_NAME_MAP[cls] !== cls) {
+                        el.classList.remove(cls);
+                        el.classList.add(PRO_ICON_NAME_MAP[cls]);
+                        changed = true;
+                    }
+                });
+
+                var hasProStyle = classes.some(function (c) {
+                    return PRO_STYLE_CLASSES.indexOf(c) !== -1;
+                });
+                if (hasProStyle && el.classList.contains("fa-solid") === false) {
+                    el.classList.add("fa-solid");
+                    changed = true;
+                }
+
+                if (changed || hasProStyle) {
+                    el.setAttribute("data-icon-fixed", "1");
+                }
+            }
+
+            function normalizeAllIcons(root) {
+                var scope = root || document;
+                var icons = scope.querySelectorAll("i[class*='fa-']");
+                icons.forEach ? icons.forEach(normalizeIcon) :
+                    Array.prototype.forEach.call(icons, normalizeIcon);
+            }
+
+            document.addEventListener("DOMContentLoaded", function () {
+                normalizeAllIcons(document);
+            });
+            if (document.readyState === "complete" || document.readyState === "interactive") {
+                normalizeAllIcons(document);
+            }
+
+            var observer = new MutationObserver(function (mutations) {
+                mutations.forEach(function (m) {
+                    m.addedNodes.forEach(function (node) {
+                        if (node.nodeType !== 1) return;
+                        if (node.matches && node.matches("i[class*='fa-']")) {
+                            normalizeIcon(node);
+                        }
+                        if (node.querySelectorAll) {
+                            normalizeAllIcons(node);
+                        }
+                    });
+                });
+            });
+
+            observer.observe(document.body, {
+                childList: true,
+                subtree: true
+            });
+
+            window.sumrizeFixIcons = function (root) {
+                normalizeAllIcons(root);
+            };
+        })();
+    </script>
 </body>
+
 </html>

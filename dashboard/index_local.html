@@ -12872,6 +12872,39 @@
                     <img src="https://app.sumrize.me/assets/img/connector/slack.png" alt="Slack">
                     <p>Slack</p>
                 </div>
+<a
+    href="onboard-gmeet.html"
+    class="choose-connector"
+    data-code="gmeet"
+    style="
+        display:flex!important;
+        flex-direction:column;
+        align-items:center;
+        justify-content:center;
+        background:#1f1f1f;
+        border:1px solid #2a2a2a;
+        border-radius:18px;
+        padding:18px;
+        min-height:140px;
+        text-decoration:none;
+        cursor:pointer;
+        transition:all .2s ease;
+    "
+>
+    <img
+        src="../assets/gmeet.png"
+        alt="Google Meet"
+        style="width:42px;height:42px;object-fit:contain;"
+    >
+
+    <p style="
+        margin:12px 0 0;
+        color:#fff;
+        font-weight:600;
+    ">
+        Google Meet
+    </p>
+</a>
             </div>
         </div>
     </div>
@@ -12950,7 +12983,7 @@
             document.documentElement.setAttribute('data-v2-theme', savedTheme);
 
             // 2. Muat Sidebar secara dinamis
-            fetch('../component/sidebar.html')
+            fetch('/component/sidebar_local.html')
                 .then(response => {
                     if (!response.ok) throw new Error('Gagal memuat sidebar');
                     return response.text();
@@ -17864,7 +17897,7 @@
             document.documentElement.setAttribute('data-v2-theme', savedTheme);
 
             // 2. Muat Sidebar secara dinamis
-            fetch('../component/sidebar.html')
+            fetch('/component/sidebar_local.html')
                 .then(response => {
                     if (!response.ok) throw new Error('Gagal memuat sidebar');
                     return response.text();

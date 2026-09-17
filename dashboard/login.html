@@ -1,394 +1,602 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Login · Sumrize</title>
-
-  <link rel="icon" type="image/png" href="../assets/logo-black.png" />
-
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap" rel="stylesheet" />
-
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - Sumrize</title>
+  <link rel="icon" type="image/png" href="../assets/logo-black.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
-      darkMode: 'class',
       theme: {
         extend: {
-          fontFamily: { sans: ['Outfit', 'ui-sans-serif', 'system-ui', 'sans-serif'] },
+          fontFamily: { sans: ['Outfit', 'sans-serif'] },
           colors: {
-            brand: {
-              25: '#f8fbfd', 50: '#eaf4fb', 100: '#d4e8f7', 200: '#b3dbff',
-              300: '#7eb5e8', 400: '#4d6996', 500: '#26344a', 600: '#1c2738',
-              700: '#1c1f2c', 800: '#171a23', 900: '#101421', 950: '#0f0e0e'
-            },
-            gray: {
-              25: '#fcfcfd', 50: '#f9fafb', 100: '#f2f4f7', 200: '#e4e7ec',
-              300: '#d0d5dd', 400: '#98a2b3', 500: '#667085', 600: '#475467',
-              700: '#3c3f4c', 800: '#26344a', 900: '#1c1f2c', 950: '#0f0e0e'
-            },
-            success: {
-              50: '#ecfdf3', 500: '#12b76a', 600: '#039855'
-            },
-            error: {
-              50: '#fef3f2', 500: '#f04438', 600: '#d92d20'
-            },
-            sumrize: {
-              DEFAULT: '#FF4438',
-              hover: '#e63b30'
-            }
+            sumrize: { DEFAULT: '#ff4438', hover: '#e63b30' },
+            ink: '#1c2738'
           },
           boxShadow: {
-            'theme-sm': '0px 1px 3px 0px rgba(16, 24, 40, 0.1), 0px 1px 2px 0px rgba(16, 24, 40, 0.06)',
-            'theme-md': '0px 4px 8px -2px rgba(16, 24, 40, 0.1), 0px 2px 4px -2px rgba(16, 24, 40, 0.06)'
+            panel: '0 24px 70px rgba(28, 39, 56, 0.12)'
           }
         }
       }
     };
   </script>
-
   <style>
-    body { font-family: 'Outfit', sans-serif; }
-    [x-cloak] { display: none !important; }
-  </style>
-
-  <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
-  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
-</head>
-
-<body
-  x-data="{
-    /* Login flow state: 1 = enter number, 2 = link sent */
-    step: 1,
-    /* Raw phone number digits (without +62 prefix) */
-    phoneNumber: '',
-    /* Theme + language state, persisted to localStorage like other pages */
-    darkMode: false,
-    lang: 'en',
-    langOpen: false,
-    languages: {
-      en: { label: 'English', flag: '🇬🇧' },
-      id: { label: 'Bahasa Indonesia', flag: '🇮🇩' }
-    },
-    /* Country code dropdown state. selectedCountry defaults to Indonesia. */
-    countryOpen: false,
-    countrySearch: '',
-    selectedCountry: { code: '62', name: 'Indonesia', flag: '🇮🇩' },
-    countries: [
-      { code: '93',  name: 'Afghanistan',           flag: '🇦🇫' },
-      { code: '355', name: 'Albania',               flag: '🇦🇱' },
-      { code: '213', name: 'Algeria',               flag: '🇩🇿' },
-      { code: '54',  name: 'Argentina',             flag: '🇦🇷' },
-      { code: '61',  name: 'Australia',             flag: '🇦🇺' },
-      { code: '43',  name: 'Austria',               flag: '🇦🇹' },
-      { code: '880', name: 'Bangladesh',            flag: '🇧🇩' },
-      { code: '32',  name: 'Belgium',               flag: '🇧🇪' },
-      { code: '55',  name: 'Brazil',                flag: '🇧🇷' },
-      { code: '359', name: 'Bulgaria',              flag: '🇧🇬' },
-      { code: '1',   name: 'Canada',                flag: '🇨🇦' },
-      { code: '56',  name: 'Chile',                 flag: '🇨🇱' },
-      { code: '86',  name: 'China',                 flag: '🇨🇳' },
-      { code: '57',  name: 'Colombia',              flag: '🇨🇴' },
-      { code: '420', name: 'Czech Republic',        flag: '🇨🇿' },
-      { code: '45',  name: 'Denmark',               flag: '🇩🇰' },
-      { code: '20',  name: 'Egypt',                 flag: '🇪🇬' },
-      { code: '358', name: 'Finland',               flag: '🇫🇮' },
-      { code: '33',  name: 'France',                flag: '🇫🇷' },
-      { code: '49',  name: 'Germany',               flag: '🇩🇪' },
-      { code: '30',  name: 'Greece',                flag: '🇬🇷' },
-      { code: '852', name: 'Hong Kong',             flag: '🇭🇰' },
-      { code: '36',  name: 'Hungary',               flag: '🇭🇺' },
-      { code: '91',  name: 'India',                 flag: '🇮🇳' },
-      { code: '62',  name: 'Indonesia',             flag: '🇮🇩' },
-      { code: '98',  name: 'Iran',                  flag: '🇮🇷' },
-      { code: '353', name: 'Ireland',               flag: '🇮🇪' },
-      { code: '972', name: 'Israel',                flag: '🇮🇱' },
-      { code: '39',  name: 'Italy',                 flag: '🇮🇹' },
-      { code: '81',  name: 'Japan',                 flag: '🇯🇵' },
-      { code: '60',  name: 'Malaysia',              flag: '🇲🇾' },
-      { code: '52',  name: 'Mexico',                flag: '🇲🇽' },
-      { code: '31',  name: 'Netherlands',           flag: '🇳🇱' },
-      { code: '64',  name: 'New Zealand',           flag: '🇳🇿' },
-      { code: '234', name: 'Nigeria',               flag: '🇳🇬' },
-      { code: '47',  name: 'Norway',                flag: '🇳🇴' },
-      { code: '92',  name: 'Pakistan',              flag: '🇵🇰' },
-      { code: '63',  name: 'Philippines',           flag: '🇵🇭' },
-      { code: '48',  name: 'Poland',                flag: '🇵🇱' },
-      { code: '351', name: 'Portugal',              flag: '🇵🇹' },
-      { code: '974', name: 'Qatar',                 flag: '🇶🇦' },
-      { code: '7',   name: 'Russia',                flag: '🇷🇺' },
-      { code: '966', name: 'Saudi Arabia',          flag: '🇸🇦' },
-      { code: '65',  name: 'Singapore',             flag: '🇸🇬' },
-      { code: '27',  name: 'South Africa',          flag: '🇿🇦' },
-      { code: '82',  name: 'South Korea',           flag: '🇰🇷' },
-      { code: '34',  name: 'Spain',                 flag: '🇪🇸' },
-      { code: '46',  name: 'Sweden',                flag: '🇸🇪' },
-      { code: '41',  name: 'Switzerland',           flag: '🇨🇭' },
-      { code: '886', name: 'Taiwan',                flag: '🇹🇼' },
-      { code: '66',  name: 'Thailand',              flag: '🇹🇭' },
-      { code: '90',  name: 'Turkey',                flag: '🇹🇷' },
-      { code: '971', name: 'United Arab Emirates',  flag: '🇦🇪' },
-      { code: '44',  name: 'United Kingdom',        flag: '🇬🇧' },
-      { code: '1',   name: 'United States',         flag: '🇺🇸' },
-      { code: '84',  name: 'Vietnam',               flag: '🇻🇳' }
-    ],
-    get filteredCountries() {
-      const q = this.countrySearch.trim().toLowerCase();
-      if (!q) return this.countries;
-      return this.countries.filter(c =>
-        c.name.toLowerCase().includes(q) || c.code.includes(q.replace(/^\+/, ''))
-      );
-    },
-    selectCountry(country) {
-      this.selectedCountry = country;
-      this.countryOpen = false;
-      this.countrySearch = '';
-    },
-    /* Whether phone is long enough to enable submit (basic 8-digit gate) */
-    get isPhoneValid() {
-      return this.phoneNumber.replace(/\D/g, '').length >= 8;
-    },
-    /* Format phone for display in Step 2: '81252943166' -> '812 5294 3166' */
-    get formattedPhone() {
-      const digits = this.phoneNumber.replace(/\D/g, '');
-      if (digits.length <= 3) return digits;
-      if (digits.length <= 7) return digits.slice(0,3) + ' ' + digits.slice(3);
-      return digits.slice(0,3) + ' ' + digits.slice(3,7) + ' ' + digits.slice(7);
-    },
-    submitPhone() {
-      if (this.isPhoneValid) {
-        this.step = 2;
-      }
-    },
-    init() {
-      this.darkMode = JSON.parse(localStorage.getItem('darkMode') || 'false');
-      this.lang = localStorage.getItem('lang') || 'en';
-      this.$watch('darkMode', v => localStorage.setItem('darkMode', JSON.stringify(v)));
-      this.$watch('lang', v => localStorage.setItem('lang', v));
+    body {
+      font-family: 'Outfit', sans-serif;
+      background:
+        radial-gradient(circle at 10% 10%, rgba(255, 68, 56, 0.14), transparent 30%),
+        linear-gradient(135deg, #fff8f5 0%, #f5f8fb 52%, #eaf4fb 100%);
     }
-  }"
-  :class="{ 'dark bg-gray-900': darkMode }"
-  class="min-h-screen bg-gray-50 font-sans text-gray-700 dark:bg-gray-900 dark:text-gray-300"
->
+  </style>
+</head>
+<body class="min-h-screen text-ink">
+  <main class="mx-auto flex min-h-screen w-full max-w-6xl items-center px-5 py-10 sm:px-8">
+    <div class="grid w-full overflow-hidden rounded-[28px] bg-white shadow-panel lg:grid-cols-[1.05fr_0.95fr]">
+      <section class="relative hidden min-h-[620px] overflow-hidden bg-ink p-10 text-white lg:flex lg:flex-col lg:justify-between">
+        <div class="absolute -right-20 -top-24 h-72 w-72 rounded-full bg-sumrize/90 blur-[2px]"></div>
+        <div class="absolute -bottom-28 -left-20 h-80 w-80 rounded-full border-[48px] border-white/10"></div>
+        <div class="relative">
+          <img src="../assets/logo-white.png" alt="Sumrize" class="h-10 w-auto">
+          <p class="mt-20 max-w-sm text-4xl font-semibold leading-tight">
+            Meetings that leave a clear next step.
+          </p>
+          <p class="mt-5 max-w-sm text-base leading-7 text-white/65">
+            Kelola connector, meeting, dan insight tim dari satu ruang kerja Sumrize.
+          </p>
+        </div>
+        <div class="relative flex items-center gap-3 text-sm text-white/60">
+          <span class="h-2 w-2 rounded-full bg-sumrize"></span>
+          Secure workspace access
+        </div>
+      </section>
 
-  <!-- ===== Minimal top bar: lang switcher only (no sidebar, no profile) ===== -->
-  <header class="absolute right-4 top-4 z-10 md:right-6 md:top-6">
-    <div class="relative" @click.outside="langOpen = false">
-      <button type="button" @click="langOpen = !langOpen" class="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white/80 px-3 py-2 text-sm font-medium text-gray-700 backdrop-blur transition hover:bg-gray-50 dark:border-gray-800 dark:bg-white/[0.03] dark:text-gray-300 dark:hover:bg-white/5" aria-haspopup="listbox" :aria-expanded="langOpen.toString()">
-        <i data-lucide="globe" class="h-4 w-4"></i>
-        <span class="text-base leading-none" x-text="languages[lang].flag"></span>
-        <i data-lucide="chevron-down" class="h-3.5 w-3.5 transition" :class="langOpen ? 'rotate-180' : ''"></i>
-      </button>
-      <div x-show="langOpen" x-cloak x-transition.opacity.duration.150ms class="absolute right-0 z-30 mt-2 w-56 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-theme-md dark:border-gray-800 dark:bg-gray-900" role="listbox">
-        <template x-for="(meta, code) in languages" :key="code">
-          <button type="button" @click="lang = code; langOpen = false" class="flex w-full items-center justify-between gap-3 px-4 py-2.5 text-sm transition" :class="lang === code ? 'bg-brand-50 font-medium text-brand-500 dark:bg-brand-500/[0.12] dark:text-brand-400' : 'text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-white/5'" role="option" :aria-selected="(lang === code).toString()">
-            <span class="flex items-center gap-3">
-              <span class="text-lg leading-none" x-text="meta.flag"></span>
-              <span x-text="meta.label"></span>
-            </span>
-            <svg x-show="lang === code" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
-          </button>
-        </template>
-      </div>
-    </div>
-  </header>
+      <section class="flex min-h-[620px] items-center p-6 sm:p-12 lg:p-16">
+        <div class="w-full max-w-md">
+          <div class="mb-10 lg:hidden">
+            <img src="../assets/logo-black.png" alt="Sumrize" class="h-9 w-auto">
+          </div>
 
-  <!-- ===== Main centered container ===== -->
-  <main class="flex min-h-screen items-center justify-center px-4 py-12">
-    <div class="w-full max-w-md">
+          <div class="mb-8">
+            <p class="mb-3 text-sm font-semibold uppercase tracking-[0.18em] text-sumrize">Welcome back</p>
+            <h1 class="text-3xl font-bold tracking-tight text-ink sm:text-4xl">Masuk ke Sumrize</h1>
+            <p class="mt-3 text-sm leading-6 text-slate-500">Gunakan akun Sumrize untuk membuka dashboard dan menghubungkan Google Meet.</p>
+          </div>
 
-      <!-- Logo wordmark (centered, theme-swap) -->
-      <div class="mb-8 flex justify-center">
-        <img src="../assets/logo-black.png" class="h-12 w-auto dark:hidden" alt="Sumrize" />
-        <img src="../assets/logo-white.png" class="hidden h-12 w-auto dark:block" alt="Sumrize" />
-      </div>
-
-      <!-- ===== STEP 1 — Enter WhatsApp number ===== -->
-      <section x-show="step === 1">
-        <div class="rounded-2xl border border-gray-200 bg-white p-6 shadow-theme-sm dark:border-gray-800 dark:bg-white/[0.03] md:p-8">
-          <!-- Headline -->
-          <header class="mb-6 text-center">
-            <h1 class="text-2xl font-bold text-gray-900 dark:text-white md:text-3xl" x-text="lang === 'id' ? 'Yuk, masuk dulu' : 'Let’s get you in'">Let's get you in</h1>
-            <p class="mt-2 text-sm text-gray-500 dark:text-gray-400" x-text="lang === 'id' ? 'Beri izin, kami yang beresin chat grup yang berantakan.' : 'Authorize and let us handle your group chat chaos.'">Authorize and let us handle your group chat chaos.</p>
-          </header>
-
-          <!-- Phone input form -->
-          <form @submit.prevent="submitPhone" class="space-y-4">
+          <form id="login-form" class="space-y-5">
             <div>
-              <label for="phone" class="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300" x-text="lang === 'id' ? 'Nomor WhatsApp' : 'WhatsApp Number'">WhatsApp Number</label>
-              <div class="flex items-center rounded-xl border border-gray-200 bg-white transition focus-within:border-brand-500 focus-within:ring-4 focus-within:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-800 dark:focus-within:border-brand-400 dark:focus-within:ring-brand-400/10">
-                <!-- Country code dropdown trigger -->
-                <div class="relative" @click.outside="countryOpen = false; countrySearch = ''">
-                  <button
-                    type="button"
-                    @click="countryOpen = !countryOpen"
-                    class="flex items-center gap-1.5 border-r border-gray-200 px-3.5 py-3 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-white/[0.03]"
-                    :aria-expanded="countryOpen.toString()"
-                    :aria-label="lang === 'id' ? 'Pilih negara' : 'Select country'"
-                  >
-                    <span class="text-base leading-none" x-text="selectedCountry.flag"></span>
-                    <span x-text="'+' + selectedCountry.code"></span>
-                    <i data-lucide="chevron-down" class="h-3.5 w-3.5 transition" :class="countryOpen ? 'rotate-180' : ''"></i>
-                  </button>
-
-                  <!-- Dropdown panel: search + scrollable country list -->
-                  <div x-show="countryOpen" x-cloak x-transition.opacity.duration.150ms class="absolute left-0 top-full z-30 mt-1.5 w-72 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-theme-md dark:border-gray-700 dark:bg-gray-800">
-                    <!-- Search input -->
-                    <div class="border-b border-gray-100 p-2 dark:border-gray-700">
-                      <div class="relative">
-                        <i data-lucide="search" class="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-gray-400"></i>
-                        <input
-                          type="text"
-                          x-model="countrySearch"
-                          @click.stop
-                          :placeholder="lang === 'id' ? 'Cari negara atau kode...' : 'Search country or code...'"
-                          class="w-full rounded-lg bg-gray-50 py-2 pl-8 pr-3 text-sm text-gray-900 outline-none placeholder:text-gray-400 focus:bg-white focus:ring-2 focus:ring-brand-500/20 dark:bg-gray-700 dark:text-white dark:placeholder:text-gray-500 dark:focus:bg-gray-700 dark:focus:ring-brand-400/20"
-                        />
-                      </div>
-                    </div>
-                    <!-- Scrollable list -->
-                    <div class="max-h-60 overflow-y-auto">
-                      <template x-for="country in filteredCountries" :key="country.code + '-' + country.name">
-                        <button
-                          type="button"
-                          @click="selectCountry(country)"
-                          class="flex w-full items-center gap-3 px-3 py-2.5 text-left text-sm transition hover:bg-gray-50 dark:hover:bg-white/[0.05]"
-                          :class="selectedCountry.code === country.code && selectedCountry.name === country.name ? 'bg-brand-50 dark:bg-brand-500/[0.12]' : ''"
-                        >
-                          <span class="flex-shrink-0 text-base leading-none" x-text="country.flag"></span>
-                          <span class="flex-shrink-0 font-medium text-gray-500 dark:text-gray-400" x-text="'(+' + country.code + ')'"></span>
-                          <span class="truncate text-gray-700 dark:text-gray-200" x-text="country.name"></span>
-                        </button>
-                      </template>
-                      <div x-show="filteredCountries.length === 0" x-cloak class="px-4 py-6 text-center text-xs text-gray-400" x-text="lang === 'id' ? 'Tidak ditemukan' : 'No results'">No results</div>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Phone number input -->
-                <input
-                  id="phone"
-                  type="tel"
-                  inputmode="numeric"
-                  x-model="phoneNumber"
-                  :placeholder="lang === 'id' ? '812 5294 3166' : '812 5294 3166'"
-                  autocomplete="tel"
-                  class="flex-1 bg-transparent px-3.5 py-3 text-sm text-gray-900 outline-none placeholder:text-gray-400 dark:text-white dark:placeholder:text-gray-500"
-                />
-              </div>
-              <p class="mt-2 flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400">
-                <i data-lucide="info" class="h-3.5 w-3.5"></i>
-                <span x-text="lang === 'id' ? 'Pakai nomor WhatsApp aktif Anda.' : 'Use your active WhatsApp number.'">Use your active WhatsApp number.</span>
-              </p>
+              <label for="email" class="mb-2 block text-sm font-semibold text-ink">Email</label>
+              <input id="email" name="email" type="email" autocomplete="email" required placeholder="nama@perusahaan.com" class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3.5 text-sm text-ink outline-none transition placeholder:text-slate-400 focus:border-sumrize focus:bg-white focus:ring-4 focus:ring-sumrize/10">
             </div>
 
-            <!-- Submit CTA (disabled when phone invalid) -->
-            <button
-              type="submit"
-              :disabled="!isPhoneValid"
-              class="inline-flex w-full items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-semibold shadow-theme-sm transition"
-              :class="isPhoneValid
-                ? 'bg-sumrize text-white hover:bg-sumrize-hover focus:outline-none focus:ring-4 focus:ring-sumrize/30'
-                : 'cursor-not-allowed bg-gray-200 text-gray-400 dark:bg-gray-800 dark:text-gray-600'"
-            >
-              <span x-text="lang === 'id' ? 'Kirim link login' : 'Send login link'">Send login link</span>
-              <i data-lucide="arrow-right" class="h-4 w-4"></i>
+            <div>
+              <div class="mb-2 flex items-center justify-between">
+                <label for="password" class="block text-sm font-semibold text-ink">Password</label>
+              </div>
+              <input id="password" name="password" type="password" autocomplete="current-password" required placeholder="Masukkan password" class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3.5 text-sm text-ink outline-none transition placeholder:text-slate-400 focus:border-sumrize focus:bg-white focus:ring-4 focus:ring-sumrize/10">
+            </div>
+
+            <p id="login-error" class="hidden rounded-xl bg-red-50 px-4 py-3 text-sm leading-5 text-red-600"></p>
+
+            <button id="login-button" type="submit" class="flex w-full items-center justify-center gap-2 rounded-2xl bg-sumrize px-5 py-3.5 text-sm font-semibold text-white transition hover:bg-sumrize-hover focus:outline-none focus:ring-4 focus:ring-sumrize/20 disabled:cursor-wait disabled:opacity-60">
+              <span id="login-label">Masuk ke dashboard</span>
+              <span id="login-spinner" class="hidden h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white"></span>
             </button>
           </form>
 
-          <!-- Trust line -->
-          <p class="mt-4 flex items-center justify-center gap-1.5 text-xs text-gray-500 dark:text-gray-400">
-            <i data-lucide="shield-check" class="h-3.5 w-3.5 text-success-600 dark:text-success-500"></i>
-            <span x-text="lang === 'id' ? 'Aman & instan · Link berlaku 10 menit' : 'Secure & instant · Link expires in 10 minutes'">Secure & instant · Link expires in 10 minutes</span>
-          </p>
+          <p class="mt-8 text-center text-xs leading-5 text-slate-400">Akses aman menggunakan autentikasi Sumrize yang sudah tersedia.</p>
         </div>
-
-        <!-- Terms fine print -->
-        <p class="mt-5 text-center text-xs text-gray-500 dark:text-gray-400">
-          <span x-text="lang === 'id' ? 'Dengan lanjut, Anda setuju dengan ' : 'By continuing, you agree to our '">By continuing, you agree to our </span>
-          <a href="#" class="font-medium text-brand-500 hover:underline dark:text-brand-400" x-text="lang === 'id' ? 'Syarat' : 'Terms'">Terms</a>
-          <span class="mx-0.5">&amp;</span>
-          <a href="#" class="font-medium text-brand-500 hover:underline dark:text-brand-400" x-text="lang === 'id' ? 'Kebijakan Privasi' : 'Privacy Policy'">Privacy Policy</a>
-          <span>.</span>
-        </p>
       </section>
-
-      <!-- ===== STEP 2 — Link sent confirmation ===== -->
-      <section x-show="step === 2" x-cloak>
-        <div class="rounded-2xl border border-gray-200 bg-white p-6 shadow-theme-sm dark:border-gray-800 dark:bg-white/[0.03] md:p-8">
-          <!-- Success icon -->
-          <div class="mb-5 flex justify-center">
-            <div class="flex h-16 w-16 items-center justify-center rounded-full bg-success-50 text-success-600 dark:bg-success-500/[0.15] dark:text-success-500">
-              <i data-lucide="message-square-text" class="h-8 w-8"></i>
-            </div>
-          </div>
-
-          <!-- Headline -->
-          <header class="mb-6 text-center">
-            <h1 class="text-2xl font-bold text-gray-900 dark:text-white md:text-3xl" x-text="lang === 'id' ? 'Cek WhatsApp Anda' : 'Check your WhatsApp'">Check your WhatsApp</h1>
-            <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
-              <span x-text="lang === 'id' ? 'Link login terkirim ke ' : 'Login link sent to '">Login link sent to </span>
-              <strong class="font-semibold text-gray-900 dark:text-white">+<span x-text="selectedCountry.code"></span> <span x-text="formattedPhone"></span></strong>.
-            </p>
-          </header>
-
-          <!-- Info card: safety reminder -->
-          <div class="mb-3 flex items-start gap-3 rounded-xl border border-gray-200 bg-gray-50/60 p-4 dark:border-gray-700 dark:bg-white/[0.02]">
-            <i data-lucide="info" class="mt-0.5 h-4 w-4 flex-shrink-0 text-brand-500 dark:text-brand-400"></i>
-            <div class="space-y-1 text-xs text-gray-600 dark:text-gray-400">
-              <p x-text="lang === 'id' ? 'Buka pesan dari Rizz di WhatsApp untuk melanjutkan.' : 'Open the message from Rizz in WhatsApp to continue.'">Open the message from Rizz in WhatsApp to continue.</p>
-              <p x-text="lang === 'id' ? 'Jangan share link ini ke siapapun.' : 'Don’t share this link with anyone.'">Don't share this link with anyone.</p>
-            </div>
-          </div>
-
-          <!-- Validity pill: time-sensitive info badge -->
-          <div class="mb-5 flex justify-center">
-            <div class="inline-flex items-center gap-1.5 rounded-full bg-warning-50 px-3 py-1.5 text-xs text-warning-500 dark:bg-warning-500/[0.15]">
-              <i data-lucide="clock" class="h-3.5 w-3.5"></i>
-              <span>
-                <strong class="font-semibold" x-text="lang === 'id' ? 'Info:' : 'Info:'">Info:</strong>
-                <span x-text="lang === 'id' ? 'Link berlaku 10 menit' : 'Link valid for 10 minutes'">Link valid for 10 minutes</span>
-              </span>
-            </div>
-          </div>
-
-          <!-- Resend countdown (static placeholder) -->
-          <div class="space-y-2 text-center">
-            <p class="text-xs text-gray-500 dark:text-gray-400">
-              <span x-text="lang === 'id' ? 'Belum dapat link? Kirim ulang dalam ' : 'Did not get the link? Resend in '">Did not get the link? Resend in </span>
-              <strong class="font-semibold text-gray-700 dark:text-gray-300">00:45</strong>
-            </p>
-            <button type="button" @click="step = 1; phoneNumber = ''" class="inline-flex items-center gap-1.5 text-sm font-medium text-brand-500 transition hover:underline dark:text-brand-400">
-              <i data-lucide="arrow-left" class="h-3.5 w-3.5"></i>
-              <span x-text="lang === 'id' ? 'Ganti nomor' : 'Change number'">Change number</span>
-            </button>
-          </div>
-        </div>
-
-        <!-- Help footer (Step 2 only) -->
-        <p class="mt-5 text-center text-xs text-gray-500 dark:text-gray-400">
-          <span x-text="lang === 'id' ? 'Butuh bantuan? ' : 'Need help? '">Need help? </span>
-          <a href="mailto:support@sumrize.me" class="font-medium text-brand-500 hover:underline dark:text-brand-400" x-text="lang === 'id' ? 'Hubungi Sumrize' : 'Contact Sumrize'">Contact Sumrize</a>
-        </p>
-      </section>
-
-      <!-- ===== Mockup demo skip — routes to onboarding (forced post-login step) ===== -->
-      <div class="mt-8 text-center text-xs text-gray-400">
-        <a href="onboarding.html" class="underline-offset-2 hover:text-gray-600 hover:underline dark:hover:text-gray-300">
-          <span x-text="lang === 'id' ? 'Mockup demo · → Lanjut ke onboarding' : 'Mockup demo · → Continue to onboarding'">Mockup demo · → Continue to onboarding</span>
-        </a>
-      </div>
-
     </div>
   </main>
 
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      lucide.createIcons();
-      document.addEventListener('alpine:initialized', () => lucide.createIcons());
+<script>
+
+const apiOrigin =
+    "http://localhost/sumrize-beta";
+
+
+/*
+|--------------------------------------------------------------------------
+| SUMRIZE EXTENSION
+|--------------------------------------------------------------------------
+*/
+
+const SUMRIZE_EXTENSION_ID =
+    "pdhljhmoeakjpmcmdlemlepbdbbimjbm";
+
+
+/*
+|--------------------------------------------------------------------------
+| SYNC TOKEN TO EXTENSION
+|--------------------------------------------------------------------------
+|
+| Web Dashboard/Login
+|        ↓
+| chrome.runtime.sendMessage()
+|        ↓
+| Service Worker
+|        ↓
+| chrome.storage.local.authToken
+|
+|--------------------------------------------------------------------------
+*/
+
+function syncTokenToExtension(token) {
+
+    return new Promise((resolve) => {
+
+        /*
+        |--------------------------------------------------------------------------
+        | Validate token
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            typeof token !==
+            "string" ||
+            !token.trim()
+        ) {
+
+            resolve({
+                ok: false,
+                error:
+                    "token_empty"
+            });
+
+            return;
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Check Chrome Runtime
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            !window.chrome ||
+            !chrome.runtime ||
+            typeof chrome.runtime.sendMessage !==
+                "function"
+        ) {
+
+            console.warn(
+                "[Sumrize] Chrome Runtime API tidak tersedia."
+            );
+
+
+            resolve({
+                ok: false,
+
+                error:
+                    "chrome_runtime_unavailable"
+            });
+
+
+            return;
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Send token to Extension
+        |--------------------------------------------------------------------------
+        */
+
+        chrome.runtime.sendMessage(
+
+            SUMRIZE_EXTENSION_ID,
+
+            {
+
+                type:
+                    "SUMRIZE_AUTH_TOKEN",
+
+                token:
+                    token
+
+            },
+
+            (response) => {
+
+                /*
+                |--------------------------------------------------------------------------
+                | Chrome Runtime Error
+                |--------------------------------------------------------------------------
+                */
+
+                if (
+                    chrome.runtime.lastError
+                ) {
+
+                    console.warn(
+                        "[Sumrize] Extension auth sync gagal:",
+                        chrome.runtime.lastError.message
+                    );
+
+
+                    resolve({
+
+                        ok: false,
+
+                        error:
+                            chrome.runtime
+                                .lastError
+                                .message
+                    });
+
+
+                    return;
+                }
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | Empty Response
+                |--------------------------------------------------------------------------
+                */
+
+                if (!response) {
+
+                    resolve({
+
+                        ok: false,
+
+                        error:
+                            "empty_extension_response"
+                    });
+
+
+                    return;
+                }
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | Response
+                |--------------------------------------------------------------------------
+                */
+
+                console.log(
+                    "[Sumrize] Extension auth sync:",
+                    response
+                );
+
+
+                resolve(
+                    response
+                );
+            }
+        );
     });
-  </script>
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| READ JSON RESPONSE
+|--------------------------------------------------------------------------
+*/
+
+async function readJsonResponse(
+    response
+) {
+
+    const text =
+        await response.text();
+
+
+    if (!text) {
+
+        return null;
+    }
+
+
+    try {
+
+        return JSON.parse(text);
+
+    } catch (error) {
+
+        console.error(
+            "[Sumrize] Invalid JSON response:",
+            text
+        );
+
+
+        return null;
+    }
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| LOGIN
+|--------------------------------------------------------------------------
+*/
+
+async function login() {
+
+    /*
+    |--------------------------------------------------------------------------
+    | Get Form Values
+    |--------------------------------------------------------------------------
+    */
+
+    const emailElement =
+        document.getElementById(
+            "email"
+        );
+
+
+    const passwordElement =
+        document.getElementById(
+            "password"
+        );
+
+
+    const email =
+        emailElement
+            ?.value
+            ?.trim() ||
+        "";
+
+
+    const password =
+        passwordElement
+            ?.value ||
+        "";
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Basic Validation
+    |--------------------------------------------------------------------------
+    */
+
+    if (!email) {
+
+        alert(
+            "Email wajib diisi."
+        );
+
+        return;
+    }
+
+
+    if (!password) {
+
+        alert(
+            "Password wajib diisi."
+        );
+
+        return;
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Optional Login Button
+    |--------------------------------------------------------------------------
+    */
+
+    const loginButton =
+        document.querySelector(
+            'button[type="submit"], #loginButton, #login'
+        );
+
+
+    if (loginButton) {
+
+        loginButton.disabled =
+            true;
+    }
+
+
+    try {
+
+        /*
+        |--------------------------------------------------------------------------
+        | Request Login
+        |--------------------------------------------------------------------------
+        */
+
+        const response =
+            await fetch(
+                `${apiOrigin}/api/auth/login.php`,
+                {
+
+                    method:
+                        "POST",
+
+                    headers: {
+
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    credentials:
+                        "include",
+
+                    body:
+                        JSON.stringify({
+
+                            email,
+
+                            password
+                        })
+                }
+            );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Parse Response
+        |--------------------------------------------------------------------------
+        */
+
+        const payload =
+            await readJsonResponse(
+                response
+            );
+
+
+        const data =
+            payload?.data ||
+            {};
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Validate Login
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            !response.ok ||
+            payload?.ok !== true ||
+            !data.token
+        ) {
+
+            throw new Error(
+
+                payload?.error?.message ||
+
+                "Email atau password salah."
+            );
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | SAVE WEB TOKEN
+        |--------------------------------------------------------------------------
+        */
+
+        localStorage.setItem(
+
+            "sumrize_auth_token",
+
+            data.token
+        );
+
+
+        console.log(
+            "[Sumrize] Login berhasil."
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | SYNC TOKEN TO EXTENSION
+        |--------------------------------------------------------------------------
+        */
+
+        const extensionSync =
+            await syncTokenToExtension(
+                data.token
+            );
+
+
+        /*
+        | Jangan print token.
+        */
+
+        console.log(
+            "[Sumrize] Extension auth sync result:",
+            extensionSync
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | DO NOT BLOCK WEB LOGIN
+        |--------------------------------------------------------------------------
+        |
+        | Jika extension belum terinstall,
+        | user tetap boleh masuk Dashboard.
+        |
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            extensionSync?.ok !== true
+        ) {
+
+            console.warn(
+                "[Sumrize] Token belum berhasil disinkronkan ke extension."
+            );
+
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | REDIRECT DASHBOARD
+        |--------------------------------------------------------------------------
+        */
+
+        window.location.assign(
+            "http://localhost:3000/dashboard/index_local.html"
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "[Sumrize] Login failed:",
+            error
+        );
+
+
+        alert(
+            error?.message ||
+            "Email atau password salah."
+        );
+
+
+    } finally {
+
+        if (loginButton) {
+
+            loginButton.disabled =
+                false;
+        }
+    }
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| FORM SUBMIT
+|--------------------------------------------------------------------------
+*/
+
+const loginForm =
+    document.querySelector(
+        "form"
+    );
+
+
+if (loginForm) {
+
+    loginForm.addEventListener(
+        "submit",
+        (event) => {
+
+            event.preventDefault();
+
+            login();
+
+        }
+    );
+}
+
+</script>
 </body>
 </html>

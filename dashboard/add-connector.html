@@ -510,14 +510,11 @@
                 </div>
                 <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Zoom</span>
               </button>
-              <!-- MEETINGS — Soon: Google Meet -->
-              <button x-show="connectorTab === 'all' || connectorTab === 'meetings'" type="button" disabled class="relative flex cursor-not-allowed flex-col items-center justify-center gap-3 rounded-xl border border-gray-200 bg-gray-50 p-5 opacity-60 dark:border-gray-800 dark:bg-white/[0.02]">
-                <span class="absolute right-2 top-2 rounded-full bg-gray-200 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-gray-600 dark:bg-gray-700 dark:text-gray-300" x-text="lang === 'id' ? 'Segera' : 'Soon'">Soon</span>
-                <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-white text-gray-500 ring-1 ring-gray-200 dark:bg-white/[0.06] dark:ring-gray-700">
-                  <i data-lucide="users" class="h-5 w-5"></i>
-                </div>
-                <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Google Meet</span>
-              </button>
+              <!-- MEETINGS — Active: Google Meet -->
+              <a x-show="connectorTab === 'all' || connectorTab === 'meetings'" href="onboard-gmeet.html" class="group flex flex-col items-center justify-center gap-3 rounded-xl border border-gray-200 bg-white p-5 transition hover:-translate-y-0.5 hover:border-brand-500 hover:bg-brand-50/40 hover:shadow-theme-sm dark:border-gray-800 dark:bg-white/[0.02] dark:hover:border-brand-500 dark:hover:bg-brand-500/[0.08]">
+                <img src="../assets/gmeet.png" class="h-10 w-10 object-contain" alt="Google Meet" />
+                <span class="text-sm font-medium text-gray-700 group-hover:text-gray-900 dark:text-gray-300 dark:group-hover:text-white">Google Meet</span>
+              </a>
 
             </section>
 

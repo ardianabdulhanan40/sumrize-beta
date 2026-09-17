@@ -1,0 +1,1089 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Connect Google Meet · Sumrize</title>
+
+    <link rel="icon" type="image/png" href="../assets/logo-black.png">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap"
+        rel="stylesheet"
+    >
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+
+            theme: {
+                extend: {
+
+                    fontFamily: {
+                        sans: [
+                            'Outfit',
+                            'ui-sans-serif',
+                            'system-ui',
+                            'sans-serif'
+                        ]
+                    },
+
+                    colors: {
+
+                        brand: {
+                            25: '#f8fbfd',
+                            50: '#eaf4fb',
+                            100: '#d4e8f7',
+                            200: '#b3dbff',
+                            300: '#7eb5e8',
+                            400: '#4d6996',
+                            500: '#26344a',
+                            600: '#1c2738',
+                            700: '#1c1f2c',
+                            800: '#171a23',
+                            900: '#101421',
+                            950: '#0f0e0e'
+                        },
+
+                        gray: {
+                            25: '#fcfcfd',
+                            50: '#f9fafb',
+                            100: '#f2f4f7',
+                            200: '#e4e7ec',
+                            300: '#d0d5dd',
+                            400: '#98a2b3',
+                            500: '#667085',
+                            600: '#475467',
+                            700: '#3c3f4c',
+                            800: '#26344a',
+                            900: '#1c1f2c',
+                            950: '#0f0e0e'
+                        },
+
+                        success: {
+                            50: '#ecfdf3',
+                            500: '#12b76a',
+                            600: '#039855'
+                        },
+
+                        sumrize: {
+                            DEFAULT: '#FF4438',
+                            hover: '#e63b30'
+                        }
+                    },
+
+                    boxShadow: {
+                        'theme-sm':
+                            '0px 1px 3px 0px rgba(16, 24, 40, 0.1), 0px 1px 2px 0px rgba(16, 24, 40, 0.06)',
+
+                        'theme-md':
+                            '0px 4px 8px -2px rgba(16, 24, 40, 0.1), 0px 2px 4px -2px rgba(16, 24, 40, 0.06)'
+                    }
+                }
+            }
+        };
+    </script>
+
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body.gmeet-onboarding {
+            background: #050607;
+            color: #f7f7f8;
+            overflow-x: hidden;
+        }
+
+        body.gmeet-onboarding::before,
+        body.gmeet-onboarding::after {
+            position: fixed;
+            z-index: -1;
+            width: 34rem;
+            height: 18rem;
+            border-radius: 999px;
+            content: '';
+            filter: blur(76px);
+            opacity: .22;
+            pointer-events: none;
+        }
+
+        body.gmeet-onboarding::before {
+            top: -7rem;
+            left: 8%;
+            background: #29333d;
+        }
+
+        body.gmeet-onboarding::after {
+            top: -5rem;
+            right: 8%;
+            background: #ff4438;
+            opacity: .12;
+        }
+
+        .gmeet-stage {
+            position: relative;
+            isolation: isolate;
+            background:
+                linear-gradient(180deg, rgba(6, 7, 8, .64), rgba(6, 7, 8, .92)),
+                radial-gradient(ellipse at 50% 78%, rgba(38, 48, 58, .5), transparent 50%);
+        }
+
+        .gmeet-stage::before {
+            position: absolute;
+            inset: 18% 8% 10%;
+            z-index: -1;
+            border-radius: 999px;
+            background: rgba(36, 46, 55, .26);
+            box-shadow: 0 0 100px 48px rgba(36, 46, 55, .16);
+            content: '';
+            filter: blur(28px);
+        }
+
+        .gmeet-panel {
+            border: 0 !important;
+            background: transparent !important;
+            box-shadow: none !important;
+        }
+
+        .gmeet-panel h1 {
+            color: #fff !important;
+            font-size: clamp(2rem, 4vw, 3.2rem);
+            letter-spacing: -.02em;
+        }
+
+        .gmeet-panel h1 + p {
+            max-width: 38rem;
+            color: rgba(255, 255, 255, .55) !important;
+        }
+
+        .gmeet-panel #connection-status {
+            color: rgba(255, 255, 255, .8) !important;
+        }
+
+        .gmeet-panel #connected-account {
+            color: rgba(255, 255, 255, .42) !important;
+        }
+
+        .gmeet-panel .gmeet-secondary {
+            display: none;
+        }
+
+        .gmeet-panel > div:first-child > div:first-child {
+            display: none;
+        }
+
+        .gmeet-panel #connect-button,
+        .gmeet-panel #disconnect-button {
+            min-height: 3.25rem;
+            border-radius: .7rem;
+        }
+
+        .gmeet-panel #connect-button {
+            background: #ff4438 !important;
+            box-shadow: 0 14px 34px rgba(255, 68, 56, .2);
+        }
+
+        .gmeet-panel #connect-button:hover {
+            background: #ff5b50 !important;
+        }
+
+        .gmeet-panel #disconnect-button {
+            border-color: rgba(255, 255, 255, .18) !important;
+            color: rgba(255, 255, 255, .78) !important;
+            background: rgba(255, 255, 255, .06) !important;
+        }
+
+        .gmeet-panel .gmeet-footer {
+            color: rgba(255, 255, 255, .38) !important;
+        }
+
+        .gmeet-back {
+            color: rgba(255, 255, 255, .42) !important;
+        }
+
+        .gmeet-back:hover {
+            color: #fff !important;
+        }
+
+        .gmeet-close {
+            border-color: rgba(255, 255, 255, .14) !important;
+            color: rgba(255, 255, 255, .74) !important;
+            background: rgba(255, 255, 255, .08) !important;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, .2);
+        }
+
+        .gmeet-close:hover {
+            color: #fff !important;
+            background: rgba(255, 255, 255, .14) !important;
+        }
+
+        .gmeet-brand,
+        .gmeet-back-wrap {
+            display: none;
+        }
+
+        [x-cloak] {
+            display: none !important;
+        }
+    </style>
+
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+</head>
+
+<body
+    x-data="{
+        darkMode: false,
+        lang: 'id',
+        langOpen: false,
+
+        languages: {
+            id: {
+                label: 'Bahasa Indonesia',
+                flag: '🇮🇩'
+            },
+
+            en: {
+                label: 'English',
+                flag: '🇬🇧'
+            }
+        },
+
+        init() {
+
+            this.darkMode =
+                JSON.parse(
+                    localStorage.getItem('darkMode') || 'false'
+                );
+
+            this.lang =
+                localStorage.getItem('lang') || 'id';
+
+            this.$watch(
+                'darkMode',
+                value => {
+                    localStorage.setItem(
+                        'darkMode',
+                        JSON.stringify(value)
+                    );
+                }
+            );
+
+            this.$watch(
+                'lang',
+                value => {
+                    localStorage.setItem(
+                        'lang',
+                        value
+                    );
+                }
+            );
+        }
+    }"
+
+    :class="{
+        'dark bg-gray-900': darkMode
+    }"
+
+    class="gmeet-onboarding gmeet-stage min-h-screen font-sans text-gray-300"
+>
+
+    <header class="absolute right-4 top-4 z-10 md:right-6 md:top-6">
+        <button
+            type="button"
+            class="gmeet-close inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition"
+            onclick="window.history.back()"
+        >
+            <i data-lucide="x-circle" class="h-4 w-4"></i>
+            <span>Tutup</span>
+        </button>
+    </header>
+
+
+    <!-- =========================
+         MAIN
+    ========================== -->
+
+    <main
+        class="
+            flex
+            min-h-screen
+            items-center
+            justify-center
+            px-4
+            py-16
+        "
+    >
+
+        <div class="w-full max-w-xl">
+
+            <!-- Logo -->
+
+            <div class="gmeet-brand mb-8 flex justify-center">
+
+                <img
+                    src="../assets/logo-black.png"
+                    class="h-10 w-auto dark:hidden"
+                    alt="Sumrize"
+                >
+
+                <img
+                    src="../assets/logo-white.png"
+                    class="hidden h-10 w-auto dark:block"
+                    alt="Sumrize"
+                >
+
+            </div>
+
+
+            <!-- Back -->
+
+            <div class="gmeet-back-wrap mb-4">
+
+                <a
+                    href="index_local.html"
+
+                    class="gmeet-back
+                        inline-flex
+                        items-center
+                        gap-2
+                        text-sm
+                        font-medium
+                        text-gray-500
+                        transition
+                        hover:text-gray-900
+
+                        dark:text-gray-400
+                        dark:hover:text-white
+                    "
+                >
+
+                    <i
+                        data-lucide="arrow-left"
+                        class="h-4 w-4"
+                    ></i>
+
+                    <span
+                        x-text="
+                            lang === 'id'
+                            ? 'Kembali ke Connector'
+                            : 'Back to Connectors'
+                        "
+                    >
+                    </span>
+
+                </a>
+
+            </div>
+
+
+            <!-- =========================
+                 CONNECTOR CARD
+            ========================== -->
+
+            <section
+                class="gmeet-panel
+                rounded-2xl
+                border
+                border-gray-200
+                bg-white
+                p-6
+                shadow-theme-sm
+
+                dark:border-gray-800
+                dark:bg-white/[0.03]
+
+                md:p-8
+                "
+            >
+
+                <!-- Google Meet -->
+
+                <div class="flex flex-col items-center text-center">
+
+                    <div
+                        class="
+                            mb-5
+                            flex
+                            h-16
+                            w-16
+                            items-center
+                            justify-center
+                            rounded-2xl
+                            border
+                            border-gray-200
+                            bg-white
+                            shadow-theme-sm
+
+                            dark:border-gray-700
+                            dark:bg-gray-800
+                        "
+                    >
+
+                        <img
+                            src="../assets/gmeet.png"
+                            alt="Google Meet"
+                            class="h-10 w-10 object-contain"
+                        >
+
+                    </div>
+
+
+                    <h1
+                        class="
+                            text-2xl
+                            font-bold
+                            text-gray-900
+
+                            dark:text-white
+
+                            md:text-3xl
+                        "
+                        x-text="
+                            lang === 'id'
+                            ? 'Hubungkan Google Meet'
+                            : 'Connect Google Meet'
+                        "
+                    >
+                    </h1>
+
+
+                    <p
+                        class="
+                            mt-3
+                            max-w-md
+                            text-sm
+                            leading-6
+                            text-gray-500
+
+                            dark:text-gray-400
+                        "
+
+                        x-text="
+                            lang === 'id'
+                            ? 'Hubungkan akun Google Meet Anda ke Sumrize untuk menggunakan Meeting Assistant saat meeting berlangsung.'
+                            : 'Connect your Google Meet account to Sumrize and use Meeting Assistant during your meetings.'
+                        "
+                    >
+                    </p>
+
+                    <div
+                        id="connection-status"
+                        class="mt-4 text-sm font-semibold text-gray-500 dark:text-gray-400"
+                    >
+                        Memeriksa koneksi...
+                    </div>
+
+                    <div
+                        id="connected-account"
+                        class="mt-1 text-xs text-gray-400 dark:text-gray-500"
+                    ></div>
+
+                </div>
+
+
+                <!-- =========================
+                     HOW IT WORKS
+                ========================== -->
+
+                <div class="gmeet-secondary mt-8">
+
+                    <p
+                        class="
+                            mb-3
+                            text-xs
+                            font-bold
+                            uppercase
+                            tracking-wider
+                            text-gray-400
+                        "
+
+                        x-text="
+                            lang === 'id'
+                            ? 'Cara kerja'
+                            : 'How it works'
+                        "
+                    >
+                    </p>
+
+
+                    <div class="space-y-3">
+
+
+                        <!-- STEP 1 -->
+
+                        <div
+                            class="
+                                flex
+                                items-start
+                                gap-3
+                                rounded-xl
+                                border
+                                border-gray-200
+                                p-4
+
+                                dark:border-gray-800
+                            "
+                        >
+
+                            <div
+                                class="
+                                    flex
+                                    h-9
+                                    w-9
+                                    flex-shrink-0
+                                    items-center
+                                    justify-center
+                                    rounded-full
+                                    bg-brand-50
+                                    text-sm
+                                    font-bold
+                                    text-brand-500
+
+                                    dark:bg-brand-500/[0.12]
+                                    dark:text-brand-400
+                                "
+                            >
+                                1
+                            </div>
+
+                            <div>
+
+                                <p
+                                    class="
+                                        text-sm
+                                        font-semibold
+                                        text-gray-900
+
+                                        dark:text-white
+                                    "
+                                    x-text="
+                                        lang === 'id'
+                                        ? 'Hubungkan akun Google'
+                                        : 'Connect your Google account'
+                                    "
+                                ></p>
+
+                                <p
+                                    class="
+                                        mt-1
+                                        text-xs
+                                        leading-5
+                                        text-gray-500
+
+                                        dark:text-gray-400
+                                    "
+                                    x-text="
+                                        lang === 'id'
+                                        ? 'Izinkan Sumrize terhubung dengan Google Meet Anda.'
+                                        : 'Allow Sumrize to connect with your Google Meet.'
+                                    "
+                                ></p>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- STEP 2 -->
+
+                        <div
+                            class="
+                                flex
+                                items-start
+                                gap-3
+                                rounded-xl
+                                border
+                                border-gray-200
+                                p-4
+
+                                dark:border-gray-800
+                            "
+                        >
+
+                            <div
+                                class="
+                                    flex
+                                    h-9
+                                    w-9
+                                    flex-shrink-0
+                                    items-center
+                                    justify-center
+                                    rounded-full
+                                    bg-brand-50
+                                    text-sm
+                                    font-bold
+                                    text-brand-500
+
+                                    dark:bg-brand-500/[0.12]
+                                    dark:text-brand-400
+                                "
+                            >
+                                2
+                            </div>
+
+                            <div>
+
+                                <p
+                                    class="
+                                        text-sm
+                                        font-semibold
+                                        text-gray-900
+
+                                        dark:text-white
+                                    "
+                                    x-text="
+                                        lang === 'id'
+                                        ? 'Mulai meeting di Google Meet'
+                                        : 'Start a meeting in Google Meet'
+                                    "
+                                ></p>
+
+                                <p
+                                    class="
+                                        mt-1
+                                        text-xs
+                                        leading-5
+                                        text-gray-500
+
+                                        dark:text-gray-400
+                                    "
+                                    x-text="
+                                        lang === 'id'
+                                        ? 'Masuk atau buat meeting seperti biasa.'
+                                        : 'Join or start a meeting as usual.'
+                                    "
+                                ></p>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- STEP 3 -->
+
+                        <div
+                            class="
+                                flex
+                                items-start
+                                gap-3
+                                rounded-xl
+                                border
+                                border-gray-200
+                                p-4
+
+                                dark:border-gray-800
+                            "
+                        >
+
+                            <div
+                                class="
+                                    flex
+                                    h-9
+                                    w-9
+                                    flex-shrink-0
+                                    items-center
+                                    justify-center
+                                    rounded-full
+                                    bg-brand-50
+                                    text-sm
+                                    font-bold
+                                    text-brand-500
+
+                                    dark:bg-brand-500/[0.12]
+                                    dark:text-brand-400
+                                "
+                            >
+                                3
+                            </div>
+
+                            <div>
+
+                                <p
+                                    class="
+                                        text-sm
+                                        font-semibold
+                                        text-gray-900
+
+                                        dark:text-white
+                                    "
+                                    x-text="
+                                        lang === 'id'
+                                        ? 'Nyalakan Sumrize Meeting Assistant'
+                                        : 'Turn on Sumrize Meeting Assistant'
+                                    "
+                                ></p>
+
+                                <p
+                                    class="
+                                        mt-1
+                                        text-xs
+                                        leading-5
+                                        text-gray-500
+
+                                        dark:text-gray-400
+                                    "
+                                    x-text="
+                                        lang === 'id'
+                                        ? 'Extension akan menangkap transcript meeting dan mengirimkannya ke Sumrize.'
+                                        : 'The extension captures the meeting transcript and sends it to Sumrize.'
+                                    "
+                                ></p>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =========================
+                     PERMISSION INFO
+                ========================== -->
+
+                <div
+                    class="gmeet-secondary
+                        mt-6
+                        flex
+                        items-start
+                        gap-3
+                        rounded-xl
+                        bg-gray-50
+                        p-4
+
+                        dark:bg-white/[0.04]
+                    "
+                >
+
+                    <i
+                        data-lucide="shield-check"
+                        class="
+                            mt-0.5
+                            h-5
+                            w-5
+                            flex-shrink-0
+                            text-success-600
+
+                            dark:text-success-500
+                        "
+                    ></i>
+
+                    <div>
+
+                        <p
+                            class="
+                                text-sm
+                                font-semibold
+                                text-gray-900
+
+                                dark:text-white
+                            "
+                            x-text="
+                                lang === 'id'
+                                ? 'Koneksi aman'
+                                : 'Secure connection'
+                            "
+                        ></p>
+
+                        <p
+                            class="
+                                mt-1
+                                text-xs
+                                leading-5
+                                text-gray-500
+
+                                dark:text-gray-400
+                            "
+                            x-text="
+                                lang === 'id'
+                                ? 'Anda dapat memutuskan koneksi Google Meet kapan saja dari pengaturan Connector.'
+                                : 'You can disconnect Google Meet at any time from Connector settings.'
+                            "
+                        ></p>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =========================
+                     CONNECT BUTTON
+                ========================== -->
+
+                <div class="gmeet-action mt-7">
+
+                    <button
+                        id="connect-button"
+                        type="button"
+
+                        class="
+                            flex
+                            w-full
+                            items-center
+                            justify-center
+                            gap-2
+                            rounded-full
+                            bg-sumrize
+                            px-5
+                            py-3
+                            text-sm
+                            font-semibold
+                            text-white
+                            shadow-theme-sm
+                            transition
+                            hover:bg-sumrize-hover
+                            focus:outline-none
+                            focus:ring-4
+                            focus:ring-sumrize/20
+                        "
+                    >
+
+                        <i
+                            data-lucide="link"
+                            class="h-4 w-4"
+                        ></i>
+
+                        <span
+                            id="connect-label"
+                            x-text="
+                                lang === 'id'
+                                ? 'Hubungkan Google Meet'
+                                : 'Connect Google Meet'
+                            "
+                        >
+                        </span>
+
+                    </button>
+
+                    <button
+                        id="disconnect-button"
+                        type="button"
+                        class="mt-3 hidden w-full items-center justify-center gap-2 rounded-full border border-gray-200 px-5 py-3 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-white/[0.04]"
+                    >
+                        <i data-lucide="unlink" class="h-4 w-4"></i>
+                        <span>Putuskan koneksi</span>
+                    </button>
+
+                </div>
+
+
+                <!-- Footer -->
+
+                <p
+                    class="gmeet-footer
+                        mt-4
+                        text-center
+                        text-[11px]
+                        leading-5
+                        text-gray-400
+                    "
+                    x-text="
+                        lang === 'id'
+                            ? 'Kami akan meminta izin Google agar Sumrize dapat menggunakan Google Meet Anda. Anda dapat memutuskan koneksi kapan saja.'
+                            : 'We will ask Google for permission to connect your Google Meet. You can disconnect at any time.'
+                    "
+                >
+                </p>
+
+            </section>
+
+        </div>
+
+    </main>
+
+
+    <!-- =========================
+         CONNECTION SCRIPT
+    ========================== -->
+
+    <script>
+
+        const apiOrigin = 'http://localhost/sumrize-beta';
+        const apiBase = `${apiOrigin}/api/connectors/google`;
+        const token = localStorage.getItem('sumrize_auth_token');
+        const connectButton = document.getElementById('connect-button');
+        const connectLabel = document.getElementById('connect-label');
+        const disconnectButton = document.getElementById('disconnect-button');
+        const statusElement = document.getElementById('connection-status');
+        const accountElement = document.getElementById('connected-account');
+
+        function authHeaders() {
+            return token
+                ? { Authorization: `Bearer ${token}` }
+                : {};
+        }
+
+        async function readJsonResponse(response) {
+            const raw = await response.text();
+
+            if (!raw.trim()) {
+                throw new Error(
+                    `Server mengembalikan response kosong (HTTP ${response.status}).`
+                );
+            }
+
+            try {
+                return JSON.parse(raw);
+            } catch (error) {
+                console.error(
+                    '[Sumrize] Invalid API response:',
+                    raw.slice(0, 500)
+                );
+                throw new Error(
+                    `Response server bukan JSON (HTTP ${response.status}).`
+                );
+            }
+        }
+
+        function setConnectionStatus(message, connected = false) {
+            statusElement.textContent = message;
+            statusElement.className = connected
+                ? 'mt-4 text-sm font-semibold text-success-600 dark:text-success-500'
+                : 'mt-4 text-sm font-semibold text-gray-500 dark:text-gray-400';
+        }
+
+        async function loadConnectionStatus() {
+            const googleConnected =
+                new URLSearchParams(window.location.search)
+                    .get('google_connected') === '1';
+
+            const oauthError = new URLSearchParams(
+                window.location.search
+            ).get('code');
+
+            const oauthMessage = new URLSearchParams(
+                window.location.search
+            ).get('message');
+
+            if (new URLSearchParams(window.location.search).get('google_oauth') === 'error') {
+                const messages = {
+                    access_denied: 'Izin Google ditolak.',
+                    invalid_state: 'Sesi OAuth tidak valid. Silakan coba lagi.',
+                    state_expired: 'Sesi OAuth kedaluwarsa. Silakan coba lagi.',
+                    invalid_grant: 'Authorization code tidak valid, kedaluwarsa, atau sudah digunakan.',
+                    invalid_client: 'Konfigurasi OAuth Google tidak valid.',
+                    redirect_uri_mismatch: 'Redirect URI Google tidak cocok dengan konfigurasi OAuth.',
+                    refresh_token_missing: 'Refresh token tidak tersedia. Silakan hubungkan ulang Google Meet.',
+                    connection_verification_failed: 'Koneksi tidak ditemukan setelah disimpan.',
+                    token_exchange_failed: 'Google gagal menyelesaikan koneksi.'
+                };
+
+                setConnectionStatus(
+                    messages[oauthError] ||
+                    oauthMessage ||
+                    'Koneksi Google gagal.'
+                );
+
+                connectButton.classList.remove('hidden');
+                connectButton.disabled = false;
+                connectLabel.textContent = 'Coba Hubungkan Lagi';
+            }
+
+            if (!token) {
+                setConnectionStatus('Login Sumrize diperlukan.');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${apiBase}/status.php`, {
+                    headers: authHeaders(),
+                    credentials: 'include'
+                });
+                const payload = await readJsonResponse(response);
+                const data = payload?.data;
+
+                if (!response.ok || payload?.ok !== true) {
+                    throw new Error(payload?.error?.message || 'Status gagal dimuat.');
+                }
+
+                if (data.connected) {
+                    setConnectionStatus('✓ Google Meet berhasil terhubung', true);
+                    accountElement.textContent = data.account?.email
+                        ? `Akun: ${data.account.email}`
+                        : '';
+                    connectButton.classList.add('hidden');
+                    disconnectButton.classList.remove('hidden');
+                } else {
+                    setConnectionStatus(
+                        googleConnected
+                            ? 'Koneksi Google belum tersimpan.'
+                            : 'Google Meet belum terhubung.'
+                    );
+                    accountElement.textContent = '';
+                    connectLabel.textContent = 'Hubungkan Google Meet';
+                }
+            } catch (error) {
+                setConnectionStatus(error.message);
+            }
+        }
+
+        async function connectGoogleMeet() {
+            connectButton.disabled = true;
+            setConnectionStatus('Membuka autentikasi Google...');
+
+            window.location.assign(`${apiBase}/connect.php`);
+        }
+
+        async function disconnectGoogleMeet() {
+            disconnectButton.disabled = true;
+
+            try {
+                const response = await fetch(`${apiBase}/disconnect.php`, {
+                    method: 'POST',
+                    headers: authHeaders(),
+                    credentials: 'include'
+                });
+                const payload = await readJsonResponse(response);
+
+                if (!response.ok || payload?.ok !== true) {
+                    throw new Error(payload?.error?.message || 'Disconnect gagal.');
+                }
+
+                connectButton.classList.remove('hidden');
+                disconnectButton.classList.add('hidden');
+                setConnectionStatus('Google Meet belum terhubung.');
+                accountElement.textContent = '';
+            } catch (error) {
+                setConnectionStatus(error.message);
+            } finally {
+                disconnectButton.disabled = false;
+            }
+        }
+
+        connectButton.addEventListener('click', connectGoogleMeet);
+        disconnectButton.addEventListener('click', disconnectGoogleMeet);
+
+
+        document.addEventListener(
+            'DOMContentLoaded',
+            () => {
+
+                lucide.createIcons();
+                loadConnectionStatus();
+
+            }
+        );
+
+        document.addEventListener(
+            'alpine:initialized',
+            () => {
+
+                lucide.createIcons();
+
+            }
+        );
+
+    </script>
+
+</body>
+</html>

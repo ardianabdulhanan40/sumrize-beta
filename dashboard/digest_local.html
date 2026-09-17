@@ -157,6 +157,7 @@
             .dashboard-main-v2 {
                 max-width: 100%;
             }
+
         }
 
         /* === NAVBAR (DESKTOP) === */
@@ -1357,7 +1358,7 @@
                 updateThemeUI(savedTheme);
             }
 
-            fetch('../component/sidebar.html')
+            fetch('/component/sidebar_local.html')
                 .then(response => {
                     if (!response.ok) throw new Error('Gagal memuat sidebar');
                     return response.text();
@@ -1365,7 +1366,7 @@
                 .then(injectSidebar)
                 .catch(function () {
                     // Fallback path
-                    fetch('../component/sidebar.html')
+                    fetch('/component/sidebar_local.html')
                         .then(res => res.text())
                         .then(injectSidebar)
                         .catch(err => console.warn('Sidebar load skipped:', err));
