@@ -1,34 +1,37 @@
 <?php
+/**
+ * POST /api/meeting/transcript.php
+ * Body JSON:
+ * {
+ *   "meetingSessionId": "ms_...",
+ *   "segments": [
+ *     { "speaker": "Unknown", "text": "...", "sequence": 1, "timestampSeconds": 10 }
+ *   ]
+ * }
+ */
 
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/auth.php';
 require_once __DIR__ . '/response.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    sumrize_error(
-        'method_not_allowed',
-        'Method POST diperlukan.',
-        405
-    );
+    sumrize_error('method_not_allowed', 'Method POST diperlukan.', 405);
 }
 
 $user = sumrize_authenticate();
 
-$body = json_decode(
-    file_get_contents('php://input'),
-    true
-);
+$body = json_decode(file_get_contents('php://input'), true);
 
 if (!is_array($body)) {
-    sumrize_error(
-        'invalid_json',
-        'Request body harus berupa JSON.',
-        422
-    );
+    sumrize_error('invalid_json', 'Request body harus berupa JSON.', 422);
 }
 
 $meetingSessionId = trim(
-    $body['meetingSessionId'] ?? ''
+    (string) (
+        $body['meetingSessionId']
+        ?? $body['meeting_session_id']
+        ?? ''
+    )
 );
 
 $segments = $body['segments'] ?? [];
@@ -51,7 +54,7 @@ if (!is_array($segments) || count($segments) === 0) {
 
 $pdo = sumrize_db();
 
-$meeting = sumrize_assert_owns_session(
+sumrize_assert_owns_session(
     $pdo,
     $meetingSessionId,
     (int) $user['user_id']
@@ -65,36 +68,27 @@ $insert = $pdo->prepare("
         timestamp_seconds,
         sequence,
         created_at
-    )
-    VALUES (?, ?, ?, ?, ?, ?)
+    ) VALUES (?, ?, ?, ?, ?, ?)
 ");
 
 $now = date('Y-m-d H:i:s');
 $inserted = 0;
 
 foreach ($segments as $index => $segment) {
-
     if (!is_array($segment)) {
         continue;
     }
 
-    $speaker = trim(
-        $segment['speaker'] ?? 'Unknown'
-    );
-
-    $text = trim(
-        $segment['text'] ?? ''
-    );
+    $speaker = trim((string) ($segment['speaker'] ?? 'Unknown'));
+    $text    = trim((string) ($segment['text'] ?? ''));
 
     if ($text === '') {
         continue;
     }
 
     $timestampSeconds = null;
-
     if (isset($segment['timestampSeconds'])) {
-        $timestampSeconds =
-            max(0, (int) $segment['timestampSeconds']);
+        $timestampSeconds = max(0, (int) $segment['timestampSeconds']);
     }
 
     $sequence = isset($segment['sequence'])
@@ -126,13 +120,9 @@ $update = $pdo->prepare("
     SET updated_at = ?
     WHERE id = ?
 ");
-
-$update->execute([
-    $now,
-    $meetingSessionId
-]);
+$update->execute([$now, $meetingSessionId]);
 
 sumrize_success([
     'meetingSessionId' => $meetingSessionId,
-    'inserted' => $inserted
+    'inserted'         => $inserted
 ]);

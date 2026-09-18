@@ -4,12 +4,14 @@
  * HTTP client untuk komunikasi dengan backend Sumrize.
  * Dipakai di Service Worker (background).
  *
+ * Base: http://localhost/sumrize-beta/api/meeting
+ *
  * Endpoint:
- * - POST /start.php
- * - POST /transcript.php
- * - POST /stop.php
- * - GET  /session.php?id=...
- * - POST /transcribe.php   (audio chunk → STT)
+ * - POST create.php
+ * - POST transcript.php
+ * - POST stop.php
+ * - GET  detail.php?id=...   (opsional)
+ * - POST transcribe.php      (audio chunk → STT)
  */
 
 (function (global) {
@@ -19,7 +21,7 @@
        CONFIG
        ========================================================= */
 
-    const DEFAULT_BASE_URL = "http://localhost/sumrize-api/api/meeting";
+    const DEFAULT_BASE_URL = "http://localhost/sumrize-beta/api/meeting";
 
     /* =========================================================
        HELPERS
@@ -135,17 +137,31 @@
         });
 
         if (!response.ok) {
-            const message =
+            let message =
                 data?.message ||
                 data?.error ||
                 data?.raw ||
                 `HTTP ${response.status}`;
+
+            // Backend sering kirim { ok:false, error: { code, message } }
+            if (data?.error && typeof data.error === "object") {
+                message =
+                    data.error.message ||
+                    data.error.code ||
+                    message;
+            }
+
             throw new Error(String(message));
         }
 
         if (data && typeof data === "object" && data.ok === false) {
+            const message =
+                data.message ||
+                (data.error && data.error.message) ||
+                data.error ||
+                "Request gagal di backend.";
             throw new Error(
-                data.message || data.error || "Request gagal di backend."
+                typeof message === "string" ? message : JSON.stringify(message)
             );
         }
 
@@ -153,7 +169,7 @@
     }
 
     /* =========================================================
-       CREATE MEETING SESSION
+       CREATE MEETING SESSION  →  create.php
        ========================================================= */
 
     async function createMeetingSession({ meetCode, title }) {
@@ -162,13 +178,14 @@
         }
 
         const payload = {
+            meetCode: meetCode,
             meet_code: meetCode,
             title: title || `Google Meet - ${meetCode}`
         };
 
         console.log("[Sumrize API] Create meeting session:", payload);
 
-        const data = await request("start.php", {
+        const data = await request("create.php", {
             method: "POST",
             body: payload
         });
@@ -201,7 +218,7 @@
     }
 
     /* =========================================================
-       SEND TRANSCRIPT
+       SEND TRANSCRIPT  →  transcript.php (segments[])
        ========================================================= */
 
     async function sendTranscript({
@@ -219,12 +236,24 @@
             throw new Error("Transcript text kosong.");
         }
 
-        const payload = {
-            meeting_session_id: meetingSessionId,
+        let timestampSeconds = null;
+        if (typeof timestamp === "number" && Number.isFinite(timestamp)) {
+            timestampSeconds = Math.max(0, Math.floor(timestamp));
+        }
+
+        const segment = {
             speaker: speaker || "Unknown",
             text: String(text).trim(),
-            timestamp: timestamp || new Date().toISOString(),
-            sequence: Number.isFinite(sequence) ? sequence : null
+            sequence: Number.isFinite(sequence) ? sequence : 1
+        };
+
+        if (timestampSeconds !== null) {
+            segment.timestampSeconds = timestampSeconds;
+        }
+
+        const payload = {
+            meetingSessionId: meetingSessionId,
+            segments: [segment]
         };
 
         console.log("[Sumrize API] Send transcript:", payload);
@@ -241,7 +270,7 @@
     }
 
     /* =========================================================
-       STOP MEETING SESSION
+       STOP MEETING SESSION  →  stop.php
        ========================================================= */
 
     async function stopMeetingSession({ meetingSessionId }) {
@@ -250,6 +279,7 @@
         }
 
         const payload = {
+            meetingSessionId: meetingSessionId,
             meeting_session_id: meetingSessionId
         };
 
@@ -267,7 +297,7 @@
     }
 
     /* =========================================================
-       GET MEETING SESSION
+       GET MEETING SESSION  →  detail.php (opsional)
        ========================================================= */
 
     async function getMeetingSession(meetingSessionId) {
@@ -276,7 +306,7 @@
         }
 
         const data = await request(
-            `session.php?id=${encodeURIComponent(meetingSessionId)}`,
+            `detail.php?id=${encodeURIComponent(meetingSessionId)}`,
             { method: "GET" }
         );
 
@@ -287,7 +317,7 @@
     }
 
     /* =========================================================
-       TRANSCRIBE AUDIO (multipart — jangan pakai request())
+       TRANSCRIBE AUDIO  →  transcribe.php (multipart)
        ========================================================= */
 
     async function transcribeAudio({
@@ -316,6 +346,7 @@
             `chunk-${sequence ?? 0}.webm`
         );
         form.append("meeting_session_id", meetingSessionId);
+        form.append("meetingSessionId", meetingSessionId);
         form.append("sequence", String(sequence ?? 0));
         form.append(
             "timestamp",
@@ -326,6 +357,7 @@
         }
 
         console.log("[Sumrize API] Transcribe audio:", {
+            url,
             sequence,
             size: audioBlob.size,
             mimeType: mimeType || audioBlob.type || "audio/webm"
@@ -339,7 +371,6 @@
                 headers: {
                     Authorization: `Bearer ${token}`,
                     Accept: "application/json"
-                    // Jangan set Content-Type — browser set multipart boundary
                 },
                 body: form
             });
@@ -366,17 +397,27 @@
         });
 
         if (!response.ok) {
-            const message =
+            let message =
                 data?.message ||
                 data?.error ||
                 data?.raw ||
                 `HTTP ${response.status}`;
+
+            if (data?.error && typeof data.error === "object") {
+                message = data.error.message || data.error.code || message;
+            }
+
             throw new Error(String(message));
         }
 
         if (data && typeof data === "object" && data.ok === false) {
+            const message =
+                data.message ||
+                (data.error && data.error.message) ||
+                data.error ||
+                "Transcribe gagal di backend.";
             throw new Error(
-                data.message || data.error || "Transcribe gagal di backend."
+                typeof message === "string" ? message : JSON.stringify(message)
             );
         }
 
@@ -412,6 +453,10 @@
     };
 
     console.log("[Sumrize] API client loaded");
+    console.log(
+        "[Sumrize] Base URL default:",
+        DEFAULT_BASE_URL
+    );
     console.log(
         "[Sumrize] SumrizeApi methods:",
         Object.keys(global.SumrizeApi)
