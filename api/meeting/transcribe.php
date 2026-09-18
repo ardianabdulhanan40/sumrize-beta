@@ -63,8 +63,8 @@ if (!move_uploaded_file($orig['tmp_name'], $src)) {
     sumrize_error('upload_failed', 'Gagal menyimpan audio.', 500);
 }
 
-$FFMPEG  = 'ffmpeg';   // sesuaikan path Windows jika perlu
-$WHISPER = 'whisper';  // sesuaikan path Windows jika perlu
+$FFMPEG = 'C:\\Users\\ANONYMOUS\\AppData\\Local\\Microsoft\\WinGet\\Links\\ffmpeg.exe';
+$WHISPER = 'C:\\Users\\ANONYMOUS\\AppData\\Local\\Python\\pythoncore-3.14-64\\Scripts\\whisper.exe';
 
 $cmdF = sprintf(
     '%s -y -i %s -ar 16000 -ac 1 -c:a pcm_s16le %s 2>&1',
