@@ -11,6 +11,7 @@
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/auth.php';
 require_once __DIR__ . '/response.php';
+require_once __DIR__ . '/json-exporter.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     sumrize_error(
@@ -62,7 +63,7 @@ $update = $pdo->prepare("
 
 try {
     $update->execute([
-        'stopped', // atau 'ended'
+        'completed',
         $now,
         $now,
         $meetingSessionId
@@ -74,11 +75,15 @@ try {
         SET status = ?, updated_at = ?
         WHERE id = ?
     ");
-    $update2->execute(['stopped', $now, $meetingSessionId]);
+    $update2->execute(['completed', $now, $meetingSessionId]);
 }
+
+// Final export ke file JSON di hasiltranscribe/
+$exportResult = sumrize_export_transcripts_json($pdo, $meetingSessionId);
 
 sumrize_success([
     'meetingSessionId' => $meetingSessionId,
-    'status'           => 'stopped',
-    'endedAt'          => $now
+    'status'           => 'completed',
+    'endedAt'          => $now,
+    'exported'         => $exportResult
 ]);

@@ -1,56 +1,50 @@
 /**
  * content/caption-observer.js
  * Membaca Live Captions Google Meet (struktur DOM 2025–2026)
- * dan mengirim data satu per satu ke collector.
- *
- * PENTING: Live Captions (CC) HARUS aktif di Google Meet.
+ * Menangkap ucapan dari pembicara lokal (Anda) dan orang lain.
  */
 (function (global) {
   "use strict";
 
   if (global.__SUMRIZE_CAPTION_OBSERVER_LOADED__) {
-    console.log("[Sumrize Transcript] Caption observer sudah pernah dimuat.");
     return;
   }
   global.__SUMRIZE_CAPTION_OBSERVER_LOADED__ = true;
 
-  const LOG_PREFIX = "[Sumrize Transcript]";
+  const LOG_PREFIX = "[Sumrize Caption]";
 
   const CONFIG = {
-    pollInterval: 700,
-    maxTextLength: 500,
+    pollInterval: 500,
+    maxTextLength: 600,
     minTextLength: 2,
     maxSpeakerLength: 80
   };
 
-  // ========== SELECTORS (prioritas) ==========
+  // Selector tombol CC Google Meet
+  const CC_BUTTON_SELECTORS = [
+    'button[aria-label*="(c)"]',
+    'button[data-tooltip*="(c)"]',
+    'button[jsname="r8qRAd"]',
+    'button[aria-label*="caption" i]',
+    'button[aria-label*="teks" i]',
+    'button[aria-label*="subtitle" i]',
+    'button[aria-label*="subtitel" i]'
+  ];
+
+  // Selector container Live Captions
   const CAPTION_CONTAINER_SELECTORS = [
     '[role="region"][aria-label*="caption" i]',
+    '[role="region"][aria-label*="teks" i]',
     '[role="region"][aria-label*="Captions"]',
     '[role="region"][aria-label*="subtitle" i]',
+    '[role="region"][aria-label*="subtitel" i]',
     '[role="region"][aria-label*="자막"]',
-    '[jsname="dsyhDe"]'
-  ];
-
-  const CAPTION_ITEM_SELECTORS = [
-    ".nMcdL.bj4p3b",
-    ".nMcdL",
-    '[class*="nMcdL"]'
-  ];
-
-  const SPEAKER_SELECTORS = [
-    ".NWpY1d",
-    ".zQRpq",
-    ".iOzk7",
-    '[class*="NWpY1d"]'
-  ];
-
-  const TEXT_SELECTORS = [
-    ".ygicle.VbkSUe",
-    ".bh44bd.VbkSUe",
-    ".ygicle",
-    ".VbkSUe",
-    '[class*="ygicle"]'
+    'div[jscontroller="D1tHje"]',
+    'div[jsname="dsyhDe"]',
+    'div[jsname="r4nke"]',
+    'div.a4cQT',
+    'div[class*="a4cQT"]',
+    'div[class*="iTTPOb"]'
   ];
 
   const UI_PATTERNS = [
@@ -70,35 +64,19 @@
     "leave call",
     "leave meeting",
     "tutup panggilan",
+    "tinggalkan panggilan",
     "devices",
     "more options",
-    "orang lain mungkin masih dapat melihat video"
+    "orang lain mungkin masih dapat melihat video",
+    "looking for others",
+    "turn on captions"
   ];
-
-  /* ========== Utility ========== */
 
   function normalizeText(text) {
     return String(text || "")
       .replace(/\u00a0/g, " ")
       .replace(/\s+/g, " ")
       .trim();
-  }
-
-  function isVisible(el) {
-    if (!el || el.nodeType !== Node.ELEMENT_NODE) return false;
-    try {
-      const rect = el.getBoundingClientRect();
-      const style = window.getComputedStyle(el);
-      return (
-        rect.width > 0 &&
-        rect.height > 0 &&
-        style.display !== "none" &&
-        style.visibility !== "hidden" &&
-        parseFloat(style.opacity || "1") > 0
-      );
-    } catch {
-      return false;
-    }
   }
 
   function containsUiText(text) {
@@ -115,8 +93,6 @@
     return true;
   }
 
-  /* ========== Caption Observer ========== */
-
   class SumrizeCaptionObserver {
     constructor(options = {}) {
       this.onCaption =
@@ -124,10 +100,11 @@
       this.running = false;
       this.mutationObserver = null;
       this.pollIntervalId = null;
+      this.autoCheckCcIntervalId = null;
       this.sequence = 0;
       this.seenKeys = new Set();
       this.lastSpeaker = "Unknown";
-      this._warnedNoContainer = false;
+      this.cachedUserName = null;
     }
 
     log(...args) {
@@ -138,109 +115,267 @@
       console.warn(LOG_PREFIX, ...args);
     }
 
+    /**
+     * Dapatkan nama user lokal
+     */
+    getUserName() {
+      if (this.cachedUserName) return this.cachedUserName;
+      try {
+        const selfEl = document.querySelector("[data-self-name]");
+        if (selfEl && selfEl.getAttribute("data-self-name")) {
+          this.cachedUserName = selfEl.getAttribute("data-self-name").trim();
+          return this.cachedUserName;
+        }
+      } catch {}
+      return "Anda (Saya)";
+    }
+
+    /**
+     * Cek apakah Closed Captions (CC) Google Meet sedang AKTIF
+     */
+    isCaptionsEnabled() {
+      for (const selector of CC_BUTTON_SELECTORS) {
+        const btns = document.querySelectorAll(selector);
+        for (const btn of btns) {
+          const isPressed = btn.getAttribute("aria-pressed");
+          const ariaLabel = (btn.getAttribute("aria-label") || "").toLowerCase();
+          const tooltip = (btn.getAttribute("data-tooltip") || "").toLowerCase();
+
+          // Jika aria-pressed="true", pasti aktif
+          if (isPressed === "true") {
+            return true;
+          }
+
+          // Indikator teks nonaktifkan (berarti saat ini sedang aktif)
+          if (
+            ariaLabel.startsWith("turn off") ||
+            ariaLabel.startsWith("nonaktifkan") ||
+            ariaLabel.includes("turn off captions") ||
+            ariaLabel.includes("nonaktifkan teks") ||
+            tooltip.startsWith("turn off") ||
+            tooltip.startsWith("nonaktifkan")
+          ) {
+            return true;
+          }
+        }
+      }
+      return false;
+    }
+
+    /**
+     * Pastikan CC aktif tanpa mematikannya jika sudah menyala
+     */
+    ensureCaptionsEnabled() {
+      try {
+        if (this.isCaptionsEnabled()) {
+          this.log("Live Captions (CC) Google Meet sudah aktif.");
+          return true;
+        }
+
+        for (const selector of CC_BUTTON_SELECTORS) {
+          const btns = document.querySelectorAll(selector);
+          for (const btn of btns) {
+            const isPressed = btn.getAttribute("aria-pressed");
+            const ariaLabel = (btn.getAttribute("aria-label") || "").toLowerCase();
+
+            // Hanya klik jika saat ini TIDAK aktif
+            const isTurnOnBtn =
+              isPressed === "false" ||
+              ariaLabel.startsWith("turn on") ||
+              ariaLabel.startsWith("aktifkan") ||
+              ariaLabel.includes("turn on captions") ||
+              ariaLabel.includes("aktifkan teks");
+
+            if (isTurnOnBtn) {
+              this.log("Mengaktifkan Live Captions (CC) Google Meet secara otomatis...");
+              btn.click();
+              btn.dispatchEvent(
+                new MouseEvent("click", {
+                  bubbles: true,
+                  cancelable: true,
+                  view: window
+                })
+              );
+              return true;
+            }
+          }
+        }
+      } catch (err) {
+        this.warn("Gagal auto-enable CC:", err);
+      }
+      return false;
+    }
+
+    /**
+     * Cari container live caption di DOM
+     */
     findCaptionContainer() {
       for (const selector of CAPTION_CONTAINER_SELECTORS) {
         try {
-          const el = document.querySelector(selector);
-          if (el && isVisible(el)) return el;
+          const els = document.querySelectorAll(selector);
+          for (const el of els) {
+            if (el) return el;
+          }
         } catch {}
       }
+
+      // Fallback: cari elemen yang memiliki role="region" dengan konten teks aktif
+      const regions = document.querySelectorAll('[role="region"]');
+      for (const reg of regions) {
+        const label = (reg.getAttribute("aria-label") || "").toLowerCase();
+        if (
+          label.includes("caption") ||
+          label.includes("teks") ||
+          label.includes("subtit")
+        ) {
+          return reg;
+        }
+      }
+
       return null;
     }
 
-    findCaptionItems(container) {
+    /**
+     * Ekstrak item transkrip dari container secara struktural
+     */
+    extractRows(container) {
       if (!container) return [];
 
-      for (const selector of CAPTION_ITEM_SELECTORS) {
-        try {
-          const items = container.querySelectorAll(selector);
-          if (items.length > 0) {
-            return Array.from(items).filter(isVisible);
+      const results = [];
+
+      // 1. Strategi berbasis Avatar Gambar (Standar Google Meet)
+      const imgs = container.querySelectorAll("img");
+      if (imgs.length > 0) {
+        for (const img of imgs) {
+          try {
+            // Speaker nama biasanya ada di elemen saudara dari img
+            let speaker = "";
+            let text = "";
+
+            const sibling = img.nextElementSibling;
+            if (sibling) {
+              speaker = normalizeText(sibling.innerText || sibling.textContent);
+            }
+
+            // Teks transkrip ada di saudara container avatar
+            const parent = img.parentElement;
+            if (parent && parent.nextElementSibling) {
+              text = normalizeText(
+                parent.nextElementSibling.innerText || parent.nextElementSibling.textContent
+              );
+            }
+
+            // Jika belum dapat teks, cari elemen teks terdekat
+            if (!text && parent && parent.parentElement) {
+              const textDivs = parent.parentElement.querySelectorAll(
+                'div[jsname], span[jsname], [class*="VbkSUe"], [class*="ygicle"]'
+              );
+              if (textDivs.length > 0) {
+                text = normalizeText(textDivs[textDivs.length - 1].innerText);
+              }
+            }
+
+            if (isValidText(text)) {
+              results.push({ speaker: speaker || this.lastSpeaker || "Unknown", text });
+            }
+          } catch {}
+        }
+      }
+
+      // 2. Strategi berbasis baris item (div dengan jsname="ys97fc" atau anak langsung)
+      if (results.length === 0) {
+        const itemNodes = container.querySelectorAll(
+          'div[jsname="ys97fc"], [class*="nMcdL"], [class*="CNusmb"]'
+        );
+
+        if (itemNodes.length > 0) {
+          for (const item of itemNodes) {
+            try {
+              let speaker = "";
+              const speakerEl = item.querySelector(
+                '[class*="NWpY1d"], [class*="zQRpq"], [class*="iOzk7"], span'
+              );
+              if (speakerEl) {
+                speaker = normalizeText(speakerEl.innerText || speakerEl.textContent);
+              }
+
+              let text = "";
+              const textEl = item.querySelector(
+                '[class*="VbkSUe"], [class*="ygicle"], span[jsname="tgaKEf"]'
+              );
+              if (textEl) {
+                text = normalizeText(textEl.innerText || textEl.textContent);
+              } else {
+                // Clone dan hapus speaker
+                const clone = item.cloneNode(true);
+                if (speakerEl) {
+                  clone.querySelectorAll("span, img").forEach((n) => n.remove());
+                }
+                text = normalizeText(clone.innerText || clone.textContent);
+              }
+
+              if (isValidText(text)) {
+                results.push({ speaker: speaker || this.lastSpeaker || "Unknown", text });
+              }
+            } catch {}
           }
-        } catch {}
-      }
-      return [];
-    }
-
-    extractSpeaker(item) {
-      for (const selector of SPEAKER_SELECTORS) {
-        try {
-          const el = item.querySelector(selector);
-          if (!el) continue;
-          const name = normalizeText(el.innerText || el.textContent);
-          if (
-            name &&
-            name.length >= 2 &&
-            name.length <= CONFIG.maxSpeakerLength &&
-            !containsUiText(name)
-          ) {
-            return name;
-          }
-        } catch {}
-      }
-      return null;
-    }
-
-    extractText(item) {
-      for (const selector of TEXT_SELECTORS) {
-        try {
-          const el = item.querySelector(selector);
-          if (!el) continue;
-          const text = normalizeText(el.innerText || el.textContent);
-          if (isValidText(text)) return text;
-        } catch {}
+        }
       }
 
-      // Fallback: clone & hapus speaker
-      try {
-        const clone = item.cloneNode(true);
-        SPEAKER_SELECTORS.forEach((sel) => {
-          clone.querySelectorAll(sel).forEach((n) => n.remove());
-        });
-        const text = normalizeText(clone.innerText || clone.textContent);
-        if (isValidText(text)) return text;
-      } catch {}
+      // 3. Fallback: ambil baris teks langsung
+      if (results.length === 0) {
+        const rawText = normalizeText(container.innerText || container.textContent);
+        if (isValidText(rawText) && rawText.length < 300) {
+          results.push({ speaker: this.lastSpeaker || "Unknown", text: rawText });
+        }
+      }
 
-      return "";
+      return results;
     }
 
-    processItem(item) {
-      const speaker =
-        this.extractSpeaker(item) || this.lastSpeaker || "Unknown";
-      const text = this.extractText(item);
+    processSpeaker(rawSpeaker) {
+      const clean = normalizeText(rawSpeaker);
+      if (!clean) return this.lastSpeaker || "Unknown";
 
-      if (!isValidText(text)) return null;
-      if (text.toLowerCase() === speaker.toLowerCase()) return null;
+      const lower = clean.toLowerCase();
+      if (lower === "anda" || lower === "you") {
+        return this.getUserName();
+      }
 
-      this.lastSpeaker = speaker;
-      return { speaker, text };
+      return clean;
     }
 
-    emit(data) {
-      if (!data) return;
+    emit(item) {
+      if (!item || !isValidText(item.text)) return;
 
-      const key = `${data.speaker}::${data.text}`;
+      const speaker = this.processSpeaker(item.speaker);
+      const text = item.text.trim();
+
+      // Jangan kirim jika speaker sama dengan teks (UI glitch)
+      if (speaker.toLowerCase() === text.toLowerCase()) return;
+
+      const key = `${speaker}::${text}`;
       if (this.seenKeys.has(key)) return;
       this.seenKeys.add(key);
 
-      // Batasi memory
-      if (this.seenKeys.size > 300) {
+      // Batasi cache memory
+      if (this.seenKeys.size > 500) {
         const arr = Array.from(this.seenKeys);
-        this.seenKeys = new Set(arr.slice(-150));
+        this.seenKeys = new Set(arr.slice(-250));
       }
 
+      this.lastSpeaker = speaker;
       this.sequence++;
 
       const transcript = {
-        speaker: data.speaker,
-        text: data.text,
+        speaker,
+        username: speaker,
+        text,
+        kalimat: text,
         sequence: this.sequence,
+        source: "google_meet_cc",
         timestamp: new Date().toISOString()
       };
-
-      this.log(
-        `Transcript #${transcript.sequence} | Speaker: ${transcript.speaker} | "${transcript.text}" | ${transcript.timestamp}`
-      );
 
       try {
         this.onCaption(transcript);
@@ -254,40 +389,17 @@
 
       const container = this.findCaptionContainer();
       if (!container) {
-        if (!this._warnedNoContainer) {
-          this.warn(
-            "Caption container belum ditemukan. Pastikan Live Captions (CC) sudah AKTIF di Google Meet."
-          );
-          this._warnedNoContainer = true;
-        }
         return;
       }
 
-      this._warnedNoContainer = false;
-
-      const items = this.findCaptionItems(container);
-
-      if (items.length === 0) {
-        // Fallback: ambil text langsung dari container (jika pendek)
-        const direct = normalizeText(container.innerText);
-        if (isValidText(direct) && direct.length < 250) {
-          this.emit({
-            speaker: this.lastSpeaker || "Unknown",
-            text: direct
-          });
-        }
-        return;
+      const rows = this.extractRows(container);
+      for (const row of rows) {
+        this.emit(row);
       }
-
-      items.forEach((item) => {
-        const data = this.processItem(item);
-        if (data) this.emit(data);
-      });
     }
 
     start() {
       if (this.running) {
-        this.log("Observer sudah berjalan.");
         return;
       }
 
@@ -295,9 +407,11 @@
       this.sequence = 0;
       this.seenKeys.clear();
       this.lastSpeaker = "Unknown";
-      this._warnedNoContainer = false;
 
-      this.log("Memulai observer Live Transcript Google Meet...");
+      this.log("Memulai Live Captions observer...");
+
+      // Coba aktifkan CC otomatis
+      this.ensureCaptionsEnabled();
 
       try {
         this.mutationObserver = new MutationObserver(() => this.scan());
@@ -309,19 +423,25 @@
           });
         }
       } catch (err) {
-        this.warn("MutationObserver gagal:", err);
+        this.warn("MutationObserver error:", err);
       }
 
       this.pollIntervalId = setInterval(() => this.scan(), CONFIG.pollInterval);
-      this.scan();
 
-      this.log("Observer Live Transcript aktif.");
+      // Periodik cek untuk memastikan CC tetap menyala
+      this.autoCheckCcIntervalId = setInterval(() => {
+        if (this.running && !this.isCaptionsEnabled()) {
+          this.ensureCaptionsEnabled();
+        }
+      }, 4000);
+
+      this.scan();
+      this.log("Live Captions observer aktif.");
     }
 
     stop() {
       if (!this.running) return;
 
-      this.log("Menghentikan observer...");
       this.running = false;
 
       if (this.mutationObserver) {
@@ -336,17 +456,14 @@
         this.pollIntervalId = null;
       }
 
-      this.log(`Observer berhenti. Total transcript: ${this.sequence}`);
-    }
+      if (this.autoCheckCcIntervalId) {
+        clearInterval(this.autoCheckCcIntervalId);
+        this.autoCheckCcIntervalId = null;
+      }
 
-    reset() {
-      this.seenKeys.clear();
-      this.sequence = 0;
-      this.lastSpeaker = "Unknown";
-      this.log("History transcript di-reset.");
+      this.log(`Live Captions observer berhenti. Total item: ${this.sequence}`);
     }
   }
 
   global.SumrizeCaptionObserver = SumrizeCaptionObserver;
-  console.log(`${LOG_PREFIX} Caption observer berhasil dimuat.`);
 })(window);

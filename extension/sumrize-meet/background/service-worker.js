@@ -149,9 +149,30 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
 });
 
-async function handleGetState() {
-  if (!globalThis.SumrizeStorage) throw new Error("SumrizeStorage tidak tersedia.");
-  return await globalThis.SumrizeStorage.getAll();
+async function handleGetState(preferredTabId) {
+  let storageState = {};
+  if (globalThis.SumrizeStorage) {
+    storageState = (await globalThis.SumrizeStorage.getAll()) || {};
+  }
+
+  try {
+    const tabId = await resolveMeetTabId(preferredTabId);
+    const contentState = await chrome.tabs.sendMessage(tabId, {
+      type: "POPUP_GET_STATE"
+    });
+    if (contentState) {
+      return {
+        ...storageState,
+        ...contentState,
+        state: contentState.state || storageState.captureState || "idle"
+      };
+    }
+  } catch {}
+
+  return {
+    ...storageState,
+    state: storageState.captureState || "idle"
+  };
 }
 
 async function resolveMeetTabId(preferredId) {
@@ -244,16 +265,29 @@ async function stopMeeting(message) {
 }
 
 async function handleTranscript(message) {
+  if (!message?.meetingSessionId) throw new Error("meetingSessionId kosong.");
+  const text = String(message.text || message.kalimat || "").trim();
+  if (!text) throw new Error("text kosong.");
+
+  const speaker = String(message.speaker || message.username || "Unknown").trim();
+
+  console.log(
+    `%c[Sumrize SW Live] %c${speaker}: %c"${text}"`,
+    "background: #10b981; color: white; padding: 2px 5px; border-radius: 3px; font-weight: bold;",
+    "color: #3b82f6; font-weight: bold;",
+    "color: #e2e8f0;"
+  );
+
   if (!globalThis.SumrizeApi?.sendTranscript) {
     throw new Error("SumrizeApi.sendTranscript tidak tersedia.");
   }
-  if (!message?.meetingSessionId) throw new Error("meetingSessionId kosong.");
-  if (!message?.text) throw new Error("text kosong.");
 
   return await globalThis.SumrizeApi.sendTranscript({
     meetingSessionId: message.meetingSessionId,
-    speaker: message.speaker || "Unknown",
-    text: message.text,
+    speaker,
+    username: speaker,
+    text,
+    kalimat: text,
     timestamp: message.timestamp,
     sequence: message.sequence
   });

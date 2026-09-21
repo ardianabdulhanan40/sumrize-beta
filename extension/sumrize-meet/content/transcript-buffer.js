@@ -1,7 +1,8 @@
 /**
  * content/transcript-buffer.js
- * Buffer sementara untuk menggabungkan caption yang masih berubah
- * sebelum dikirim sebagai segment final.
+ *
+ * Buffer transkripsi cerdas yang menggabungkan, menstabilkan,
+ * dan mendeduplikasi input dari Live Captions Google Meet dan Web Speech API.
  */
 (function (global) {
   "use strict";
@@ -11,19 +12,26 @@
   }
   global.__SUMRIZE_TRANSCRIPT_BUFFER_LOADED__ = true;
 
-  const SILENCE_TIMEOUT_MS = 1500;
+  const SILENCE_TIMEOUT_MS = 1300;
+  const DEDUP_WINDOW_MS = 8000;
 
   class SumrizeTranscriptBuffer {
     constructor(options = {}) {
       this.onSegment =
-        typeof options.onSegment === "function" ? options.onSegment : null;
+        typeof options.onSegment === "function"
+          ? options.onSegment
+          : typeof options.onFinalized === "function"
+          ? options.onFinalized
+          : null;
 
       this.currentSpeaker = null;
       this.currentText = "";
       this.startedAt = null;
       this.sequence = 0;
       this.silenceTimer = null;
-      this.finalizedTexts = new Set();
+
+      // History untuk deduplikasi: { text, speaker, time }
+      this.recentFinalized = [];
     }
 
     setOnSegment(callback) {
@@ -32,31 +40,72 @@
       }
     }
 
+    cleanText(str) {
+      return String(str || "")
+        .replace(/\u00a0/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+    }
+
     /**
-     * Tambah caption.
-     * Bisa dipanggil sebagai:
-     *   buffer.add(speaker, text)
-     *   atau
-     *   buffer.add({ speaker, text })
-     *   atau
-     *   buffer.push({ speaker, text })
+     * Cek apakah teks ini duplikat dari kalimat yang baru saja di-finalize
+     */
+    isDuplicate(speaker, text) {
+      const now = Date.now();
+      const normText = text.toLowerCase();
+
+      // Buang entri lama di luar jendela dedup
+      this.recentFinalized = this.recentFinalized.filter(
+        (item) => now - item.time < DEDUP_WINDOW_MS
+      );
+
+      for (const item of this.recentFinalized) {
+        const itemNorm = item.text.toLowerCase();
+
+        // 1. Teks identik
+        if (normText === itemNorm) {
+          return true;
+        }
+
+        // 2. Teks baru adalah substring dari teks sebelumnya (misal versi pendek dari CC yang terlambat)
+        if (itemNorm.length >= normText.length && itemNorm.includes(normText)) {
+          return true;
+        }
+
+        // 3. Teks sebelumnya adalah substring dari teks baru, jika jeda sangat singkat (<2s)
+        if (normText.includes(itemNorm) && (normText.length - itemNorm.length < 5) && now - item.time < 2000) {
+          return true;
+        }
+      }
+
+      return false;
+    }
+
+    /**
+     * Menambahkan potongan transkrip
      */
     add(speakerOrData, textMaybe) {
       let speaker = "Unknown";
       let text = "";
 
       if (typeof speakerOrData === "object" && speakerOrData !== null) {
-        speaker = String(speakerOrData.speaker || "Unknown").trim();
-        text = String(speakerOrData.text || "").trim();
+        speaker = String(speakerOrData.speaker || speakerOrData.username || "Unknown").trim();
+        text = String(speakerOrData.text || speakerOrData.kalimat || "").trim();
       } else {
         speaker = String(speakerOrData || "Unknown").trim();
         text = String(textMaybe || "").trim();
       }
 
-      if (!text) return;
+      text = this.cleanText(text);
+      if (!text || text.length < 2) return;
 
-      // Jika speaker berubah → finalize segment sebelumnya
-      if (this.currentText && this.currentSpeaker !== speaker) {
+      // Cek apakah kalimat ini duplikat dari recent finalized
+      if (this.isDuplicate(speaker, text)) {
+        return;
+      }
+
+      // Jika pembicara berganti → finalize ucapan pembicara sebelumnya
+      if (this.currentText && this.currentSpeaker && this.currentSpeaker !== speaker) {
         this.finalize();
       }
 
@@ -66,12 +115,20 @@
 
       this.currentSpeaker = speaker;
 
-      // Update text (Google Meet sering refine kalimat yang sama)
-      if (this.currentText !== text) {
+      // Logika pembaruan teks:
+      if (!this.currentText) {
         this.currentText = text;
+      } else if (text.startsWith(this.currentText)) {
+        // Google Meet menyempurnakan kalimat yang sedang berlangsung
+        this.currentText = text;
+      } else if (this.currentText.startsWith(text)) {
+        // Teks lama lebih lengkap, pertahankan
+      } else if (!this.currentText.includes(text)) {
+        // Kalimat lanjutan dari pembicara yang sama
+        this.currentText = `${this.currentText} ${text}`.trim();
       }
 
-      // Reset silence timer
+      // Reset jeda timer
       if (this.silenceTimer) {
         clearTimeout(this.silenceTimer);
       }
@@ -88,42 +145,44 @@
     finalize() {
       if (!this.currentText) return;
 
-      const text = this.currentText.trim();
-      if (!text) {
-        this.resetCurrent();
-        return;
-      }
-
-      // Dedup final
-      if (this.finalizedTexts.has(text)) {
-        this.resetCurrent();
-        return;
-      }
-
-      this.finalizedTexts.add(text);
-
-      // Batasi memory
-      if (this.finalizedTexts.size > 1000) {
-        const first = this.finalizedTexts.values().next().value;
-        this.finalizedTexts.delete(first);
-      }
-
-      const segment = {
-        speaker: this.currentSpeaker || "Unknown",
-        text,
-        timestamp: (this.startedAt || new Date()).toISOString(),
-        sequence: this.sequence++
-      };
-
-      if (typeof this.onSegment === "function") {
-        try {
-          this.onSegment(segment);
-        } catch (error) {
-          console.error("[Sumrize Buffer] onSegment failed:", error);
-        }
-      }
+      const text = this.cleanText(this.currentText);
+      const speaker = this.currentSpeaker || "Unknown";
 
       this.resetCurrent();
+
+      if (!text || text.length < 2) return;
+
+      // Cek duplikasi sekali lagi
+      if (this.isDuplicate(speaker, text)) {
+        return;
+      }
+
+      this.sequence += 1;
+      const now = Date.now();
+
+      this.recentFinalized.push({
+        speaker,
+        text,
+        time: now
+      });
+
+      const segment = {
+        speaker,
+        username: speaker,
+        text,
+        kalimat: text,
+        timestamp: new Date().toISOString(),
+        sequence: this.sequence
+      };
+
+      const handler = this.onSegment || this.onFinalized;
+      if (typeof handler === "function") {
+        try {
+          handler(segment);
+        } catch (err) {
+          console.error("[Sumrize Buffer] onSegment error:", err);
+        }
+      }
     }
 
     resetCurrent() {
@@ -144,7 +203,7 @@
     reset() {
       this.resetCurrent();
       this.sequence = 0;
-      this.finalizedTexts.clear();
+      this.recentFinalized = [];
     }
   }
 

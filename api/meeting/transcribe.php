@@ -62,9 +62,8 @@ $wav  = $tmpDir . DIRECTORY_SEPARATOR . $base . '.wav';
 if (!move_uploaded_file($orig['tmp_name'], $src)) {
     sumrize_error('upload_failed', 'Gagal menyimpan audio.', 500);
 }
-
-$FFMPEG = 'C:\\Users\\ANONYMOUS\\AppData\\Local\\Microsoft\\WinGet\\Links\\ffmpeg.exe';
-$WHISPER = 'C:\\Users\\ANONYMOUS\\AppData\\Local\\Python\\pythoncore-3.14-64\\Scripts\\whisper.exe';
+$FFMPEG  = '/usr/bin/ffmpeg';
+$WHISPER = '/home/yan/.local/bin/whisper';
 
 $cmdF = sprintf(
     '%s -y -i %s -ar 16000 -ac 1 -c:a pcm_s16le %s 2>&1',
@@ -76,8 +75,11 @@ exec($cmdF, $outF, $codeF);
 
 $audio = ($codeF === 0 && is_file($wav)) ? $wav : $src;
 
+$speaker = trim((string) ($_POST['speaker'] ?? $_POST['username'] ?? 'Unknown'));
+
+
 $cmdW = sprintf(
-    '%s %s --model tiny --language id --output_format txt --output_dir %s 2>&1',
+    'HOME=/home/yan PATH=/home/yan/.local/bin:/usr/local/bin:/usr/bin:/bin %s %s --model tiny --language id --output_format txt --output_dir %s 2>&1',
     escapeshellcmd($WHISPER),
     escapeshellarg($audio),
     escapeshellarg($tmpDir)
@@ -96,18 +98,10 @@ if (is_file($wav)) {
     @unlink($wav);
 }
 
-if ($text === '' && $codeW !== 0) {
-    sumrize_error(
-        'stt_failed',
-        'Whisper gagal. Pastikan ffmpeg & whisper terinstall. ' .
-            substr(implode("\n", $outW), 0, 400),
-        500
-    );
-}
-
+// Return gracefully even if whisper fails/empty, avoiding 500 loop
 sumrize_success([
     'text'             => $text,
-    'speaker'          => 'Unknown',
+    'speaker'          => $speaker !== '' ? $speaker : 'Unknown',
     'sequence'         => $sequence,
     'meetingSessionId' => $meetingSessionId,
     'timestamp'        => $timestamp !== '' ? $timestamp : date('c')

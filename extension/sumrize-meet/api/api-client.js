@@ -224,7 +224,9 @@
     async function sendTranscript({
         meetingSessionId,
         speaker,
+        username,
         text,
+        kalimat,
         timestamp,
         sequence
     }) {
@@ -232,9 +234,12 @@
             throw new Error("Meeting session ID wajib diisi.");
         }
 
-        if (!text || !String(text).trim()) {
+        const validText = String(text || kalimat || "").trim();
+        if (!validText) {
             throw new Error("Transcript text kosong.");
         }
+
+        const speakerName = String(speaker || username || "Unknown").trim();
 
         let timestampSeconds = null;
         if (typeof timestamp === "number" && Number.isFinite(timestamp)) {
@@ -242,8 +247,10 @@
         }
 
         const segment = {
-            speaker: speaker || "Unknown",
-            text: String(text).trim(),
+            speaker: speakerName,
+            username: speakerName,
+            text: validText,
+            kalimat: validText,
             sequence: Number.isFinite(sequence) ? sequence : 1
         };
 

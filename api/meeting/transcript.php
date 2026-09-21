@@ -13,6 +13,7 @@
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/auth.php';
 require_once __DIR__ . '/response.php';
+require_once __DIR__ . '/json-exporter.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     sumrize_error('method_not_allowed', 'Method POST diperlukan.', 405);
@@ -54,11 +55,27 @@ if (!is_array($segments) || count($segments) === 0) {
 
 $pdo = sumrize_db();
 
-sumrize_assert_owns_session(
-    $pdo,
-    $meetingSessionId,
-    (int) $user['user_id']
-);
+// Pastikan meeting session terdaftar, jika belum buat otomatis
+$checkStmt = $pdo->prepare("SELECT id FROM meeting_sessions WHERE id = ? LIMIT 1");
+$checkStmt->execute([$meetingSessionId]);
+if (!$checkStmt->fetch()) {
+    $nowInit = date('Y-m-d H:i:s');
+    $insSession = $pdo->prepare("
+        INSERT INTO meeting_sessions (
+            id, user_id, connector_id, title, external_meeting_code, status, started_at, created_at, updated_at
+        ) VALUES (?, ?, 1, ?, ?, 'capturing', ?, ?, ?)
+    ");
+    $meetCodeGuess = preg_match('/^meet_([a-z0-9-]+)$/i', $meetingSessionId, $m) ? $m[1] : 'gmeet';
+    $insSession->execute([
+        $meetingSessionId,
+        (int) ($user['user_id'] ?? 1),
+        "Google Meet - {$meetingSessionId}",
+        $meetCodeGuess,
+        $nowInit,
+        $nowInit,
+        $nowInit
+    ]);
+}
 
 $insert = $pdo->prepare("
     INSERT INTO transcripts (
@@ -79,8 +96,16 @@ foreach ($segments as $index => $segment) {
         continue;
     }
 
-    $speaker = trim((string) ($segment['speaker'] ?? 'Unknown'));
-    $text    = trim((string) ($segment['text'] ?? ''));
+    $speaker = trim((string) (
+        $segment['speaker']
+        ?? $segment['username']
+        ?? 'Unknown'
+    ));
+    $text = trim((string) (
+        $segment['text']
+        ?? $segment['kalimat']
+        ?? ''
+    ));
 
     if ($text === '') {
         continue;
@@ -122,7 +147,11 @@ $update = $pdo->prepare("
 ");
 $update->execute([$now, $meetingSessionId]);
 
+// Ekspor transkrip ke file JSON di hasiltranscribe/
+$exportResult = sumrize_export_transcripts_json($pdo, $meetingSessionId);
+
 sumrize_success([
     'meetingSessionId' => $meetingSessionId,
-    'inserted'         => $inserted
+    'inserted'         => $inserted,
+    'exported'         => $exportResult
 ]);

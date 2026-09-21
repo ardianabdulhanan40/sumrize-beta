@@ -38,6 +38,9 @@
       "js": [
         "utils/storage.js",
         "content/meet-detector.js",
+        "content/transcript-buffer.js",
+        "content/caption-observer.js",
+        "content/speech-recognizer.js",
         "content/transcript-collector.js"
       ],
       "run_at": "document_idle"
