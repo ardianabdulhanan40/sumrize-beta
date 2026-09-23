@@ -1,0 +1,68 @@
+{
+    "meeting_session_id": "ms_842234b27c4e2cc3e5cd6786af660538",
+    "meet_code": "rtn-pmxx-pvc",
+    "title": "Google Meet - rtn-pmxx-pvc",
+    "status": "completed",
+    "started_at": "2026-09-22 06:49:12",
+    "last_updated": "2026-09-22 06:49:41",
+    "total_transcripts": 5,
+    "total_turns": 2,
+    "transcripts": [
+        {
+            "username": "Unknown",
+            "kalimat": "arrow_downwardLangsung ke bagian bawah",
+            "timestamp_seconds": null,
+            "sequence": 1,
+            "created_at": "2026-09-22 06:49:17"
+        },
+        {
+            "username": "Anda (Saya)",
+            "kalimat": "dari awal sampai akhir nggak bisa",
+            "timestamp_seconds": null,
+            "sequence": 2,
+            "created_at": "2026-09-22 06:49:19"
+        },
+        {
+            "username": "Anda (Saya)",
+            "kalimat": "berarti cara fungsinya atau alur Kerjanya dia dari awal sampai akhir nggak bisa dari awal sampai akhir gak bisa dari awal sampai akhir gak bisa di dari awal sampai akhir gak bisa di ibarat dari awal sampai akhir gak bisa di ibaratnya dari awal sampai akhir gak bisa di ibaratnya di dari awal sampai akhir gak bisa di ibaratnya di stop dari awal sampai akhir gak bisa Di ibaratnya di stop dulu. dari awal sampai akhir gak bisa Di ibaratnya di stop dulu or. dari awal sampai akhir gak bisa Di ibaratnya di stop dulu ordi.",
+            "timestamp_seconds": null,
+            "sequence": 3,
+            "created_at": "2026-09-22 06:49:25"
+        },
+        {
+            "username": "Anda (Saya)",
+            "kalimat": "di apa Ibaratnya di stop dulu or di dari awal sampai akhir gak bisa di ibaratnya di stop dulu order dari awal sampai akhir gak bisa di ibaratnya di stop dulu order Pau dari awal sampai akhir gak bisa di ibaratnya di stop dulu order pause dari awal sampai akhir gak bisa di ibaratnya di stop dulu order pause juga dari awal sampai akhir gak bisa di ibaratnya di stop dulu order pause juga bisa pos nggak bisa dari awal sampai akhir gak bisa di ibaratnya di stop dulu order pause juga bisa karena dari awal sampai akhir gak bisa di ibaratnya di stop dulu order pause juga bisa karena ketika dari awal sampai akhir gak bisa di ibaratnya di stop dulu order pause juga bisa karena ketika udah dari awal sampai akhir gak bisa di ibaratnya di stop dulu order pause juga bisa karena ketika udah di dari awal sampai akhir gak bisa di ibaratnya di stop dulu order pause juga bisa karena ketika udah di post",
+            "timestamp_seconds": null,
+            "sequence": 4,
+            "created_at": "2026-09-22 06:49:33"
+        },
+        {
+            "username": "Anda (Saya)",
+            "kalimat": "dari awal sampai akhir gak bisa di ibaratnya di stop dulu order pause juga bisa karena ketika udah di post tahu deh",
+            "timestamp_seconds": null,
+            "sequence": 5,
+            "created_at": "2026-09-22 06:49:36"
+        }
+    ],
+    "dialog_tergabung": [
+        {
+            "username": "Unknown",
+            "kalimat": "arrow_downwardLangsung ke bagian bawah",
+            "started_at": "2026-09-22 06:49:17",
+            "sequence": 1
+        },
+        {
+            "username": "Anda (Saya)",
+            "kalimat": "dari awal sampai akhir nggak bisa berarti cara fungsinya atau alur Kerjanya dia dari awal sampai akhir nggak bisa dari awal sampai akhir gak bisa dari awal sampai akhir gak bisa di dari awal sampai akhir gak bisa di ibarat dari awal sampai akhir gak bisa di ibaratnya dari awal sampai akhir gak bisa di ibaratnya di dari awal sampai akhir gak bisa di ibaratnya di stop dari awal sampai akhir gak bisa Di ibaratnya di stop dulu. dari awal sampai akhir gak bisa Di ibaratnya di stop dulu or. dari awal sampai akhir gak bisa Di ibaratnya di stop dulu ordi. di apa Ibaratnya di stop dulu or di dari awal sampai akhir gak bisa di ibaratnya di stop dulu order dari awal sampai akhir gak bisa di ibaratnya di stop dulu order Pau dari awal sampai akhir gak bisa di ibaratnya di stop dulu order pause dari awal sampai akhir gak bisa di ibaratnya di stop dulu order pause juga dari awal sampai akhir gak bisa di ibaratnya di stop dulu order pause juga bisa pos nggak bisa dari awal sampai akhir gak bisa di ibaratnya di stop dulu order pause juga bisa karena dari awal sampai akhir gak bisa di ibaratnya di stop dulu order pause juga bisa karena ketika dari awal sampai akhir gak bisa di ibaratnya di stop dulu order pause juga bisa karena ketika udah dari awal sampai akhir gak bisa di ibaratnya di stop dulu order pause juga bisa karena ketika udah di dari awal sampai akhir gak bisa di ibaratnya di stop dulu order pause juga bisa karena ketika udah di post dari awal sampai akhir gak bisa di ibaratnya di stop dulu order pause juga bisa karena ketika udah di post tahu deh",
+            "started_at": "2026-09-22 06:49:19",
+            "sequence": 2
+        }
+    ],
+    "percakapan_gabungan": [
+        "Unknown: arrow_downwardLangsung ke bagian bawah",
+        "Anda (Saya): dari awal sampai akhir nggak bisa",
+        "Anda (Saya): berarti cara fungsinya atau alur Kerjanya dia dari awal sampai akhir nggak bisa dari awal sampai akhir gak bisa dari awal sampai akhir gak bisa di dari awal sampai akhir gak bisa di ibarat dari awal sampai akhir gak bisa di ibaratnya dari awal sampai akhir gak bisa di ibaratnya di dari awal sampai akhir gak bisa di ibaratnya di stop dari awal sampai akhir gak bisa Di ibaratnya di stop dulu. dari awal sampai akhir gak bisa Di ibaratnya di stop dulu or. dari awal sampai akhir gak bisa Di ibaratnya di stop dulu ordi.",
+        "Anda (Saya): di apa Ibaratnya di stop dulu or di dari awal sampai akhir gak bisa di ibaratnya di stop dulu order dari awal sampai akhir gak bisa di ibaratnya di stop dulu order Pau dari awal sampai akhir gak bisa di ibaratnya di stop dulu order pause dari awal sampai akhir gak bisa di ibaratnya di stop dulu order pause juga dari awal sampai akhir gak bisa di ibaratnya di stop dulu order pause juga bisa pos nggak bisa dari awal sampai akhir gak bisa di ibaratnya di stop dulu order pause juga bisa karena dari awal sampai akhir gak bisa di ibaratnya di stop dulu order pause juga bisa karena ketika dari awal sampai akhir gak bisa di ibaratnya di stop dulu order pause juga bisa karena ketika udah dari awal sampai akhir gak bisa di ibaratnya di stop dulu order pause juga bisa karena ketika udah di dari awal sampai akhir gak bisa di ibaratnya di stop dulu order pause juga bisa karena ketika udah di post",
+        "Anda (Saya): dari awal sampai akhir gak bisa di ibaratnya di stop dulu order pause juga bisa karena ketika udah di post tahu deh"
+    ]
+}

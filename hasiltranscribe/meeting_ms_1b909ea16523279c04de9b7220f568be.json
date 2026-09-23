@@ -1,0 +1,356 @@
+{
+    "meeting_session_id": "ms_1b909ea16523279c04de9b7220f568be",
+    "meet_code": "ddk-wazo-uqw",
+    "title": "Google Meet - ddk-wazo-uqw",
+    "status": "capturing",
+    "started_at": "2026-09-22 05:49:34",
+    "last_updated": "2026-09-22 05:57:24",
+    "total_transcripts": 38,
+    "total_turns": 6,
+    "transcripts": [
+        {
+            "username": "Anda (Saya)",
+            "kalimat": "Ya udah yang harus diizinkan sih",
+            "timestamp_seconds": null,
+            "sequence": 1,
+            "created_at": "2026-09-22 05:49:43"
+        },
+        {
+            "username": "Anda (Saya)",
+            "kalimat": "langsung aja",
+            "timestamp_seconds": null,
+            "sequence": 2,
+            "created_at": "2026-09-22 05:49:45"
+        },
+        {
+            "username": "Anda (Saya)",
+            "kalimat": "ngomong apa aja",
+            "timestamp_seconds": null,
+            "sequence": 3,
+            "created_at": "2026-09-22 05:50:15"
+        },
+        {
+            "username": "Unknown",
+            "kalimat": "arrow_downwardLangsung ke bagian bawah",
+            "timestamp_seconds": null,
+            "sequence": 4,
+            "created_at": "2026-09-22 05:50:24"
+        },
+        {
+            "username": "Brilian Adiguna Riyanto",
+            "kalimat": "anda",
+            "timestamp_seconds": null,
+            "sequence": 5,
+            "created_at": "2026-09-22 05:50:26"
+        },
+        {
+            "username": "Brilian Adiguna Riyanto",
+            "kalimat": "orang",
+            "timestamp_seconds": null,
+            "sequence": 6,
+            "created_at": "2026-09-22 05:50:33"
+        },
+        {
+            "username": "Anda (Saya)",
+            "kalimat": "Maksudnya? masuk nih ada maksudnya ada nama Maksudnya ada nama lu. maksudnya ada nama lugre Maksudnya ada nama lu, bre.",
+            "timestamp_seconds": null,
+            "sequence": 7,
+            "created_at": "2026-09-22 05:50:38"
+        },
+        {
+            "username": "Anda (Saya)",
+            "kalimat": "at",
+            "timestamp_seconds": null,
+            "sequence": 8,
+            "created_at": "2026-09-22 05:50:55"
+        },
+        {
+            "username": "Anda (Saya)",
+            "kalimat": "ada arrow_downwardLangsung ke bagian bawah",
+            "timestamp_seconds": null,
+            "sequence": 9,
+            "created_at": "2026-09-22 05:51:40"
+        },
+        {
+            "username": "Imron F",
+            "kalimat": "bekerja di sebuah warung makan besar",
+            "timestamp_seconds": null,
+            "sequence": 10,
+            "created_at": "2026-09-22 05:51:54"
+        },
+        {
+            "username": "Imron F",
+            "kalimat": "bekerja di sebuah warung makan besar warung itu tidak pernah sepi ramainya terasa tidak wajar",
+            "timestamp_seconds": null,
+            "sequence": 11,
+            "created_at": "2026-09-22 05:51:59"
+        },
+        {
+            "username": "Imron F",
+            "kalimat": "bekerja di sebuah warung makan besar warung itu tidak pernah sepi ramainya terasa tidak wajar seolah selalu ada saja yang datang seorang perempuan mulai bekerja di sebuah warung makan besar warung itu tidak pernah sepi ramainya terasa tidak wajar seolah selalu ada saja yang datang",
+            "timestamp_seconds": null,
+            "sequence": 12,
+            "created_at": "2026-09-22 05:52:02"
+        },
+        {
+            "username": "Imron F",
+            "kalimat": "seorang perempuan mulai bekerja di sebuah warung makan besar warung itu tidak pernah sepi ramainya terasa tidak wajar seolah selalu ada saja yang datang sejak awal beberapa karyawan lama sempat memperingatkannya mereka seorang perempuan mulai bekerja di sebuah warung makan besar warung itu tidak pernah sepi ramainya terasa tidak wajar seolah selalu ada saja yang datang sejak awal beberapa karyawan lama sempat memperingatkannya Mereka bilang seorang perempuan mulai bekerja di sebuah warung makan besar warung itu tidak pernah sepi ramainya terasa tidak wajar seolah selalu ada saja yang datang sejak awal beberapa karyawan lama sempat memperingatkannya Mereka bilang tempat seorang perempuan mulai bekerja di sebuah warung makan besar warung itu tidak pernah sepi ramainya terasa tidak wajar seolah selalu ada saja yang datang sejak awal beberapa karyawan lama sempat memperingatkannya Mereka bilang tepatnya",
+            "timestamp_seconds": null,
+            "sequence": 13,
+            "created_at": "2026-09-22 05:52:09"
+        },
+        {
+            "username": "Imron F",
+            "kalimat": "seorang perempuan mulai bekerja di sebuah warung makan besar warung itu tidak pernah sepi ramainya terasa tidak wajar seolah selalu ada saja yang datang sejak awal beberapa karyawan lama sempat memperingatkannya Mereka bilang tepatnya ia bahkan memilih",
+            "timestamp_seconds": null,
+            "sequence": 14,
+            "created_at": "2026-09-22 05:52:14"
+        },
+        {
+            "username": "Anda (Saya)",
+            "kalimat": "lebih lebih gacor ini Anjir ternyata",
+            "timestamp_seconds": null,
+            "sequence": 15,
+            "created_at": "2026-09-22 05:52:27"
+        },
+        {
+            "username": "Anda (Saya)",
+            "kalimat": "lebih gacor pakai apa sih cc",
+            "timestamp_seconds": null,
+            "sequence": 16,
+            "created_at": "2026-09-22 05:52:31"
+        },
+        {
+            "username": "Anda (Saya)",
+            "kalimat": "kalau",
+            "timestamp_seconds": null,
+            "sequence": 17,
+            "created_at": "2026-09-22 05:52:36"
+        },
+        {
+            "username": "Anda (Saya)",
+            "kalimat": "orang lain ya misal si brand ngomong tapi cc-nya enggak gua nyalain itu dia enggak ke input",
+            "timestamp_seconds": null,
+            "sequence": 18,
+            "created_at": "2026-09-22 05:52:48"
+        },
+        {
+            "username": "Anda (Saya)",
+            "kalimat": "punya Alya itu kan berarti harus mewajibkan buat ada CC Seharusnya kan opsional aja kalau emang mau",
+            "timestamp_seconds": null,
+            "sequence": 19,
+            "created_at": "2026-09-22 05:53:05"
+        },
+        {
+            "username": "Anda (Saya)",
+            "kalimat": "Maksudnya Ayah yang cc itu aktif input mereka berdua nih bisa masuk sedangkan kalau cc-nya enggak aktif suara mereka berdua itu enggak masuk transkripnya",
+            "timestamp_seconds": null,
+            "sequence": 20,
+            "created_at": "2026-09-22 05:53:29"
+        },
+        {
+            "username": "Anda (Saya)",
+            "kalimat": "Iya itu masih di situ lemahnya jadi harus nyalain cc seharusnya emang enggak",
+            "timestamp_seconds": null,
+            "sequence": 21,
+            "created_at": "2026-09-22 05:53:38"
+        },
+        {
+            "username": "Anda (Saya)",
+            "kalimat": "mana baca",
+            "timestamp_seconds": null,
+            "sequence": 22,
+            "created_at": "2026-09-22 05:53:44"
+        },
+        {
+            "username": "Anda (Saya)",
+            "kalimat": "Oh di sana",
+            "timestamp_seconds": null,
+            "sequence": 23,
+            "created_at": "2026-09-22 05:53:48"
+        },
+        {
+            "username": "Anda (Saya)",
+            "kalimat": "pulberg bisa namanya sih nggak bisa aku aja",
+            "timestamp_seconds": null,
+            "sequence": 24,
+            "created_at": "2026-09-22 05:54:11"
+        },
+        {
+            "username": "Anda (Saya)",
+            "kalimat": "cecepin buat yang cowok Kalau nggak ada",
+            "timestamp_seconds": null,
+            "sequence": 25,
+            "created_at": "2026-09-22 05:54:18"
+        },
+        {
+            "username": "Anda (Saya)",
+            "kalimat": "sambil ngomong langsung",
+            "timestamp_seconds": null,
+            "sequence": 26,
+            "created_at": "2026-09-22 05:54:35"
+        },
+        {
+            "username": "Anda (Saya)",
+            "kalimat": "Ya udah iya sambil ngomong gitu aja",
+            "timestamp_seconds": null,
+            "sequence": 27,
+            "created_at": "2026-09-22 05:54:40"
+        },
+        {
+            "username": "Anda (Saya)",
+            "kalimat": "nggak udah masuk berarti",
+            "timestamp_seconds": null,
+            "sequence": 28,
+            "created_at": "2026-09-22 05:55:16"
+        },
+        {
+            "username": "Anda (Saya)",
+            "kalimat": "itu di",
+            "timestamp_seconds": null,
+            "sequence": 29,
+            "created_at": "2026-09-22 05:55:19"
+        },
+        {
+            "username": "Anda (Saya)",
+            "kalimat": "ini dulu berarti",
+            "timestamp_seconds": null,
+            "sequence": 30,
+            "created_at": "2026-09-22 05:55:36"
+        },
+        {
+            "username": "Anda (Saya)",
+            "kalimat": "habis itu baru ke sini",
+            "timestamp_seconds": null,
+            "sequence": 31,
+            "created_at": "2026-09-22 05:55:41"
+        },
+        {
+            "username": "Anda (Saya)",
+            "kalimat": "udah",
+            "timestamp_seconds": null,
+            "sequence": 32,
+            "created_at": "2026-09-22 05:55:44"
+        },
+        {
+            "username": "Anda (Saya)",
+            "kalimat": "ini",
+            "timestamp_seconds": null,
+            "sequence": 33,
+            "created_at": "2026-09-22 05:55:59"
+        },
+        {
+            "username": "Anda (Saya)",
+            "kalimat": "456",
+            "timestamp_seconds": null,
+            "sequence": 34,
+            "created_at": "2026-09-22 05:56:02"
+        },
+        {
+            "username": "Anda (Saya)",
+            "kalimat": "kalau udah ada update baru Jin lagi",
+            "timestamp_seconds": null,
+            "sequence": 35,
+            "created_at": "2026-09-22 05:56:30"
+        },
+        {
+            "username": "Anda (Saya)",
+            "kalimat": "ini dulu berarti ini gimana sih tapi masih bisa dengar",
+            "timestamp_seconds": null,
+            "sequence": 36,
+            "created_at": "2026-09-22 05:57:10"
+        },
+        {
+            "username": "Anda (Saya)",
+            "kalimat": "harusnya nggak masuk",
+            "timestamp_seconds": null,
+            "sequence": 37,
+            "created_at": "2026-09-22 05:57:12"
+        },
+        {
+            "username": "Anda (Saya)",
+            "kalimat": "kok dia masih jalan kok udah keluar kan",
+            "timestamp_seconds": null,
+            "sequence": 38,
+            "created_at": "2026-09-22 05:57:24"
+        }
+    ],
+    "dialog_tergabung": [
+        {
+            "username": "Anda (Saya)",
+            "kalimat": "Ya udah yang harus diizinkan sih langsung aja ngomong apa aja",
+            "started_at": "2026-09-22 05:49:43",
+            "sequence": 1
+        },
+        {
+            "username": "Unknown",
+            "kalimat": "arrow_downwardLangsung ke bagian bawah",
+            "started_at": "2026-09-22 05:50:24",
+            "sequence": 4
+        },
+        {
+            "username": "Brilian Adiguna Riyanto",
+            "kalimat": "anda orang",
+            "started_at": "2026-09-22 05:50:26",
+            "sequence": 5
+        },
+        {
+            "username": "Anda (Saya)",
+            "kalimat": "Maksudnya? masuk nih ada maksudnya ada nama Maksudnya ada nama lu. maksudnya ada nama lugre Maksudnya ada nama lu, bre. at ada arrow_downwardLangsung ke bagian bawah",
+            "started_at": "2026-09-22 05:50:38",
+            "sequence": 7
+        },
+        {
+            "username": "Imron F",
+            "kalimat": "bekerja di sebuah warung makan besar bekerja di sebuah warung makan besar warung itu tidak pernah sepi ramainya terasa tidak wajar bekerja di sebuah warung makan besar warung itu tidak pernah sepi ramainya terasa tidak wajar seolah selalu ada saja yang datang seorang perempuan mulai bekerja di sebuah warung makan besar warung itu tidak pernah sepi ramainya terasa tidak wajar seolah selalu ada saja yang datang seorang perempuan mulai bekerja di sebuah warung makan besar warung itu tidak pernah sepi ramainya terasa tidak wajar seolah selalu ada saja yang datang sejak awal beberapa karyawan lama sempat memperingatkannya mereka seorang perempuan mulai bekerja di sebuah warung makan besar warung itu tidak pernah sepi ramainya terasa tidak wajar seolah selalu ada saja yang datang sejak awal beberapa karyawan lama sempat memperingatkannya Mereka bilang seorang perempuan mulai bekerja di sebuah warung makan besar warung itu tidak pernah sepi ramainya terasa tidak wajar seolah selalu ada saja yang datang sejak awal beberapa karyawan lama sempat memperingatkannya Mereka bilang tempat seorang perempuan mulai bekerja di sebuah warung makan besar warung itu tidak pernah sepi ramainya terasa tidak wajar seolah selalu ada saja yang datang sejak awal beberapa karyawan lama sempat memperingatkannya Mereka bilang tepatnya seorang perempuan mulai bekerja di sebuah warung makan besar warung itu tidak pernah sepi ramainya terasa tidak wajar seolah selalu ada saja yang datang sejak awal beberapa karyawan lama sempat memperingatkannya Mereka bilang tepatnya ia bahkan memilih",
+            "started_at": "2026-09-22 05:51:54",
+            "sequence": 10
+        },
+        {
+            "username": "Anda (Saya)",
+            "kalimat": "lebih lebih gacor ini Anjir ternyata lebih gacor pakai apa sih cc kalau orang lain ya misal si brand ngomong tapi cc-nya enggak gua nyalain itu dia enggak ke input punya Alya itu kan berarti harus mewajibkan buat ada CC Seharusnya kan opsional aja kalau emang mau Maksudnya Ayah yang cc itu aktif input mereka berdua nih bisa masuk sedangkan kalau cc-nya enggak aktif suara mereka berdua itu enggak masuk transkripnya Iya itu masih di situ lemahnya jadi harus nyalain cc seharusnya emang enggak mana baca Oh di sana pulberg bisa namanya sih nggak bisa aku aja cecepin buat yang cowok Kalau nggak ada sambil ngomong langsung Ya udah iya sambil ngomong gitu aja nggak udah masuk berarti itu di ini dulu berarti habis itu baru ke sini udah ini 456 kalau udah ada update baru Jin lagi ini dulu berarti ini gimana sih tapi masih bisa dengar harusnya nggak masuk kok dia masih jalan kok udah keluar kan",
+            "started_at": "2026-09-22 05:52:27",
+            "sequence": 15
+        }
+    ],
+    "percakapan_gabungan": [
+        "Anda (Saya): Ya udah yang harus diizinkan sih",
+        "Anda (Saya): langsung aja",
+        "Anda (Saya): ngomong apa aja",
+        "Unknown: arrow_downwardLangsung ke bagian bawah",
+        "Brilian Adiguna Riyanto: anda",
+        "Brilian Adiguna Riyanto: orang",
+        "Anda (Saya): Maksudnya? masuk nih ada maksudnya ada nama Maksudnya ada nama lu. maksudnya ada nama lugre Maksudnya ada nama lu, bre.",
+        "Anda (Saya): at",
+        "Anda (Saya): ada arrow_downwardLangsung ke bagian bawah",
+        "Imron F: bekerja di sebuah warung makan besar",
+        "Imron F: bekerja di sebuah warung makan besar warung itu tidak pernah sepi ramainya terasa tidak wajar",
+        "Imron F: bekerja di sebuah warung makan besar warung itu tidak pernah sepi ramainya terasa tidak wajar seolah selalu ada saja yang datang seorang perempuan mulai bekerja di sebuah warung makan besar warung itu tidak pernah sepi ramainya terasa tidak wajar seolah selalu ada saja yang datang",
+        "Imron F: seorang perempuan mulai bekerja di sebuah warung makan besar warung itu tidak pernah sepi ramainya terasa tidak wajar seolah selalu ada saja yang datang sejak awal beberapa karyawan lama sempat memperingatkannya mereka seorang perempuan mulai bekerja di sebuah warung makan besar warung itu tidak pernah sepi ramainya terasa tidak wajar seolah selalu ada saja yang datang sejak awal beberapa karyawan lama sempat memperingatkannya Mereka bilang seorang perempuan mulai bekerja di sebuah warung makan besar warung itu tidak pernah sepi ramainya terasa tidak wajar seolah selalu ada saja yang datang sejak awal beberapa karyawan lama sempat memperingatkannya Mereka bilang tempat seorang perempuan mulai bekerja di sebuah warung makan besar warung itu tidak pernah sepi ramainya terasa tidak wajar seolah selalu ada saja yang datang sejak awal beberapa karyawan lama sempat memperingatkannya Mereka bilang tepatnya",
+        "Imron F: seorang perempuan mulai bekerja di sebuah warung makan besar warung itu tidak pernah sepi ramainya terasa tidak wajar seolah selalu ada saja yang datang sejak awal beberapa karyawan lama sempat memperingatkannya Mereka bilang tepatnya ia bahkan memilih",
+        "Anda (Saya): lebih lebih gacor ini Anjir ternyata",
+        "Anda (Saya): lebih gacor pakai apa sih cc",
+        "Anda (Saya): kalau",
+        "Anda (Saya): orang lain ya misal si brand ngomong tapi cc-nya enggak gua nyalain itu dia enggak ke input",
+        "Anda (Saya): punya Alya itu kan berarti harus mewajibkan buat ada CC Seharusnya kan opsional aja kalau emang mau",
+        "Anda (Saya): Maksudnya Ayah yang cc itu aktif input mereka berdua nih bisa masuk sedangkan kalau cc-nya enggak aktif suara mereka berdua itu enggak masuk transkripnya",
+        "Anda (Saya): Iya itu masih di situ lemahnya jadi harus nyalain cc seharusnya emang enggak",
+        "Anda (Saya): mana baca",
+        "Anda (Saya): Oh di sana",
+        "Anda (Saya): pulberg bisa namanya sih nggak bisa aku aja",
+        "Anda (Saya): cecepin buat yang cowok Kalau nggak ada",
+        "Anda (Saya): sambil ngomong langsung",
+        "Anda (Saya): Ya udah iya sambil ngomong gitu aja",
+        "Anda (Saya): nggak udah masuk berarti",
+        "Anda (Saya): itu di",
+        "Anda (Saya): ini dulu berarti",
+        "Anda (Saya): habis itu baru ke sini",
+        "Anda (Saya): udah",
+        "Anda (Saya): ini",
+        "Anda (Saya): 456",
+        "Anda (Saya): kalau udah ada update baru Jin lagi",
+        "Anda (Saya): ini dulu berarti ini gimana sih tapi masih bisa dengar",
+        "Anda (Saya): harusnya nggak masuk",
+        "Anda (Saya): kok dia masih jalan kok udah keluar kan"
+    ]
+}

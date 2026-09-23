@@ -1,0 +1,86 @@
+{
+    "meeting_session_id": "ms_72d32e7555ac00129268eb887fdb1d04",
+    "meet_code": "cxx-pguv-dkn",
+    "title": "Google Meet - cxx-pguv-dkn",
+    "status": "capturing",
+    "started_at": "2026-09-22 04:35:41",
+    "last_updated": "2026-09-22 04:36:28",
+    "total_transcripts": 8,
+    "total_turns": 1,
+    "transcripts": [
+        {
+            "username": "Anda (Saya)",
+            "kalimat": "ini",
+            "timestamp_seconds": null,
+            "sequence": 1,
+            "created_at": "2026-09-22 04:35:47"
+        },
+        {
+            "username": "Anda (Saya)",
+            "kalimat": "segmen terkumpul 0 kalimat Coba sekarang lagi ngomong apa",
+            "timestamp_seconds": null,
+            "sequence": 2,
+            "created_at": "2026-09-22 04:35:54"
+        },
+        {
+            "username": "Anda (Saya)",
+            "kalimat": "0 kalimat",
+            "timestamp_seconds": null,
+            "sequence": 3,
+            "created_at": "2026-09-22 04:36:04"
+        },
+        {
+            "username": "Anda (Saya)",
+            "kalimat": "live caption Google meet belum aktif tekan C di Google Map atau klik aktifkan cc",
+            "timestamp_seconds": null,
+            "sequence": 4,
+            "created_at": "2026-09-22 04:36:13"
+        },
+        {
+            "username": "Anda (Saya)",
+            "kalimat": "ini cc-nya udah coba diaktifin",
+            "timestamp_seconds": null,
+            "sequence": 5,
+            "created_at": "2026-09-22 04:36:16"
+        },
+        {
+            "username": "Anda (Saya)",
+            "kalimat": "ah nggak sih",
+            "timestamp_seconds": null,
+            "sequence": 6,
+            "created_at": "2026-09-22 04:36:19"
+        },
+        {
+            "username": "Anda (Saya)",
+            "kalimat": "aktifkan cc di klik chat",
+            "timestamp_seconds": null,
+            "sequence": 7,
+            "created_at": "2026-09-22 04:36:23"
+        },
+        {
+            "username": "Anda (Saya)",
+            "kalimat": "set set lama kah",
+            "timestamp_seconds": null,
+            "sequence": 8,
+            "created_at": "2026-09-22 04:36:28"
+        }
+    ],
+    "dialog_tergabung": [
+        {
+            "username": "Anda (Saya)",
+            "kalimat": "ini segmen terkumpul 0 kalimat Coba sekarang lagi ngomong apa 0 kalimat live caption Google meet belum aktif tekan C di Google Map atau klik aktifkan cc ini cc-nya udah coba diaktifin ah nggak sih aktifkan cc di klik chat set set lama kah",
+            "started_at": "2026-09-22 04:35:47",
+            "sequence": 1
+        }
+    ],
+    "percakapan_gabungan": [
+        "Anda (Saya): ini",
+        "Anda (Saya): segmen terkumpul 0 kalimat Coba sekarang lagi ngomong apa",
+        "Anda (Saya): 0 kalimat",
+        "Anda (Saya): live caption Google meet belum aktif tekan C di Google Map atau klik aktifkan cc",
+        "Anda (Saya): ini cc-nya udah coba diaktifin",
+        "Anda (Saya): ah nggak sih",
+        "Anda (Saya): aktifkan cc di klik chat",
+        "Anda (Saya): set set lama kah"
+    ]
+}

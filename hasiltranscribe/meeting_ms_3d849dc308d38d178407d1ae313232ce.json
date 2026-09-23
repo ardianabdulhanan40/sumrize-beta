@@ -1,0 +1,38 @@
+{
+    "meeting_session_id": "ms_3d849dc308d38d178407d1ae313232ce",
+    "meet_code": "iis-nixb-aop",
+    "title": "Google Meet - iis-nixb-aop",
+    "status": "completed",
+    "started_at": "2026-09-22 11:04:52",
+    "last_updated": "2026-09-22 11:05:15",
+    "total_transcripts": 2,
+    "total_turns": 1,
+    "transcripts": [
+        {
+            "username": "Unknown",
+            "kalimat": "Siap bergabung?",
+            "timestamp_seconds": null,
+            "sequence": 1,
+            "created_at": "2026-09-22 11:04:54"
+        },
+        {
+            "username": "Unknown",
+            "kalimat": "arrow_downwardLangsung ke bagian bawah",
+            "timestamp_seconds": null,
+            "sequence": 2,
+            "created_at": "2026-09-22 11:05:02"
+        }
+    ],
+    "dialog_tergabung": [
+        {
+            "username": "Unknown",
+            "kalimat": "Siap bergabung? arrow_downwardLangsung ke bagian bawah",
+            "started_at": "2026-09-22 11:04:54",
+            "sequence": 1
+        }
+    ],
+    "percakapan_gabungan": [
+        "Unknown: Siap bergabung?",
+        "Unknown: arrow_downwardLangsung ke bagian bawah"
+    ]
+}

@@ -1,0 +1,30 @@
+{
+    "meeting_session_id": "ms_a810f1ac1d06a9d7767170cc8113dfcd",
+    "meet_code": "ocu-sxyx-rjd",
+    "title": "Google Meet - ocu-sxyx-rjd",
+    "status": "completed",
+    "started_at": "2026-09-22 09:28:25",
+    "last_updated": "2026-09-22 09:28:32",
+    "total_transcripts": 1,
+    "total_turns": 1,
+    "transcripts": [
+        {
+            "username": "Unknown",
+            "kalimat": "Siap bergabung?",
+            "timestamp_seconds": null,
+            "sequence": 1,
+            "created_at": "2026-09-22 09:28:26"
+        }
+    ],
+    "dialog_tergabung": [
+        {
+            "username": "Unknown",
+            "kalimat": "Siap bergabung?",
+            "started_at": "2026-09-22 09:28:26",
+            "sequence": 1
+        }
+    ],
+    "percakapan_gabungan": [
+        "Unknown: Siap bergabung?"
+    ]
+}

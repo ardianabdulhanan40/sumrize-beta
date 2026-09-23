@@ -5,10 +5,20 @@ ini_set('log_errors', '1');
 
 $sumrizeAllowedOrigin = $_SERVER['HTTP_ORIGIN'] ?? '';
 
-if ($sumrizeAllowedOrigin === 'http://localhost:3000') {
-    header('Access-Control-Allow-Origin: http://localhost:3000');
-    header('Access-Control-Allow-Credentials: true');
-    header('Access-Control-Allow-Headers: Content-Type, Authorization');
+if (!empty($sumrizeAllowedOrigin)) {
+    if (
+        str_starts_with($sumrizeAllowedOrigin, 'chrome-extension://') ||
+        str_starts_with($sumrizeAllowedOrigin, 'http://localhost') ||
+        str_starts_with($sumrizeAllowedOrigin, 'http://127.0.0.1')
+    ) {
+        header('Access-Control-Allow-Origin: ' . $sumrizeAllowedOrigin);
+        header('Access-Control-Allow-Credentials: true');
+        header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
+        header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
+    }
+} else {
+    header('Access-Control-Allow-Origin: *');
+    header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
     header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
 }
 

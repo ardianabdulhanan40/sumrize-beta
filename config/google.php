@@ -16,10 +16,10 @@ function sumrize_google_config(): array
         ?: 'http://localhost/sumrize-beta/api/connectors/google/callback.php';
 
     $onboardingUri = getenv('SUMRIZE_GOOGLE_ONBOARDING_URI')
-        ?: 'http://localhost:3000/dashboard/onboard-gmeet.html';
+        ?: 'http://localhost:8000/dashboard/onboard-gmeet.html';
 
     $successUri = getenv('SUMRIZE_GOOGLE_SUCCESS_URI')
-        ?: 'http://localhost:3000/dashboard/index_local.html';
+        ?: 'http://localhost:8000/dashboard/index_local.html';
 
     $encryptionKey = getenv('SUMRIZE_TOKEN_ENCRYPTION_KEY') ?: '';
 

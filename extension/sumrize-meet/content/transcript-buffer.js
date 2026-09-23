@@ -82,18 +82,37 @@
     }
 
     /**
+     * Dipanggil ketika mikrofon Google Meet dimatikan
+     * Finalisasi kalimat yang telah selesai diucapkan sebelum tombol mute ditekan
+     */
+    onMicMuted() {
+      if (this.currentText) {
+        this.finalize();
+      }
+    }
+
+    /**
      * Menambahkan potongan transkrip
      */
     add(speakerOrData, textMaybe) {
       let speaker = "Unknown";
       let text = "";
+      let source = null;
 
       if (typeof speakerOrData === "object" && speakerOrData !== null) {
         speaker = String(speakerOrData.speaker || speakerOrData.username || "Unknown").trim();
         text = String(speakerOrData.text || speakerOrData.kalimat || "").trim();
+        source = speakerOrData.source || null;
       } else {
         speaker = String(speakerOrData || "Unknown").trim();
         text = String(textMaybe || "").trim();
+      }
+
+      // Guard: Jika data berasal dari speech recognizer mikrofon lokal namun mikrofon Meet sedang mute/nonaktif, tolak
+      if (source === "mic_speech_api") {
+        if (global.SumrizeMeetDetector?.isMicMuted && global.SumrizeMeetDetector.isMicMuted()) {
+          return;
+        }
       }
 
       text = this.cleanText(text);

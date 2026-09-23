@@ -678,7 +678,20 @@ try {
 
     error_log('[Sumrize] Google connector saved.');
 
-    $verifyStmt = $pdo->prepare("\n+        SELECT user_id, connector_id, external_account_id, external_email,\n+               status, token_expires_at\n+        FROM connector_connections\n+        WHERE user_id = ?\n+          AND connector_id = ?\n+        LIMIT 1\n+    ");
+    // Verifikasi koneksi setelah disimpan
+    $verifyStmt = $pdo->prepare("
+        SELECT 
+            user_id, 
+            connector_id, 
+            external_account_id, 
+            external_email,
+            status, 
+            token_expires_at
+        FROM connector_connections
+        WHERE user_id = ?
+          AND connector_id = ?
+        LIMIT 1
+    ");
     $verifyStmt->execute([
         $userId,
         $connector['id']

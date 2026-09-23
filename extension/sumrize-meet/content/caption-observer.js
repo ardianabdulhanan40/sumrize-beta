@@ -181,21 +181,17 @@
             // Hanya klik jika saat ini TIDAK aktif
             const isTurnOnBtn =
               isPressed === "false" ||
-              ariaLabel.startsWith("turn on") ||
-              ariaLabel.startsWith("aktifkan") ||
               ariaLabel.includes("turn on captions") ||
-              ariaLabel.includes("aktifkan teks");
+              ariaLabel.includes("aktifkan teks") ||
+              ariaLabel.includes("aktifkan subtitel") ||
+              ariaLabel.includes("turn on subtitles") ||
+              ((ariaLabel.includes("teks") || ariaLabel.includes("caption") || ariaLabel.includes("subtit")) &&
+                !ariaLabel.includes("nonaktifkan") &&
+                !ariaLabel.includes("turn off"));
 
             if (isTurnOnBtn) {
               this.log("Mengaktifkan Live Captions (CC) Google Meet secara otomatis...");
               btn.click();
-              btn.dispatchEvent(
-                new MouseEvent("click", {
-                  bubbles: true,
-                  cancelable: true,
-                  view: window
-                })
-              );
               return true;
             }
           }

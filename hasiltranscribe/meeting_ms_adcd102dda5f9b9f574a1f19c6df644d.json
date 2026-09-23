@@ -1,0 +1,152 @@
+{
+    "meeting_session_id": "ms_adcd102dda5f9b9f574a1f19c6df644d",
+    "meet_code": "rtn-pmxx-pvc",
+    "title": "Google Meet - rtn-pmxx-pvc",
+    "status": "completed",
+    "started_at": "2026-09-22 06:43:08",
+    "last_updated": "2026-09-22 06:47:08",
+    "total_transcripts": 14,
+    "total_turns": 4,
+    "transcripts": [
+        {
+            "username": "Unknown",
+            "kalimat": "Siap bergabung?",
+            "timestamp_seconds": null,
+            "sequence": 1,
+            "created_at": "2026-09-22 06:43:09"
+        },
+        {
+            "username": "Anda (Saya)",
+            "kalimat": "nah ini udah",
+            "timestamp_seconds": null,
+            "sequence": 2,
+            "created_at": "2026-09-22 06:43:14"
+        },
+        {
+            "username": "Anda (Saya)",
+            "kalimat": "manusia bergabung",
+            "timestamp_seconds": null,
+            "sequence": 3,
+            "created_at": "2026-09-22 06:43:17"
+        },
+        {
+            "username": "Unknown",
+            "kalimat": "arrow_downwardLangsung ke bagian bawah",
+            "timestamp_seconds": null,
+            "sequence": 4,
+            "created_at": "2026-09-22 06:43:25"
+        },
+        {
+            "username": "Anda (Saya)",
+            "kalimat": "Trans transkripnya",
+            "timestamp_seconds": null,
+            "sequence": 5,
+            "created_at": "2026-09-22 06:43:27"
+        },
+        {
+            "username": "Anda (Saya)",
+            "kalimat": "Ih dari tadi ternyata harus di reload Anjay transkripnya baru",
+            "timestamp_seconds": null,
+            "sequence": 6,
+            "created_at": "2026-09-22 06:43:30"
+        },
+        {
+            "username": "Anda (Saya)",
+            "kalimat": "Kenapa? Kenapa harus Kenapa harus nyala? kenapa harus nyala cc-nya",
+            "timestamp_seconds": null,
+            "sequence": 7,
+            "created_at": "2026-09-22 06:43:36"
+        },
+        {
+            "username": "Anda (Saya)",
+            "kalimat": "Coba dimatiin",
+            "timestamp_seconds": null,
+            "sequence": 8,
+            "created_at": "2026-09-22 06:43:39"
+        },
+        {
+            "username": "Anda (Saya)",
+            "kalimat": "arrow_downwardLangsung ke bagian bawah",
+            "timestamp_seconds": null,
+            "sequence": 9,
+            "created_at": "2026-09-22 06:43:41"
+        },
+        {
+            "username": "Anda (Saya)",
+            "kalimat": "udah Dima Udah dimatiin Udah dimatiin tapi Udah dimatiin tapi dia Udah dimatiin tapi dia masih Udah dimatiin tapi dia masih nya Udah dimatiin tapi dia masih nyala.",
+            "timestamp_seconds": null,
+            "sequence": 10,
+            "created_at": "2026-09-22 06:43:48"
+        },
+        {
+            "username": "Anda (Saya)",
+            "kalimat": "Udah dimatiin tapi dia masih nyala. gak bisa",
+            "timestamp_seconds": null,
+            "sequence": 11,
+            "created_at": "2026-09-22 06:43:57"
+        },
+        {
+            "username": "Anda (Saya)",
+            "kalimat": "nggak bisa apa-apa kalau misalnya di nonaktif",
+            "timestamp_seconds": null,
+            "sequence": 12,
+            "created_at": "2026-09-22 06:43:59"
+        },
+        {
+            "username": "Anda (Saya)",
+            "kalimat": "udah bisa",
+            "timestamp_seconds": null,
+            "sequence": 13,
+            "created_at": "2026-09-22 06:44:04"
+        },
+        {
+            "username": "Anda (Saya)",
+            "kalimat": "udah bisa masuk udah bisa Masuk nggak? ini kalau lagi Nyala mikrofonnya masuk nggak",
+            "timestamp_seconds": null,
+            "sequence": 14,
+            "created_at": "2026-09-22 06:45:17"
+        }
+    ],
+    "dialog_tergabung": [
+        {
+            "username": "Unknown",
+            "kalimat": "Siap bergabung?",
+            "started_at": "2026-09-22 06:43:09",
+            "sequence": 1
+        },
+        {
+            "username": "Anda (Saya)",
+            "kalimat": "nah ini udah manusia bergabung",
+            "started_at": "2026-09-22 06:43:14",
+            "sequence": 2
+        },
+        {
+            "username": "Unknown",
+            "kalimat": "arrow_downwardLangsung ke bagian bawah",
+            "started_at": "2026-09-22 06:43:25",
+            "sequence": 4
+        },
+        {
+            "username": "Anda (Saya)",
+            "kalimat": "Trans transkripnya Ih dari tadi ternyata harus di reload Anjay transkripnya baru Kenapa? Kenapa harus Kenapa harus nyala? kenapa harus nyala cc-nya Coba dimatiin arrow_downwardLangsung ke bagian bawah udah Dima Udah dimatiin Udah dimatiin tapi Udah dimatiin tapi dia Udah dimatiin tapi dia masih Udah dimatiin tapi dia masih nya Udah dimatiin tapi dia masih nyala. Udah dimatiin tapi dia masih nyala. gak bisa nggak bisa apa-apa kalau misalnya di nonaktif udah bisa udah bisa masuk udah bisa Masuk nggak? ini kalau lagi Nyala mikrofonnya masuk nggak",
+            "started_at": "2026-09-22 06:43:27",
+            "sequence": 5
+        }
+    ],
+    "percakapan_gabungan": [
+        "Unknown: Siap bergabung?",
+        "Anda (Saya): nah ini udah",
+        "Anda (Saya): manusia bergabung",
+        "Unknown: arrow_downwardLangsung ke bagian bawah",
+        "Anda (Saya): Trans transkripnya",
+        "Anda (Saya): Ih dari tadi ternyata harus di reload Anjay transkripnya baru",
+        "Anda (Saya): Kenapa? Kenapa harus Kenapa harus nyala? kenapa harus nyala cc-nya",
+        "Anda (Saya): Coba dimatiin",
+        "Anda (Saya): arrow_downwardLangsung ke bagian bawah",
+        "Anda (Saya): udah Dima Udah dimatiin Udah dimatiin tapi Udah dimatiin tapi dia Udah dimatiin tapi dia masih Udah dimatiin tapi dia masih nya Udah dimatiin tapi dia masih nyala.",
+        "Anda (Saya): Udah dimatiin tapi dia masih nyala. gak bisa",
+        "Anda (Saya): nggak bisa apa-apa kalau misalnya di nonaktif",
+        "Anda (Saya): udah bisa",
+        "Anda (Saya): udah bisa masuk udah bisa Masuk nggak? ini kalau lagi Nyala mikrofonnya masuk nggak"
+    ]
+}

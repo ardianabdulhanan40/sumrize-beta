@@ -15,11 +15,17 @@
 
   "host_permissions": [
     "https://meet.google.com/*",
-    "http://localhost/*"
+    "http://localhost/*",
+    "http://127.0.0.1/*"
   ],
 
   "externally_connectable": {
-    "matches": ["http://localhost:3000/*"]
+    "matches": [
+      "http://localhost/*",
+      "http://localhost:*/*",
+      "http://127.0.0.1/*",
+      "http://127.0.0.1:*/*"
+    ]
   },
 
   "background": {
@@ -44,6 +50,17 @@
         "content/transcript-collector.js"
       ],
       "run_at": "document_idle"
+    }
+  ],
+
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "assets/*"
+      ],
+      "matches": [
+        "https://meet.google.com/*"
+      ]
     }
   ]
 }

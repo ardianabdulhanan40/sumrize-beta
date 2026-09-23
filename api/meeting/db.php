@@ -15,9 +15,9 @@ function sumrize_db(): PDO
 
     $host = '127.0.0.1';
     $port = '3306';
-    $name = 'sumrize_beta';
+    $name = 'sumrize_db';
     $user = 'root';
-    $pass = '';
+    $pass = 'besiolahan2104';
 
     $dsn = "mysql:host={$host};port={$port};dbname={$name};charset=utf8mb4";
 

@@ -1,0 +1,82 @@
+{
+    "meeting_session_id": "ms_35ec2a9e1eacce6aa1f2cce9000b2bdb",
+    "meet_code": "ddk-wazo-uqw",
+    "title": "Google Meet - ddk-wazo-uqw",
+    "status": "completed",
+    "started_at": "2026-09-22 05:47:20",
+    "last_updated": "2026-09-22 05:48:34",
+    "total_transcripts": 6,
+    "total_turns": 3,
+    "transcripts": [
+        {
+            "username": "Anda (Saya)",
+            "kalimat": "kamu kan harusnya ya",
+            "timestamp_seconds": null,
+            "sequence": 1,
+            "created_at": "2026-09-22 05:47:29"
+        },
+        {
+            "username": "Anda (Saya)",
+            "kalimat": "aman kan harusnya",
+            "timestamp_seconds": null,
+            "sequence": 2,
+            "created_at": "2026-09-22 05:47:35"
+        },
+        {
+            "username": "Anda (Saya)",
+            "kalimat": "tapi cc-nya doang nih jadi berapa sih nggak ada ya",
+            "timestamp_seconds": null,
+            "sequence": 3,
+            "created_at": "2026-09-22 05:47:47"
+        },
+        {
+            "username": "Anda (Saya)",
+            "kalimat": "yang mic disable habisin deh tahu kan udah",
+            "timestamp_seconds": null,
+            "sequence": 4,
+            "created_at": "2026-09-22 05:47:54"
+        },
+        {
+            "username": "Unknown",
+            "kalimat": "arrow_downwardLangsung ke bagian bawah",
+            "timestamp_seconds": null,
+            "sequence": 5,
+            "created_at": "2026-09-22 05:48:25"
+        },
+        {
+            "username": "Anda (Saya)",
+            "kalimat": "lama banget sumpah delaynya delay banget",
+            "timestamp_seconds": null,
+            "sequence": 6,
+            "created_at": "2026-09-22 05:48:34"
+        }
+    ],
+    "dialog_tergabung": [
+        {
+            "username": "Anda (Saya)",
+            "kalimat": "kamu kan harusnya ya aman kan harusnya tapi cc-nya doang nih jadi berapa sih nggak ada ya yang mic disable habisin deh tahu kan udah",
+            "started_at": "2026-09-22 05:47:29",
+            "sequence": 1
+        },
+        {
+            "username": "Unknown",
+            "kalimat": "arrow_downwardLangsung ke bagian bawah",
+            "started_at": "2026-09-22 05:48:25",
+            "sequence": 5
+        },
+        {
+            "username": "Anda (Saya)",
+            "kalimat": "lama banget sumpah delaynya delay banget",
+            "started_at": "2026-09-22 05:48:34",
+            "sequence": 6
+        }
+    ],
+    "percakapan_gabungan": [
+        "Anda (Saya): kamu kan harusnya ya",
+        "Anda (Saya): aman kan harusnya",
+        "Anda (Saya): tapi cc-nya doang nih jadi berapa sih nggak ada ya",
+        "Anda (Saya): yang mic disable habisin deh tahu kan udah",
+        "Unknown: arrow_downwardLangsung ke bagian bawah",
+        "Anda (Saya): lama banget sumpah delaynya delay banget"
+    ]
+}

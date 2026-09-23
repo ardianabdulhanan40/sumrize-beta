@@ -1,0 +1,62 @@
+{
+    "meeting_session_id": "ms_68c2d2ba982b261d6de74c5af60a9462",
+    "meet_code": "rtn-pmxx-pvc",
+    "title": "Google Meet - rtn-pmxx-pvc",
+    "status": "completed",
+    "started_at": "2026-09-22 06:40:25",
+    "last_updated": "2026-09-22 06:42:25",
+    "total_transcripts": 5,
+    "total_turns": 1,
+    "transcripts": [
+        {
+            "username": "Anda (Saya)",
+            "kalimat": "saya salah ini Translate tapi si apa ini mikrofonnya dinyalain",
+            "timestamp_seconds": null,
+            "sequence": 1,
+            "created_at": "2026-09-22 06:40:38"
+        },
+        {
+            "username": "Anda (Saya)",
+            "kalimat": "saya salah ini transkrip apa sih namanya Enggak ini lagi tes transkrip tapi dinyalain mikrofonnya",
+            "timestamp_seconds": null,
+            "sequence": 2,
+            "created_at": "2026-09-22 06:40:55"
+        },
+        {
+            "username": "Anda (Saya)",
+            "kalimat": "ini kalau microphone-nya dimatiin dia masih bisa nggak tadi mah katanya berjalan di latar belakang",
+            "timestamp_seconds": null,
+            "sequence": 3,
+            "created_at": "2026-09-22 06:41:09"
+        },
+        {
+            "username": "Anda (Saya)",
+            "kalimat": "masih ke",
+            "timestamp_seconds": null,
+            "sequence": 4,
+            "created_at": "2026-09-22 06:41:52"
+        },
+        {
+            "username": "Anda (Saya)",
+            "kalimat": "surat ekstensi dulu katanya",
+            "timestamp_seconds": null,
+            "sequence": 5,
+            "created_at": "2026-09-22 06:42:23"
+        }
+    ],
+    "dialog_tergabung": [
+        {
+            "username": "Anda (Saya)",
+            "kalimat": "saya salah ini Translate tapi si apa ini mikrofonnya dinyalain saya salah ini transkrip apa sih namanya Enggak ini lagi tes transkrip tapi dinyalain mikrofonnya ini kalau microphone-nya dimatiin dia masih bisa nggak tadi mah katanya berjalan di latar belakang masih ke surat ekstensi dulu katanya",
+            "started_at": "2026-09-22 06:40:38",
+            "sequence": 1
+        }
+    ],
+    "percakapan_gabungan": [
+        "Anda (Saya): saya salah ini Translate tapi si apa ini mikrofonnya dinyalain",
+        "Anda (Saya): saya salah ini transkrip apa sih namanya Enggak ini lagi tes transkrip tapi dinyalain mikrofonnya",
+        "Anda (Saya): ini kalau microphone-nya dimatiin dia masih bisa nggak tadi mah katanya berjalan di latar belakang",
+        "Anda (Saya): masih ke",
+        "Anda (Saya): surat ekstensi dulu katanya"
+    ]
+}

@@ -81,9 +81,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (!message?.type) return;
 
   if (message.type === "POPUP_GET_STATE") {
-    handleGetState()
-      .then((state) =>
-        sendResponse({ ok: true, state, audioCapture: { ...audioCaptureState } })
+    handleGetState(message?.tabId)
+      .then((stateData) =>
+        sendResponse({
+          ok: true,
+          ...stateData,
+          state: stateData.state || "idle",
+          audioCapture: { ...audioCaptureState }
+        })
       )
       .catch((e) => sendResponse({ ok: false, error: normalizeError(e) }));
     return true;
@@ -91,14 +96,37 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
   if (message.type === "POPUP_START_CAPTURE") {
     startCaptureViaContent(message)
-      .then((r) => sendResponse({ ok: true, ...r }))
+      .then((r) => {
+        if (globalThis.SumrizeStorage?.set) {
+          globalThis.SumrizeStorage.set({
+            captureState: "capturing",
+            meetingSessionId: r?.meetingSessionId || null,
+            meetCode: r?.meetCode || null
+          }).catch(() => {});
+        }
+        sendResponse({ ok: true, ...r });
+      })
       .catch((e) => sendResponse({ ok: false, error: normalizeError(e) }));
     return true;
   }
 
   if (message.type === "POPUP_STOP_CAPTURE") {
     stopCaptureViaContent(message)
-      .then((r) => sendResponse({ ok: true, ...r }))
+      .then((r) => {
+        if (globalThis.SumrizeStorage?.set) {
+          globalThis.SumrizeStorage.set({
+            captureState: "stopped"
+          }).catch(() => {});
+        }
+        sendResponse({ ok: true, ...r });
+      })
+      .catch((e) => sendResponse({ ok: false, error: normalizeError(e) }));
+    return true;
+  }
+
+  if (message.type === "CHECK_CONNECTOR_STATUS") {
+    checkConnector(message?.email)
+      .then((r) => sendResponse({ ok: true, data: r }))
       .catch((e) => sendResponse({ ok: false, error: normalizeError(e) }));
     return true;
   }
@@ -147,7 +175,34 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       });
     return true;
   }
+
+  if (message.type === "SUMRIZE_PING") {
+    sendResponse({ ok: true, version: "1.1.0", name: "Sumrize Meeting Assistant" });
+    return true;
+  }
 });
+
+/* ========== EXTERNAL DASHBOARD COMMUNICATION (PRD SEQUENCE 1) ========== */
+
+if (chrome.runtime.onMessageExternal) {
+  chrome.runtime.onMessageExternal.addListener((message, sender, sendResponse) => {
+    if (!message?.type) return;
+
+    if (message.type === "SUMRIZE_SET_TOKEN" && message.token) {
+      if (globalThis.SumrizeStorage?.setAuthToken) {
+        globalThis.SumrizeStorage.setAuthToken(message.token)
+          .then(() => sendResponse({ ok: true, message: "Token berhasil disimpan di ekstensi." }))
+          .catch((err) => sendResponse({ ok: false, error: normalizeError(err) }));
+        return true;
+      }
+    }
+
+    if (message.type === "SUMRIZE_PING") {
+      sendResponse({ ok: true, connected: true, version: "1.1.0" });
+      return true;
+    }
+  });
+}
 
 async function handleGetState(preferredTabId) {
   let storageState = {};
@@ -155,36 +210,53 @@ async function handleGetState(preferredTabId) {
     storageState = (await globalThis.SumrizeStorage.getAll()) || {};
   }
 
+  let contentState = null;
   try {
     const tabId = await resolveMeetTabId(preferredTabId);
-    const contentState = await chrome.tabs.sendMessage(tabId, {
-      type: "POPUP_GET_STATE"
-    });
-    if (contentState) {
-      return {
-        ...storageState,
-        ...contentState,
-        state: contentState.state || storageState.captureState || "idle"
-      };
+    if (tabId) {
+      contentState = await chrome.tabs.sendMessage(tabId, {
+        type: "POPUP_GET_STATE"
+      });
     }
   } catch {}
 
-  return {
+  const merged = {
     ...storageState,
-    state: storageState.captureState || "idle"
+    ...(contentState || {})
   };
+
+  const resolvedState =
+    contentState?.state ||
+    storageState?.captureState ||
+    "idle";
+
+  merged.state = resolvedState;
+  merged.captureState = resolvedState;
+  return merged;
 }
 
 async function resolveMeetTabId(preferredId) {
-  if (preferredId) return preferredId;
-
-  const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
-  const tab = tabs?.[0];
-  if (!tab?.id) throw new Error("Tab aktif tidak ditemukan.");
-  if (!tab.url?.includes("meet.google.com")) {
-    throw new Error("Buka tab Google Meet dulu, lalu Start Capture.");
+  if (preferredId) {
+    try {
+      const t = await chrome.tabs.get(preferredId);
+      if (t && t.url && t.url.includes("meet.google.com")) {
+        return preferredId;
+      }
+    } catch {}
   }
-  return tab.id;
+
+  // Cari semua tab Google Meet di browser
+  const tabs = await chrome.tabs.query({ url: "*://meet.google.com/*" });
+  if (!tabs || tabs.length === 0) {
+    throw new Error("Tab Google Meet tidak ditemukan. Buka tab meet.google.com terlebih dahulu.");
+  }
+
+  // Prioritaskan tab yang sedang aktif
+  const activeTab = tabs.find((t) => t.active) || tabs[0];
+  if (!activeTab?.id) {
+    throw new Error("Tab Google Meet tidak valid.");
+  }
+  return activeTab.id;
 }
 
 async function startCaptureViaContent(message) {
@@ -239,6 +311,31 @@ async function stopCaptureViaContent(message) {
     }
     throw err;
   }
+}
+
+async function checkConnector(email) {
+  if (!globalThis.SumrizeApi?.detectConnector) {
+    throw new Error("SumrizeApi.detectConnector tidak tersedia.");
+  }
+
+  let targetEmail = email;
+  if (!targetEmail && globalThis.SumrizeStorage?.getDetectedMeetEmail) {
+    targetEmail = await globalThis.SumrizeStorage.getDetectedMeetEmail();
+  }
+
+  const res = await globalThis.SumrizeApi.detectConnector({ email: targetEmail });
+  if (res?.ok && res?.data?.connected && res?.data?.token) {
+    if (globalThis.SumrizeStorage) {
+      await globalThis.SumrizeStorage.setAuthToken(res.data.token);
+      if (res.data.connector) {
+        await globalThis.SumrizeStorage.setConnectorInfo(res.data.connector);
+      }
+      if (res.data.user) {
+        await globalThis.SumrizeStorage.setUserInfo(res.data.user);
+      }
+    }
+  }
+  return res?.data || res;
 }
 
 async function createMeeting(message) {

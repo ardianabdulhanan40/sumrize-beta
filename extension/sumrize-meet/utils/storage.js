@@ -13,7 +13,7 @@ const DEFAULTS = {
     authToken: null,
 
     apiBaseUrl:
-        "http://localhost/sumrize-beta/api/meeting",
+        "http://localhost:8000/api/meeting",
 
     captureState: "idle",
 
@@ -21,7 +21,21 @@ const DEFAULTS = {
 
     meetCode: null,
 
-    lastError: null
+    lastError: null,
+
+    privacyConsentGiven: false,
+
+    lastMeeting: null,
+
+    userInfo: null,
+
+    connectorInfo: null,
+
+    detectedMeetEmail: null,
+
+    authMethod: null,
+
+    theme: "auto"
 };
 
 
@@ -246,6 +260,90 @@ async function setLastError(message) {
 
 /*
 |--------------------------------------------------------------------------
+| PRIVACY & USER
+|--------------------------------------------------------------------------
+*/
+
+async function getPrivacyConsent() {
+    const { privacyConsentGiven } = await get(["privacyConsentGiven"]);
+    return Boolean(privacyConsentGiven);
+}
+
+async function setPrivacyConsent(granted) {
+    await set({ privacyConsentGiven: Boolean(granted) });
+}
+
+async function getLastMeeting() {
+    const { lastMeeting } = await get(["lastMeeting"]);
+    return lastMeeting || null;
+}
+
+async function setLastMeeting(meetingData) {
+    await set({ lastMeeting: meetingData });
+}
+
+async function getUserInfo() {
+    const { userInfo } = await get(["userInfo"]);
+    return userInfo || null;
+}
+
+async function setUserInfo(info) {
+    await set({ userInfo: info });
+}
+
+async function getConnectorInfo() {
+    const { connectorInfo } = await get(["connectorInfo"]);
+    return connectorInfo || null;
+}
+
+async function setConnectorInfo(info) {
+    await set({ connectorInfo: info });
+}
+
+async function getDetectedMeetEmail() {
+    const { detectedMeetEmail } = await get(["detectedMeetEmail"]);
+    return detectedMeetEmail || null;
+}
+
+async function setDetectedMeetEmail(email) {
+    await set({ detectedMeetEmail: email ? String(email).trim().toLowerCase() : null });
+}
+
+async function isAutoConnected() {
+    const { connectorInfo, authToken } = await get(["connectorInfo", "authToken"]);
+    return Boolean(connectorInfo && connectorInfo.status === "connected" && authToken);
+}
+
+/*
+|--------------------------------------------------------------------------
+| THEME
+|--------------------------------------------------------------------------
+*/
+
+async function getTheme() {
+    const { theme } = await get(["theme"]);
+    return theme || "auto";
+}
+
+async function setTheme(theme) {
+    await set({ theme });
+}
+
+async function isDarkMode() {
+    const theme = await getTheme();
+    if (theme === "dark") return true;
+    if (theme === "light") return false;
+
+    // Check system preference
+    if (typeof window !== "undefined" && window.matchMedia) {
+        return window.matchMedia("(prefers-color-scheme: dark)").matches;
+    }
+    return true;
+}
+
+
+/*
+|--------------------------------------------------------------------------
 | RESET
 |--------------------------------------------------------------------------
 */
@@ -260,7 +358,13 @@ async function reset() {
 
         meetCode: null,
 
-        lastError: null
+        lastError: null,
+
+        connectorInfo: null,
+
+        detectedMeetEmail: null,
+
+        authMethod: null
     });
 }
 
@@ -306,6 +410,34 @@ globalThis.SumrizeStorage = {
     getLastError,
 
     setLastError,
+
+    getPrivacyConsent,
+
+    setPrivacyConsent,
+
+    getLastMeeting,
+
+    setLastMeeting,
+
+    getUserInfo,
+
+    setUserInfo,
+
+    getConnectorInfo,
+
+    setConnectorInfo,
+
+    getDetectedMeetEmail,
+
+    setDetectedMeetEmail,
+
+    isAutoConnected,
+
+    getTheme,
+
+    setTheme,
+
+    isDarkMode,
 
     reset
 };

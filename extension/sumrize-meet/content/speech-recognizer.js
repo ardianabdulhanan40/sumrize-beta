@@ -21,13 +21,19 @@
         typeof options.onTranscript === "function"
           ? options.onTranscript
           : () => {};
+      this.onMuteChange =
+        typeof options.onMuteChange === "function"
+          ? options.onMuteChange
+          : () => {};
       this.language = options.language || "id-ID";
       this.recognition = null;
       this.running = false;
       this.shouldRestart = false;
+      this.isMuted = false;
       this.cachedUserName = null;
       this.lastFinalText = "";
       this.lastFinalTime = 0;
+      this.unwatchMic = null;
     }
 
     log(...args) {
@@ -36,6 +42,51 @@
 
     warn(...args) {
       console.warn(LOG_PREFIX, ...args);
+    }
+
+    /**
+     * Periksa status mute mikrofon Google Meet saat ini
+     */
+    checkIsMicMuted() {
+      if (global.SumrizeMeetDetector?.isMicMuted) {
+        return global.SumrizeMeetDetector.isMicMuted();
+      }
+      return false;
+    }
+
+    /**
+     * Tangani perubahan status mute mikrofon
+     */
+    setMuted(muted) {
+      const wasMuted = this.isMuted;
+      this.isMuted = Boolean(muted);
+
+      try {
+        this.onMuteChange(this.isMuted);
+      } catch (err) {
+        this.warn("Error in onMuteChange:", err);
+      }
+
+      if (wasMuted === this.isMuted) {
+        return;
+      }
+
+      if (this.isMuted) {
+        this.log("🔇 Mikrofon Google Meet NONAKTIF (MUTED). Menjeda transkripsi lokal.");
+        this.lastFinalText = "";
+        // Hentikan sementara pengenalan suara lokal agar suara di ruangan tidak bocor ke transkrip
+        if (this.recognition) {
+          try {
+            this.recognition.abort();
+          } catch {}
+        }
+      } else {
+        this.log("🎤 Mikrofon Google Meet AKTIF (UNMUTED). Melanjutkan transkripsi lokal...");
+        this.lastFinalText = "";
+        if (this.running && this.shouldRestart) {
+          this.startRecognitionInstance();
+        }
+      }
     }
 
     /**
@@ -93,17 +144,25 @@
       return Boolean(global.SpeechRecognition || global.webkitSpeechRecognition);
     }
 
-    start() {
-      if (this.running) {
+    /**
+     * Memulai instans SpeechRecognition Web Speech API
+     */
+    startRecognitionInstance() {
+      if (!this.running || this.isMuted || this.checkIsMicMuted()) {
         return;
       }
 
       const SpeechRecognition =
         global.SpeechRecognition || global.webkitSpeechRecognition;
 
-      if (!SpeechRecognition) {
-        this.warn("Browser tidak mendukung webkitSpeechRecognition.");
-        return false;
+      if (!SpeechRecognition) return;
+
+      // Hentikan instans lama jika ada
+      if (this.recognition) {
+        try {
+          this.recognition.abort();
+        } catch {}
+        this.recognition = null;
       }
 
       try {
@@ -113,15 +172,16 @@
         this.recognition.lang = this.language;
         this.recognition.maxAlternatives = 1;
 
-        this.shouldRestart = true;
-        this.running = true;
-
         this.recognition.onstart = () => {
           this.log(`Web Speech API aktif (${this.language}). Mendengarkan suara Anda...`);
         };
 
         this.recognition.onresult = (event) => {
-          if (!this.running) return;
+          // Guard utama: Jika recognizer tidak running, atau mikrofon Google Meet dinonaktifkan, buang semua hasil
+          if (!this.running || this.isMuted || this.checkIsMicMuted()) {
+            this.lastFinalText = "";
+            return;
+          }
 
           let interimTranscript = "";
           let finalTranscript = "";
@@ -133,6 +193,12 @@
             } else {
               interimTranscript += transcript;
             }
+          }
+
+          // Cek kembali status mute sebelum memproses
+          if (this.isMuted || this.checkIsMicMuted()) {
+            this.lastFinalText = "";
+            return;
           }
 
           const speaker = this.getUserName();
@@ -155,11 +221,7 @@
         };
 
         this.recognition.onerror = (event) => {
-          // Abaikan error "no-speech" normal saat jeda hening
-          if (event.error === "no-speech") {
-            return;
-          }
-          if (event.error === "aborted") {
+          if (event.error === "no-speech" || event.error === "aborted") {
             return;
           }
 
@@ -172,15 +234,16 @@
         };
 
         this.recognition.onend = () => {
+          // Jangan restart jika mikrofon Google Meet sedang dimatikan
+          if (this.isMuted || this.checkIsMicMuted()) {
+            this.log("Web Speech API berhenti (mikrofon Meet sedang mute).");
+            return;
+          }
+
           if (this.shouldRestart && this.running) {
-            // Auto restart jika terputus tiba-tiba
             setTimeout(() => {
-              if (this.shouldRestart && this.running && this.recognition) {
-                try {
-                  this.recognition.start();
-                } catch (e) {
-                  // restart retry nanti
-                }
+              if (this.shouldRestart && this.running && !this.isMuted && !this.checkIsMicMuted()) {
+                this.startRecognitionInstance();
               }
             }, 300);
           } else {
@@ -190,21 +253,66 @@
         };
 
         this.recognition.start();
-        return true;
       } catch (err) {
-        this.warn("Gagal memulai SpeechRecognition:", err);
-        this.running = false;
+        this.warn("Gagal memulai recognition instance:", err);
+      }
+    }
+
+    start() {
+      if (this.running) {
+        return;
+      }
+
+      const SpeechRecognition =
+        global.SpeechRecognition || global.webkitSpeechRecognition;
+
+      if (!SpeechRecognition) {
+        this.warn("Browser tidak mendukung webkitSpeechRecognition.");
         return false;
       }
+
+      this.shouldRestart = true;
+      this.running = true;
+
+      // Cek status mute awal
+      this.isMuted = this.checkIsMicMuted();
+
+      // Pasang watcher status mikrofon Google Meet secara real-time
+      if (global.SumrizeMeetDetector?.watchMicStatus) {
+        if (this.unwatchMic) {
+          this.unwatchMic();
+        }
+        this.unwatchMic = global.SumrizeMeetDetector.watchMicStatus((muted) => {
+          this.setMuted(muted);
+        });
+      }
+
+      if (this.isMuted) {
+        this.log("Mikrofon Google Meet saat ini NONAKTIF (MUTED). Menunggu mikrofon dinyalakan...");
+        try {
+          this.onMuteChange(true);
+        } catch {}
+      } else {
+        this.startRecognitionInstance();
+      }
+
+      return true;
     }
 
     stop() {
       this.shouldRestart = false;
       this.running = false;
 
+      if (this.unwatchMic) {
+        try {
+          this.unwatchMic();
+        } catch {}
+        this.unwatchMic = null;
+      }
+
       if (this.recognition) {
         try {
-          this.recognition.stop();
+          this.recognition.abort();
         } catch {}
         this.recognition = null;
       }

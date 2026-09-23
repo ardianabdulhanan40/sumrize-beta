@@ -1,0 +1,38 @@
+{
+    "meeting_session_id": "ms_d12aebda62d252e05e2b3bb62047d48d",
+    "meet_code": "rtn-pmxx-pvc",
+    "title": "Google Meet - rtn-pmxx-pvc",
+    "status": "completed",
+    "started_at": "2026-09-22 06:57:46",
+    "last_updated": "2026-09-22 06:58:21",
+    "total_transcripts": 2,
+    "total_turns": 1,
+    "transcripts": [
+        {
+            "username": "Anda (Saya)",
+            "kalimat": "dia nggak nggak dicek kalimat ini",
+            "timestamp_seconds": null,
+            "sequence": 1,
+            "created_at": "2026-09-22 06:58:07"
+        },
+        {
+            "username": "Anda (Saya)",
+            "kalimat": "ada beberapa kalimat yang dia nggak tangkap tapi ini yang bisa nangkap",
+            "timestamp_seconds": null,
+            "sequence": 2,
+            "created_at": "2026-09-22 06:58:19"
+        }
+    ],
+    "dialog_tergabung": [
+        {
+            "username": "Anda (Saya)",
+            "kalimat": "dia nggak nggak dicek kalimat ini ada beberapa kalimat yang dia nggak tangkap tapi ini yang bisa nangkap",
+            "started_at": "2026-09-22 06:58:07",
+            "sequence": 1
+        }
+    ],
+    "percakapan_gabungan": [
+        "Anda (Saya): dia nggak nggak dicek kalimat ini",
+        "Anda (Saya): ada beberapa kalimat yang dia nggak tangkap tapi ini yang bisa nangkap"
+    ]
+}

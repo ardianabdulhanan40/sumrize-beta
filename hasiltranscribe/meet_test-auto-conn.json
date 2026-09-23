@@ -1,0 +1,13 @@
+{
+    "meeting_session_id": "ms_75cdb115899ce2be4fc954ad175502cc",
+    "meet_code": "test-auto-conn",
+    "title": "Google Meet - Auto Connector Test",
+    "status": "completed",
+    "started_at": "2026-09-22 05:37:52",
+    "last_updated": "2026-09-22 05:38:02",
+    "total_transcripts": 0,
+    "total_turns": 0,
+    "transcripts": [],
+    "dialog_tergabung": [],
+    "percakapan_gabungan": []
+}

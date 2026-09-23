@@ -1,0 +1,78 @@
+# Rencana Perbaikan Bug: Transkripsi Tetap Berjalan Saat Mikrofon Google Meet Dinonaktifkan
+
+## Deskripsi Masalah
+Pada proyek **Sumrize Beta**, saat user menonaktifkan/mematikan mikrofon pada Google Meet (baik melalui klik tombol mikrofon Meet maupun pintasan `Ctrl + D` / `Cmd + D`), proses transkripsi suara lokal masih terus berjalan dan kata-kata yang diucapkan user tetap masuk ke dalam `sequence` percakapan (misalnya tersimpan di `hasiltranscribe/meet_*.json` dengan speaker *"Anda (Saya)"*).
+
+### Akar Masalah (Root Cause)
+1. **Web Speech API (`webkitSpeechRecognition`) berjalan independen dari Google Meet:**
+   File [speech-recognizer.js](file:///run/media/yan/Ekternal/Sumrize/sumrize-beta/extension/sumrize-meet/content/speech-recognizer.js) menggunakan Web Speech API bawaan Chrome yang mengakses mikrofon hardware sistem secara langsung di tab browser.
+2. **Tidak ada deteksi status mute mikrofon Google Meet:**
+   Ketika mikrofon Google Meet dinonaktifkan, Meet hanya mematikan audio track WebRTC internalnya, sedangkan `webkitSpeechRecognition` di [speech-recognizer.js](file:///run/media/yan/Ekternal/Sumrize/sumrize-beta/extension/sumrize-meet/content/speech-recognizer.js) tetap berjalan di background, terus mendengarkan suara fisik pengguna, dan mengirimkannya ke [transcript-buffer.js](file:///run/media/yan/Ekternal/Sumrize/sumrize-beta/extension/sumrize-meet/content/transcript-buffer.js) dan [transcript-collector.js](file:///run/media/yan/Ekternal/Sumrize/sumrize-beta/extension/sumrize-meet/content/transcript-collector.js).
+3. **Penyimpanan otomatis ke sequence:**
+   Buffer menganggap transkrip tersebut sebagai kalimat baru dari pengguna lokal, lalu menyimpannya ke database dan file JSON lokal (`hasiltranscribe/`).
+
+---
+
+## Solusi & Rencana Perubahan
+
+### 1. Deteksi Status Mikrofon Google Meet Secara Real-Time ([meet-detector.js](file:///run/media/yan/Ekternal/Sumrize/sumrize-beta/extension/sumrize-meet/content/meet-detector.js))
+Menambahkan helper deteksi mikrofon Meet yang akurat dan multi-bahasa (Indonesia & Inggris):
+- **Deteksi Atribut `data-is-muted`:**
+  Google Meet menggunakan atribut `data-is-muted="true"` (saat nonaktif/mute) dan `data-is-muted="false"` (saat aktif) pada tombol mikrofon di bottom control bar atau tile video pengguna.
+- **Deteksi `aria-label` & `data-tooltip`:**
+  - Status Muted/Nonaktif: Memuat kata *"turn on microphone"*, *"aktifkan mikrofon"*, *"nyalakan mikrofon"*, *"unmute"*, atau pintasan shortcut `ctrl + d` / `⌘ + d` dengan konteks pengaktifan.
+  - Status Active/Aktif: Memuat kata *"turn off microphone"*, *"nonaktifkan mikrofon"*, *"matikan mikrofon"*, *"mute"*.
+- **Deteksi Warna/Indikator Mute Visual:**
+  Meet mengubah latar tombol mikrofon menjadi merah saat mute (`#ea4335` / `rgb(234, 67, 53)`).
+- **Fungsi `watchMicStatus(callback)`:**
+  Memantau perubahan status mikrofon menggunakan `MutationObserver` (mendengarkan mutasi atribut tombol mikrofon secara instan tanpa jeda), event listener tombol & keyboard (`Ctrl+D` / `Cmd+D`), serta fallback polling (300ms) untuk memastikan deteksi selalu sinkron.
+
+### 2. Integrasi Penanganan Mute pada Speech Recognizer ([speech-recognizer.js](file:///run/media/yan/Ekternal/Sumrize/sumrize-beta/extension/sumrize-meet/content/speech-recognizer.js))
+- Menyimpan status `this.isMuted`.
+- Saat inisialisasi / `start()`: jika mikrofon Meet terdeteksi dalam kondisi nonaktif (mute), recognizer langsung masuk ke mode standby (tidak merekam suara ke buffer).
+- Saat mikrofon Meet di-mute:
+  - Panggil `abort()` / hentikan `SpeechRecognition` lokal segera.
+  - Hapus buffer teks sementara (`lastFinalText = ""`, dsb).
+  - Pastikan event `onend` tidak me-restart recognizer selama mikrofon dalam kondisi nonaktif.
+  - Jika ada sisa event `onresult` yang terlanjur tiba, segera buang (drop) dan jangan kirim ke `onTranscript`.
+- Saat mikrofon Meet di-unmute (diaktifkan kembali):
+  - Restart recognizer secara otomatis sehingga transkripsi suara lokal berjalan kembali secara mulus.
+
+### 3. Guarding di Collector & Buffer ([transcript-collector.js](file:///run/media/yan/Ekternal/Sumrize/sumrize-beta/extension/sumrize-meet/content/transcript-collector.js) & [transcript-buffer.js](file:///run/media/yan/Ekternal/Sumrize/sumrize-beta/extension/sumrize-meet/content/transcript-buffer.js))
+- Pada [transcript-buffer.js](file:///run/media/yan/Ekternal/Sumrize/sumrize-beta/extension/sumrize-meet/content/transcript-buffer.js), tambahkan filter agar jika ada masukan transkrip suara lokal saat mikrofon Google Meet berstatus nonaktif, masukan tersebut ditolak dan tidak dimasukkan ke dalam antrean sequence.
+- Di [transcript-collector.js](file:///run/media/yan/Ekternal/Sumrize/sumrize-beta/extension/sumrize-meet/content/transcript-collector.js):
+  - Tampilkan indikator status mikrofon real-time pada In-Meet Floating Panel:
+    - 🎤 *Mikrofon Aktif* (saat mikrofon menyala)
+    - 🔇 *Mikrofon Dinonaktifkan (Muted)* (saat mikrofon mati)
+  - Saat mikrofon nonaktif dan tidak ada orang lain yang berbicara, preview teks menampilkan info: `[Mikrofon dinonaktifkan - transkripsi lokal dijeda]`.
+
+---
+
+## File yang Akan Diubah
+
+### Content Scripts
+- [MODIFY] [meet-detector.js](file:///run/media/yan/Ekternal/Sumrize/sumrize-beta/extension/sumrize-meet/content/meet-detector.js)
+  - Tambah fungsi `isMicMuted()`, `getMicButton()`, dan `watchMicStatus(callback)`.
+- [MODIFY] [speech-recognizer.js](file:///run/media/yan/Ekternal/Sumrize/sumrize-beta/extension/sumrize-meet/content/speech-recognizer.js)
+  - Tambah penanganan status mute, pause/abort saat mute, resume saat unmute, cegah auto-restart saat mute, dan abaikan transcript lokal saat mute.
+- [MODIFY] [transcript-buffer.js](file:///run/media/yan/Ekternal/Sumrize/sumrize-beta/extension/sumrize-meet/content/transcript-buffer.js)
+  - Validasi tambahan untuk memastikan segment lokal tidak di-finalize saat berstatus mute.
+- [MODIFY] [transcript-collector.js](file:///run/media/yan/Ekternal/Sumrize/sumrize-beta/extension/sumrize-meet/content/transcript-collector.js)
+  - Hubungkan watcher status mikrofon ke speech recognizer & buffer.
+  - Tambah visual indicator status mikrofon pada In-Meet Panel dan popup state.
+
+---
+
+## Rencana Verifikasi
+
+### Otomatis
+- Jalankan sintaks check `node -c` untuk semua file JS yang dimodifikasi (`meet-detector.js`, `speech-recognizer.js`, `transcript-buffer.js`, `transcript-collector.js`).
+- Jalankan script unit test / simulasi DOM untuk menguji fungsi `isMicMuted()` pada berbagai skenario DOM Google Meet (atribut `data-is-muted="true"`, `data-is-muted="false"`, `aria-label` bahasa Indonesia dan Inggris, dsb).
+
+### Manual
+- Muat ekstensi di Chrome (`chrome://extensions` -> reload).
+- Buka sesi Google Meet.
+- Mulai capture transkripsi via floating panel / popup.
+- Uji berbicara saat mic Google Meet aktif -> transkrip masuk.
+- Nonaktifkan mic Google Meet (klik tombol mic atau tekan `Ctrl + D`) -> amati indikator status berubah menjadi `Muted`, berbicara saat mic nonaktif -> verifikasi tidak ada teks yang masuk ke floating panel, buffer, atau `hasiltranscribe/*.json`.
+- Aktifkan kembali mic Google Meet -> berbicara -> verifikasi transkripsi langsung aktif kembali secara normal.

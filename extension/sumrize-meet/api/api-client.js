@@ -21,7 +21,7 @@
        CONFIG
        ========================================================= */
 
-    const DEFAULT_BASE_URL = "http://localhost/sumrize-beta/api/meeting";
+    const DEFAULT_BASE_URL = "http://localhost:8000/api/meeting";
 
     /* =========================================================
        HELPERS
@@ -44,15 +44,61 @@
             throw new Error("SumrizeStorage tidak tersedia.");
         }
 
-        const token = await global.SumrizeStorage.getAuthToken();
+        let token = await global.SumrizeStorage.getAuthToken();
+
+        if (!token) {
+            // Otomatis coba deteksi konektor Google Meet dari database
+            try {
+                const detectedEmail = await global.SumrizeStorage.getDetectedMeetEmail?.();
+                const autoRes = await detectConnector({ email: detectedEmail });
+                if (autoRes?.ok && autoRes?.data?.token) {
+                    token = autoRes.data.token;
+                    await global.SumrizeStorage.setAuthToken(token);
+                    if (autoRes.data.connector) {
+                        await global.SumrizeStorage.setConnectorInfo(autoRes.data.connector);
+                    }
+                    if (autoRes.data.user) {
+                        await global.SumrizeStorage.setUserInfo(autoRes.data.user);
+                    }
+                    console.log("[Sumrize API] Auto-detected token applied successfully.");
+                    return token;
+                }
+            } catch (autoErr) {
+                console.warn("[Sumrize API] Auto-detect token fallback gagal:", autoErr);
+            }
+        }
 
         if (!token) {
             throw new Error(
-                "Auth token tidak ditemukan. Silakan login di dashboard Sumrize."
+                "Akun Google Meet belum terhubung dengan konektor Sumrize. Pastikan akun Meet terhubung di dashboard."
             );
         }
 
         return token;
+    }
+
+    async function detectConnector({ email } = {}) {
+        const baseUrl = await getBaseUrl();
+        let url = `${baseUrl}/detect-connector.php`;
+        if (email) {
+            url += `?email=${encodeURIComponent(email)}`;
+        }
+
+        console.log("[Sumrize API] Detecting connector:", { url, email });
+
+        const res = await fetch(url, {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        });
+
+        const data = await res.json().catch(() => null);
+        if (!res.ok || !data) {
+            throw new Error(data?.error?.message || `HTTP ${res.status}`);
+        }
+
+        return data;
     }
 
     async function getBaseUrl() {
@@ -430,10 +476,10 @@
 
         const text = String(
             data?.text ||
-                data?.transcript ||
-                data?.data?.text ||
-                data?.data?.transcript ||
-                ""
+            data?.transcript ||
+            data?.data?.text ||
+            data?.data?.transcript ||
+            ""
         ).trim();
 
         return {
@@ -452,6 +498,7 @@
         request,
         getToken,
         getBaseUrl,
+        detectConnector,
         createMeetingSession,
         sendTranscript,
         stopMeetingSession,

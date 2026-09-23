@@ -1,0 +1,126 @@
+{
+    "meeting_session_id": "ms_cd28fb237ce4fa645493f897bdabe529",
+    "meet_code": "cxx-pguv-dkn",
+    "title": "Google Meet - cxx-pguv-dkn",
+    "status": "completed",
+    "started_at": "2026-09-22 04:36:55",
+    "last_updated": "2026-09-22 04:38:57",
+    "total_transcripts": 13,
+    "total_turns": 1,
+    "transcripts": [
+        {
+            "username": "Anda (Saya)",
+            "kalimat": "ke teman-teman jadi di sini Kita lagi nyoba coba diaktifin cc-nya Apakah lama request-nya",
+            "timestamp_seconds": null,
+            "sequence": 1,
+            "created_at": "2026-09-22 04:37:04"
+        },
+        {
+            "username": "Anda (Saya)",
+            "kalimat": "lama nggak ada nggak ada perubahan apa coba diaktifkan chat-chat terus habis itu nggak langsung aktif kalimat terkumpulnya juga nggak ada Anjay",
+            "timestamp_seconds": null,
+            "sequence": 2,
+            "created_at": "2026-09-22 04:37:20"
+        },
+        {
+            "username": "Anda (Saya)",
+            "kalimat": "500",
+            "timestamp_seconds": null,
+            "sequence": 3,
+            "created_at": "2026-09-22 04:37:27"
+        },
+        {
+            "username": "Anda (Saya)",
+            "kalimat": "tanggal 21 Agustus",
+            "timestamp_seconds": null,
+            "sequence": 4,
+            "created_at": "2026-09-22 04:37:39"
+        },
+        {
+            "username": "Anda (Saya)",
+            "kalimat": "berapa ngomong aja nah bener tuh dia 21-nya tuh 21 bukan 21 angka dibikin angka ini transkripnya",
+            "timestamp_seconds": null,
+            "sequence": 5,
+            "created_at": "2026-09-22 04:37:52"
+        },
+        {
+            "username": "Anda (Saya)",
+            "kalimat": "tahun 1945 nanti otomatis",
+            "timestamp_seconds": null,
+            "sequence": 6,
+            "created_at": "2026-09-22 04:38:06"
+        },
+        {
+            "username": "Anda (Saya)",
+            "kalimat": "kalau satu juta rupiah",
+            "timestamp_seconds": null,
+            "sequence": 7,
+            "created_at": "2026-09-22 04:38:10"
+        },
+        {
+            "username": "Anda (Saya)",
+            "kalimat": "dia masih huruf",
+            "timestamp_seconds": null,
+            "sequence": 8,
+            "created_at": "2026-09-22 04:38:15"
+        },
+        {
+            "username": "Anda (Saya)",
+            "kalimat": "10.000",
+            "timestamp_seconds": null,
+            "sequence": 9,
+            "created_at": "2026-09-22 04:38:19"
+        },
+        {
+            "username": "Anda (Saya)",
+            "kalimat": "dia Angka 1 juta",
+            "timestamp_seconds": null,
+            "sequence": 10,
+            "created_at": "2026-09-22 04:38:24"
+        },
+        {
+            "username": "Anda (Saya)",
+            "kalimat": "Satunya Iya angka jutanya huruf",
+            "timestamp_seconds": null,
+            "sequence": 11,
+            "created_at": "2026-09-22 04:38:32"
+        },
+        {
+            "username": "Anda (Saya)",
+            "kalimat": "coba distop nih ada loopingnya enggak Mari kita lihat di bagian jasanya ini di shopee ya",
+            "timestamp_seconds": null,
+            "sequence": 12,
+            "created_at": "2026-09-22 04:38:43"
+        },
+        {
+            "username": "Anda (Saya)",
+            "kalimat": "bukan jasanya ini di shopee bukan distop",
+            "timestamp_seconds": null,
+            "sequence": 13,
+            "created_at": "2026-09-22 04:38:53"
+        }
+    ],
+    "dialog_tergabung": [
+        {
+            "username": "Anda (Saya)",
+            "kalimat": "ke teman-teman jadi di sini Kita lagi nyoba coba diaktifin cc-nya Apakah lama request-nya lama nggak ada nggak ada perubahan apa coba diaktifkan chat-chat terus habis itu nggak langsung aktif kalimat terkumpulnya juga nggak ada Anjay 500 tanggal 21 Agustus berapa ngomong aja nah bener tuh dia 21-nya tuh 21 bukan 21 angka dibikin angka ini transkripnya tahun 1945 nanti otomatis kalau satu juta rupiah dia masih huruf 10.000 dia Angka 1 juta Satunya Iya angka jutanya huruf coba distop nih ada loopingnya enggak Mari kita lihat di bagian jasanya ini di shopee ya bukan jasanya ini di shopee bukan distop",
+            "started_at": "2026-09-22 04:37:04",
+            "sequence": 1
+        }
+    ],
+    "percakapan_gabungan": [
+        "Anda (Saya): ke teman-teman jadi di sini Kita lagi nyoba coba diaktifin cc-nya Apakah lama request-nya",
+        "Anda (Saya): lama nggak ada nggak ada perubahan apa coba diaktifkan chat-chat terus habis itu nggak langsung aktif kalimat terkumpulnya juga nggak ada Anjay",
+        "Anda (Saya): 500",
+        "Anda (Saya): tanggal 21 Agustus",
+        "Anda (Saya): berapa ngomong aja nah bener tuh dia 21-nya tuh 21 bukan 21 angka dibikin angka ini transkripnya",
+        "Anda (Saya): tahun 1945 nanti otomatis",
+        "Anda (Saya): kalau satu juta rupiah",
+        "Anda (Saya): dia masih huruf",
+        "Anda (Saya): 10.000",
+        "Anda (Saya): dia Angka 1 juta",
+        "Anda (Saya): Satunya Iya angka jutanya huruf",
+        "Anda (Saya): coba distop nih ada loopingnya enggak Mari kita lihat di bagian jasanya ini di shopee ya",
+        "Anda (Saya): bukan jasanya ini di shopee bukan distop"
+    ]
+}

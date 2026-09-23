@@ -1,602 +1,615 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login - Sumrize</title>
-  <link rel="icon" type="image/png" href="../assets/logo-black.png">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: { sans: ['Outfit', 'sans-serif'] },
-          colors: {
-            sumrize: { DEFAULT: '#ff4438', hover: '#e63b30' },
-            ink: '#1c2738'
-          },
-          boxShadow: {
-            panel: '0 24px 70px rgba(28, 39, 56, 0.12)'
-          }
-        }
-      }
-    };
-  </script>
-  <style>
-    body {
-      font-family: 'Outfit', sans-serif;
-      background:
-        radial-gradient(circle at 10% 10%, rgba(255, 68, 56, 0.14), transparent 30%),
-        linear-gradient(135deg, #fff8f5 0%, #f5f8fb 52%, #eaf4fb 100%);
-    }
-  </style>
-</head>
-<body class="min-h-screen text-ink">
-  <main class="mx-auto flex min-h-screen w-full max-w-6xl items-center px-5 py-10 sm:px-8">
-    <div class="grid w-full overflow-hidden rounded-[28px] bg-white shadow-panel lg:grid-cols-[1.05fr_0.95fr]">
-      <section class="relative hidden min-h-[620px] overflow-hidden bg-ink p-10 text-white lg:flex lg:flex-col lg:justify-between">
-        <div class="absolute -right-20 -top-24 h-72 w-72 rounded-full bg-sumrize/90 blur-[2px]"></div>
-        <div class="absolute -bottom-28 -left-20 h-80 w-80 rounded-full border-[48px] border-white/10"></div>
-        <div class="relative">
-          <img src="../assets/logo-white.png" alt="Sumrize" class="h-10 w-auto">
-          <p class="mt-20 max-w-sm text-4xl font-semibold leading-tight">
-            Meetings that leave a clear next step.
-          </p>
-          <p class="mt-5 max-w-sm text-base leading-7 text-white/65">
-            Kelola connector, meeting, dan insight tim dari satu ruang kerja Sumrize.
-          </p>
-        </div>
-        <div class="relative flex items-center gap-3 text-sm text-white/60">
-          <span class="h-2 w-2 rounded-full bg-sumrize"></span>
-          Secure workspace access
-        </div>
-      </section>
-
-      <section class="flex min-h-[620px] items-center p-6 sm:p-12 lg:p-16">
-        <div class="w-full max-w-md">
-          <div class="mb-10 lg:hidden">
-            <img src="../assets/logo-black.png" alt="Sumrize" class="h-9 w-auto">
-          </div>
-
-          <div class="mb-8">
-            <p class="mb-3 text-sm font-semibold uppercase tracking-[0.18em] text-sumrize">Welcome back</p>
-            <h1 class="text-3xl font-bold tracking-tight text-ink sm:text-4xl">Masuk ke Sumrize</h1>
-            <p class="mt-3 text-sm leading-6 text-slate-500">Gunakan akun Sumrize untuk membuka dashboard dan menghubungkan Google Meet.</p>
-          </div>
-
-          <form id="login-form" class="space-y-5">
-            <div>
-              <label for="email" class="mb-2 block text-sm font-semibold text-ink">Email</label>
-              <input id="email" name="email" type="email" autocomplete="email" required placeholder="nama@perusahaan.com" class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3.5 text-sm text-ink outline-none transition placeholder:text-slate-400 focus:border-sumrize focus:bg-white focus:ring-4 focus:ring-sumrize/10">
-            </div>
-
-            <div>
-              <div class="mb-2 flex items-center justify-between">
-                <label for="password" class="block text-sm font-semibold text-ink">Password</label>
-              </div>
-              <input id="password" name="password" type="password" autocomplete="current-password" required placeholder="Masukkan password" class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3.5 text-sm text-ink outline-none transition placeholder:text-slate-400 focus:border-sumrize focus:bg-white focus:ring-4 focus:ring-sumrize/10">
-            </div>
-
-            <p id="login-error" class="hidden rounded-xl bg-red-50 px-4 py-3 text-sm leading-5 text-red-600"></p>
-
-            <button id="login-button" type="submit" class="flex w-full items-center justify-center gap-2 rounded-2xl bg-sumrize px-5 py-3.5 text-sm font-semibold text-white transition hover:bg-sumrize-hover focus:outline-none focus:ring-4 focus:ring-sumrize/20 disabled:cursor-wait disabled:opacity-60">
-              <span id="login-label">Masuk ke dashboard</span>
-              <span id="login-spinner" class="hidden h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white"></span>
-            </button>
-          </form>
-
-          <p class="mt-8 text-center text-xs leading-5 text-slate-400">Akses aman menggunakan autentikasi Sumrize yang sudah tersedia.</p>
-        </div>
-      </section>
-    </div>
-  </main>
-
-<script>
-
-const apiOrigin =
-    "http://localhost/sumrize-beta";
-
-
-/*
-|--------------------------------------------------------------------------
-| SUMRIZE EXTENSION
-|--------------------------------------------------------------------------
-*/
-
-const SUMRIZE_EXTENSION_ID =
-    "pdhljhmoeakjpmcmdlemlepbdbbimjbm";
-
-
-/*
-|--------------------------------------------------------------------------
-| SYNC TOKEN TO EXTENSION
-|--------------------------------------------------------------------------
-|
-| Web Dashboard/Login
-|        ↓
-| chrome.runtime.sendMessage()
-|        ↓
-| Service Worker
-|        ↓
-| chrome.storage.local.authToken
-|
-|--------------------------------------------------------------------------
-*/
-
-function syncTokenToExtension(token) {
-
-    return new Promise((resolve) => {
-
-        /*
-        |--------------------------------------------------------------------------
-        | Validate token
-        |--------------------------------------------------------------------------
-        */
-
-        if (
-            typeof token !==
-            "string" ||
-            !token.trim()
-        ) {
-
-            resolve({
-                ok: false,
-                error:
-                    "token_empty"
-            });
-
-            return;
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Check Chrome Runtime
-        |--------------------------------------------------------------------------
-        */
-
-        if (
-            !window.chrome ||
-            !chrome.runtime ||
-            typeof chrome.runtime.sendMessage !==
-                "function"
-        ) {
-
-            console.warn(
-                "[Sumrize] Chrome Runtime API tidak tersedia."
-            );
-
-
-            resolve({
-                ok: false,
-
-                error:
-                    "chrome_runtime_unavailable"
-            });
-
-
-            return;
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Send token to Extension
-        |--------------------------------------------------------------------------
-        */
-
-        chrome.runtime.sendMessage(
-
-            SUMRIZE_EXTENSION_ID,
-
-            {
-
-                type:
-                    "SUMRIZE_AUTH_TOKEN",
-
-                token:
-                    token
-
-            },
-
-            (response) => {
-
-                /*
-                |--------------------------------------------------------------------------
-                | Chrome Runtime Error
-                |--------------------------------------------------------------------------
-                */
-
-                if (
-                    chrome.runtime.lastError
-                ) {
-
-                    console.warn(
-                        "[Sumrize] Extension auth sync gagal:",
-                        chrome.runtime.lastError.message
-                    );
-
-
-                    resolve({
-
-                        ok: false,
-
-                        error:
-                            chrome.runtime
-                                .lastError
-                                .message
-                    });
-
-
-                    return;
-                }
-
-
-                /*
-                |--------------------------------------------------------------------------
-                | Empty Response
-                |--------------------------------------------------------------------------
-                */
-
-                if (!response) {
-
-                    resolve({
-
-                        ok: false,
-
-                        error:
-                            "empty_extension_response"
-                    });
-
-
-                    return;
-                }
-
-
-                /*
-                |--------------------------------------------------------------------------
-                | Response
-                |--------------------------------------------------------------------------
-                */
-
-                console.log(
-                    "[Sumrize] Extension auth sync:",
-                    response
-                );
-
-
-                resolve(
-                    response
-                );
-            }
-        );
-    });
-}
-
-
-/*
-|--------------------------------------------------------------------------
-| READ JSON RESPONSE
-|--------------------------------------------------------------------------
-*/
-
-async function readJsonResponse(
-    response
-) {
-
-    const text =
-        await response.text();
-
-
-    if (!text) {
-
-        return null;
-    }
-
-
-    try {
-
-        return JSON.parse(text);
-
-    } catch (error) {
-
-        console.error(
-            "[Sumrize] Invalid JSON response:",
-            text
-        );
-
-
-        return null;
-    }
-}
-
-
-/*
-|--------------------------------------------------------------------------
-| LOGIN
-|--------------------------------------------------------------------------
-*/
-
-async function login() {
-
-    /*
-    |--------------------------------------------------------------------------
-    | Get Form Values
-    |--------------------------------------------------------------------------
-    */
-
-    const emailElement =
-        document.getElementById(
-            "email"
-        );
-
-
-    const passwordElement =
-        document.getElementById(
-            "password"
-        );
-
-
-    const email =
-        emailElement
-            ?.value
-            ?.trim() ||
-        "";
-
-
-    const password =
-        passwordElement
-            ?.value ||
-        "";
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Basic Validation
-    |--------------------------------------------------------------------------
-    */
-
-    if (!email) {
-
-        alert(
-            "Email wajib diisi."
-        );
-
-        return;
-    }
-
-
-    if (!password) {
-
-        alert(
-            "Password wajib diisi."
-        );
-
-        return;
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Optional Login Button
-    |--------------------------------------------------------------------------
-    */
-
-    const loginButton =
-        document.querySelector(
-            'button[type="submit"], #loginButton, #login'
-        );
-
-
-    if (loginButton) {
-
-        loginButton.disabled =
-            true;
-    }
-
-
-    try {
-
-        /*
-        |--------------------------------------------------------------------------
-        | Request Login
-        |--------------------------------------------------------------------------
-        */
-
-        const response =
-            await fetch(
-                `${apiOrigin}/api/auth/login.php`,
-                {
-
-                    method:
-                        "POST",
-
-                    headers: {
-
-                        "Content-Type":
-                            "application/json"
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Sumrize</title>
+    <link rel="icon" type="image/png" href="../assets/logo-black.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Outfit', 'sans-serif'] },
+                    colors: {
+                        sumrize: { DEFAULT: '#ff4438', hover: '#e63b30' },
+                        ink: '#1c2738'
                     },
-
-                    credentials:
-                        "include",
-
-                    body:
-                        JSON.stringify({
-
-                            email,
-
-                            password
-                        })
+                    boxShadow: {
+                        panel: '0 24px 70px rgba(28, 39, 56, 0.12)'
+                    }
                 }
-            );
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Parse Response
-        |--------------------------------------------------------------------------
-        */
-
-        const payload =
-            await readJsonResponse(
-                response
-            );
-
-
-        const data =
-            payload?.data ||
-            {};
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Validate Login
-        |--------------------------------------------------------------------------
-        */
-
-        if (
-            !response.ok ||
-            payload?.ok !== true ||
-            !data.token
-        ) {
-
-            throw new Error(
-
-                payload?.error?.message ||
-
-                "Email atau password salah."
-            );
+            }
+        };
+    </script>
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            background:
+                radial-gradient(circle at 10% 10%, rgba(255, 68, 56, 0.14), transparent 30%),
+                linear-gradient(135deg, #fff8f5 0%, #f5f8fb 52%, #eaf4fb 100%);
         }
+    </style>
+</head>
+
+<body class="min-h-screen text-ink">
+    <main class="mx-auto flex min-h-screen w-full max-w-6xl items-center px-5 py-10 sm:px-8">
+        <div class="grid w-full overflow-hidden rounded-[28px] bg-white shadow-panel lg:grid-cols-[1.05fr_0.95fr]">
+            <section
+                class="relative hidden min-h-[620px] overflow-hidden bg-ink p-10 text-white lg:flex lg:flex-col lg:justify-between">
+                <div class="absolute -right-20 -top-24 h-72 w-72 rounded-full bg-sumrize/90 blur-[2px]"></div>
+                <div class="absolute -bottom-28 -left-20 h-80 w-80 rounded-full border-[48px] border-white/10"></div>
+                <div class="relative">
+                    <img src="../assets/logo-white.png" alt="Sumrize" class="h-10 w-auto">
+                    <p class="mt-20 max-w-sm text-4xl font-semibold leading-tight">
+                        Meetings that leave a clear next step.
+                    </p>
+                    <p class="mt-5 max-w-sm text-base leading-7 text-white/65">
+                        Kelola connector, meeting, dan insight tim dari satu ruang kerja Sumrize.
+                    </p>
+                </div>
+                <div class="relative flex items-center gap-3 text-sm text-white/60">
+                    <span class="h-2 w-2 rounded-full bg-sumrize"></span>
+                    Secure workspace access
+                </div>
+            </section>
+
+            <section class="flex min-h-[620px] items-center p-6 sm:p-12 lg:p-16">
+                <div class="w-full max-w-md">
+                    <div class="mb-10 lg:hidden">
+                        <img src="../assets/logo-black.png" alt="Sumrize" class="h-9 w-auto">
+                    </div>
+
+                    <div class="mb-8">
+                        <p class="mb-3 text-sm font-semibold uppercase tracking-[0.18em] text-sumrize">Welcome back</p>
+                        <h1 class="text-3xl font-bold tracking-tight text-ink sm:text-4xl">Masuk ke Sumrize</h1>
+                        <p class="mt-3 text-sm leading-6 text-slate-500">Gunakan akun Sumrize untuk membuka dashboard
+                            dan menghubungkan Google Meet.</p>
+                    </div>
+
+                    <form id="login-form" class="space-y-5">
+                        <div>
+                            <label for="email" class="mb-2 block text-sm font-semibold text-ink">Email</label>
+                            <input id="email" name="email" type="email" autocomplete="email" required
+                                placeholder="nama@perusahaan.com"
+                                class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3.5 text-sm text-ink outline-none transition placeholder:text-slate-400 focus:border-sumrize focus:bg-white focus:ring-4 focus:ring-sumrize/10">
+                        </div>
+
+                        <div>
+                            <div class="mb-2 flex items-center justify-between">
+                                <label for="password" class="block text-sm font-semibold text-ink">Password</label>
+                            </div>
+                            <input id="password" name="password" type="password" autocomplete="current-password"
+                                required placeholder="Masukkan password"
+                                class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3.5 text-sm text-ink outline-none transition placeholder:text-slate-400 focus:border-sumrize focus:bg-white focus:ring-4 focus:ring-sumrize/10">
+                        </div>
+
+                        <p id="login-error"
+                            class="hidden rounded-xl bg-red-50 px-4 py-3 text-sm leading-5 text-red-600"></p>
+
+                        <button id="login-button" type="submit"
+                            class="flex w-full items-center justify-center gap-2 rounded-2xl bg-sumrize px-5 py-3.5 text-sm font-semibold text-white transition hover:bg-sumrize-hover focus:outline-none focus:ring-4 focus:ring-sumrize/20 disabled:cursor-wait disabled:opacity-60">
+                            <span id="login-label">Masuk ke dashboard</span>
+                            <span id="login-spinner"
+                                class="hidden h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white"></span>
+                        </button>
+                    </form>
+
+                    <p class="mt-8 text-center text-xs leading-5 text-slate-400">Akses aman menggunakan autentikasi
+                        Sumrize yang sudah tersedia.</p>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <script>
+
+        const apiOrigin =
+            "http://localhost:8000";
 
 
         /*
         |--------------------------------------------------------------------------
-        | SAVE WEB TOKEN
+        | SUMRIZE EXTENSION
         |--------------------------------------------------------------------------
         */
 
-        localStorage.setItem(
-
-            "sumrize_auth_token",
-
-            data.token
-        );
-
-
-        console.log(
-            "[Sumrize] Login berhasil."
-        );
+        const SUMRIZE_EXTENSION_ID =
+            "pdhljhmoeakjpmcmdlemlepbdbbimjbm";
 
 
         /*
         |--------------------------------------------------------------------------
         | SYNC TOKEN TO EXTENSION
         |--------------------------------------------------------------------------
-        */
-
-        const extensionSync =
-            await syncTokenToExtension(
-                data.token
-            );
-
-
-        /*
-        | Jangan print token.
-        */
-
-        console.log(
-            "[Sumrize] Extension auth sync result:",
-            extensionSync
-        );
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | DO NOT BLOCK WEB LOGIN
-        |--------------------------------------------------------------------------
         |
-        | Jika extension belum terinstall,
-        | user tetap boleh masuk Dashboard.
+        | Web Dashboard/Login
+        |        ↓
+        | chrome.runtime.sendMessage()
+        |        ↓
+        | Service Worker
+        |        ↓
+        | chrome.storage.local.authToken
         |
         |--------------------------------------------------------------------------
         */
 
-        if (
-            extensionSync?.ok !== true
+        function syncTokenToExtension(token) {
+
+            return new Promise((resolve) => {
+
+                /*
+                |--------------------------------------------------------------------------
+                | Validate token
+                |--------------------------------------------------------------------------
+                */
+
+                if (
+                    typeof token !==
+                    "string" ||
+                    !token.trim()
+                ) {
+
+                    resolve({
+                        ok: false,
+                        error:
+                            "token_empty"
+                    });
+
+                    return;
+                }
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | Check Chrome Runtime
+                |--------------------------------------------------------------------------
+                */
+
+                if (
+                    !window.chrome ||
+                    !chrome.runtime ||
+                    typeof chrome.runtime.sendMessage !==
+                    "function"
+                ) {
+
+                    console.warn(
+                        "[Sumrize] Chrome Runtime API tidak tersedia."
+                    );
+
+
+                    resolve({
+                        ok: false,
+
+                        error:
+                            "chrome_runtime_unavailable"
+                    });
+
+
+                    return;
+                }
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | Send token to Extension
+                |--------------------------------------------------------------------------
+                */
+
+                chrome.runtime.sendMessage(
+
+                    SUMRIZE_EXTENSION_ID,
+
+                    {
+
+                        type:
+                            "SUMRIZE_AUTH_TOKEN",
+
+                        token:
+                            token
+
+                    },
+
+                    (response) => {
+
+                        /*
+                        |--------------------------------------------------------------------------
+                        | Chrome Runtime Error
+                        |--------------------------------------------------------------------------
+                        */
+
+                        if (
+                            chrome.runtime.lastError
+                        ) {
+
+                            console.warn(
+                                "[Sumrize] Extension auth sync gagal:",
+                                chrome.runtime.lastError.message
+                            );
+
+
+                            resolve({
+
+                                ok: false,
+
+                                error:
+                                    chrome.runtime
+                                        .lastError
+                                        .message
+                            });
+
+
+                            return;
+                        }
+
+
+                        /*
+                        |--------------------------------------------------------------------------
+                        | Empty Response
+                        |--------------------------------------------------------------------------
+                        */
+
+                        if (!response) {
+
+                            resolve({
+
+                                ok: false,
+
+                                error:
+                                    "empty_extension_response"
+                            });
+
+
+                            return;
+                        }
+
+
+                        /*
+                        |--------------------------------------------------------------------------
+                        | Response
+                        |--------------------------------------------------------------------------
+                        */
+
+                        console.log(
+                            "[Sumrize] Extension auth sync:",
+                            response
+                        );
+
+
+                        resolve(
+                            response
+                        );
+                    }
+                );
+            });
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | READ JSON RESPONSE
+        |--------------------------------------------------------------------------
+        */
+
+        async function readJsonResponse(
+            response
         ) {
 
-            console.warn(
-                "[Sumrize] Token belum berhasil disinkronkan ke extension."
-            );
+            const text =
+                await response.text();
 
+
+            if (!text) {
+
+                return null;
+            }
+
+
+            try {
+
+                return JSON.parse(text);
+
+            } catch (error) {
+
+                console.error(
+                    "[Sumrize] Invalid JSON response:",
+                    text
+                );
+
+
+                return null;
+            }
         }
 
 
         /*
         |--------------------------------------------------------------------------
-        | REDIRECT DASHBOARD
+        | LOGIN
         |--------------------------------------------------------------------------
         */
 
-        window.location.assign(
-            "http://localhost:3000/dashboard/index_local.html"
-        );
+        async function login() {
+
+            /*
+            |--------------------------------------------------------------------------
+            | Get Form Values
+            |--------------------------------------------------------------------------
+            */
+
+            const emailElement =
+                document.getElementById(
+                    "email"
+                );
 
 
-    } catch (error) {
-
-        console.error(
-            "[Sumrize] Login failed:",
-            error
-        );
+            const passwordElement =
+                document.getElementById(
+                    "password"
+                );
 
 
-        alert(
-            error?.message ||
-            "Email atau password salah."
-        );
+            const email =
+                emailElement
+                    ?.value
+                    ?.trim() ||
+                "";
 
 
-    } finally {
+            const password =
+                passwordElement
+                    ?.value ||
+                "";
 
-        if (loginButton) {
 
-            loginButton.disabled =
-                false;
+            /*
+            |--------------------------------------------------------------------------
+            | Basic Validation
+            |--------------------------------------------------------------------------
+            */
+
+            if (!email) {
+
+                alert(
+                    "Email wajib diisi."
+                );
+
+                return;
+            }
+
+
+            if (!password) {
+
+                alert(
+                    "Password wajib diisi."
+                );
+
+                return;
+            }
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Optional Login Button
+            |--------------------------------------------------------------------------
+            */
+
+            const loginButton =
+                document.querySelector(
+                    'button[type="submit"], #loginButton, #login'
+                );
+
+
+            if (loginButton) {
+
+                loginButton.disabled =
+                    true;
+            }
+
+
+            try {
+
+                /*
+                |--------------------------------------------------------------------------
+                | Request Login
+                |--------------------------------------------------------------------------
+                */
+
+                const response =
+                    await fetch(
+                        `${apiOrigin}/api/auth/login.php`,
+                        {
+
+                            method:
+                                "POST",
+
+                            headers: {
+
+                                "Content-Type":
+                                    "application/json"
+                            },
+
+                            credentials:
+                                "include",
+
+                            body:
+                                JSON.stringify({
+
+                                    email,
+
+                                    password
+                                })
+                        }
+                    );
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | Parse Response
+                |--------------------------------------------------------------------------
+                */
+
+                const payload =
+                    await readJsonResponse(
+                        response
+                    );
+
+
+                const data =
+                    payload?.data ||
+                    {};
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | Validate Login
+                |--------------------------------------------------------------------------
+                */
+
+                if (
+                    !response.ok ||
+                    payload?.ok !== true ||
+                    !data.token
+                ) {
+
+                    throw new Error(
+
+                        payload?.error?.message ||
+
+                        "Email atau password salah."
+                    );
+                }
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | SAVE WEB TOKEN
+                |--------------------------------------------------------------------------
+                */
+
+                localStorage.setItem(
+
+                    "sumrize_auth_token",
+
+                    data.token
+                );
+
+
+                console.log(
+                    "[Sumrize] Login berhasil."
+                );
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | SYNC TOKEN TO EXTENSION
+                |--------------------------------------------------------------------------
+                */
+
+                const extensionSync =
+                    await syncTokenToExtension(
+                        data.token
+                    );
+
+
+                /*
+                | Jangan print token.
+                */
+
+                console.log(
+                    "[Sumrize] Extension auth sync result:",
+                    extensionSync
+                );
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | DO NOT BLOCK WEB LOGIN
+                |--------------------------------------------------------------------------
+                |
+                | Jika extension belum terinstall,
+                | user tetap boleh masuk Dashboard.
+                |
+                |--------------------------------------------------------------------------
+                */
+
+                if (
+                    extensionSync?.ok !== true
+                ) {
+
+                    console.warn(
+                        "[Sumrize] Token belum berhasil disinkronkan ke extension."
+                    );
+
+                }
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | REDIRECT DASHBOARD
+                |--------------------------------------------------------------------------
+                */
+
+                window.location.assign(
+                    "/dashboard/index_local.html"
+                );
+
+
+            } catch (error) {
+
+                console.error(
+                    "[Sumrize] Login failed:",
+                    error
+                );
+
+
+                alert(
+                    error?.message ||
+                    "Email atau password salah."
+                );
+
+
+            } finally {
+
+                if (loginButton) {
+
+                    loginButton.disabled =
+                        false;
+                }
+            }
         }
-    }
-}
 
 
-/*
-|--------------------------------------------------------------------------
-| FORM SUBMIT
-|--------------------------------------------------------------------------
-*/
+        /*
+        |--------------------------------------------------------------------------
+        | FORM SUBMIT
+        |--------------------------------------------------------------------------
+        */
 
-const loginForm =
-    document.querySelector(
-        "form"
-    );
+        const loginForm =
+            document.querySelector(
+                "form"
+            );
 
 
-if (loginForm) {
+        if (loginForm) {
 
-    loginForm.addEventListener(
-        "submit",
-        (event) => {
+            loginForm.addEventListener(
+                "submit",
+                (event) => {
 
-            event.preventDefault();
+                    event.preventDefault();
 
-            login();
+                    login();
 
+                }
+            );
         }
-    );
-}
 
-</script>
+    </script>
 </body>
+
 </html>
