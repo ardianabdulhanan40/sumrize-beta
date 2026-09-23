@@ -152,6 +152,9 @@ function syncTokenToExtension(token) {
         }
 
 
+        const apiOrigin = (window.location.origin && window.location.origin !== 'null' && window.location.origin.startsWith('http'))
+            ? window.location.origin
+            : 'http://localhost:8000';
         /*
         |--------------------------------------------------------------------------
         | Check Chrome Runtime
@@ -566,6 +569,222 @@ async function login() {
 
             loginButton.disabled =
                 false;
+
+            /*
+            |--------------------------------------------------------------------------
+            | Basic Validation
+            |--------------------------------------------------------------------------
+            */
+
+            if (!email) {
+
+                alert(
+                    "Email wajib diisi."
+                );
+
+                return;
+            }
+
+
+            if (!password) {
+
+                alert(
+                    "Password wajib diisi."
+                );
+
+                return;
+            }
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Optional Login Button
+            |--------------------------------------------------------------------------
+            */
+
+            const loginButton =
+                document.querySelector(
+                    'button[type="submit"], #loginButton, #login'
+                );
+
+
+            if (loginButton) {
+
+                loginButton.disabled =
+                    true;
+            }
+
+
+            try {
+
+                /*
+                |--------------------------------------------------------------------------
+                | Request Login
+                |--------------------------------------------------------------------------
+                */
+
+                const response =
+                    await fetch(
+                        `${apiOrigin}/api/auth/login.php`,
+                        {
+
+                            method:
+                                "POST",
+
+                            headers: {
+
+                                "Content-Type":
+                                    "application/json"
+                            },
+
+                            credentials:
+                                "include",
+
+                            body:
+                                JSON.stringify({
+
+                                    email,
+
+                                    password
+                                })
+                        }
+                    );
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | Parse Response
+                |--------------------------------------------------------------------------
+                */
+
+                const payload =
+                    await readJsonResponse(
+                        response
+                    );
+
+
+                const data =
+                    payload?.data ||
+                    {};
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | Validate Login
+                |--------------------------------------------------------------------------
+                */
+
+                if (
+                    !response.ok ||
+                    payload?.ok !== true ||
+                    !data.token
+                ) {
+
+                    throw new Error(
+
+                        payload?.error?.message ||
+
+                        "Email atau password salah."
+                    );
+                }
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | SAVE WEB TOKEN
+                |--------------------------------------------------------------------------
+                */
+
+                localStorage.setItem(
+
+                    "sumrize_auth_token",
+
+                    data.token
+                );
+
+
+                console.log(
+                    "[Sumrize] Login berhasil."
+                );
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | SYNC TOKEN TO EXTENSION
+                |--------------------------------------------------------------------------
+                */
+
+                const extensionSync =
+                    await syncTokenToExtension(
+                        data.token
+                    );
+
+
+                /*
+                | Jangan print token.
+                */
+
+                console.log(
+                    "[Sumrize] Extension auth sync result:",
+                    extensionSync
+                );
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | DO NOT BLOCK WEB LOGIN
+                |--------------------------------------------------------------------------
+                |
+                | Jika extension belum terinstall,
+                | user tetap boleh masuk Dashboard.
+                |
+                |--------------------------------------------------------------------------
+                */
+
+                if (
+                    extensionSync?.ok !== true
+                ) {
+
+                    console.warn(
+                        "[Sumrize] Token belum berhasil disinkronkan ke extension."
+                    );
+
+                }
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | REDIRECT DASHBOARD
+                |--------------------------------------------------------------------------
+                */
+
+                window.location.assign(
+                    "/dashboard/index.html"
+                );
+
+
+            } catch (error) {
+
+                console.error(
+                    "[Sumrize] Login failed:",
+                    error
+                );
+
+
+                alert(
+                    error?.message ||
+                    "Email atau password salah."
+                );
+
+
+            } finally {
+
+                if (loginButton) {
+
+                    loginButton.disabled =
+                        false;
+                }
+            }
         }
     }
 }

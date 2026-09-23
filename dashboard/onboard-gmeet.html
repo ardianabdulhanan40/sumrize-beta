@@ -79,11 +79,11 @@
                     },
 
                     boxShadow: {
-                        'theme-sm':
-                            '0px 1px 3px 0px rgba(16, 24, 40, 0.1), 0px 1px 2px 0px rgba(16, 24, 40, 0.06)',
-
-                        'theme-md':
-                            '0px 4px 8px -2px rgba(16, 24, 40, 0.1), 0px 2px 4px -2px rgba(16, 24, 40, 0.06)'
+                        'theme-sm': '0px 1px 3px 0px rgba(16, 24, 40, 0.1), 0px 1px 2px 0px rgba(16, 24, 40, 0.06)',
+                        'theme-md': '0px 4px 8px -2px rgba(16, 24, 40, 0.1), 0px 2px 4px -2px rgba(16, 24, 40, 0.06)',
+                        'glow-sumrize': '0 0 32px rgba(255, 68, 56, 0.35)',
+                        'glow-success': '0 0 32px rgba(18, 183, 106, 0.35)',
+                        'glow-sky': '0 0 32px rgba(56, 189, 248, 0.35)'
                     }
                 }
             }
@@ -244,6 +244,25 @@
         darkMode: false,
         lang: 'id',
         langOpen: false,
+        confirmDisconnectOpen: false,
+        confirmDisconnectLinkOpen: false,
+        connectState: 'idle', // 'idle' | 'connecting' | 'error' | 'connected'
+        linkConnected: false,
+        connectedLinkData: null,
+
+        // Method Tab Selector: default is 'oauth' (Hubungkan Akun Google)
+        activeTab: 'oauth',
+
+        // Link Input State
+        meetUrlInput: '',
+        meetCodeClean: '',
+        isUrlValid: false,
+        isCreatingSession: false,
+
+        // Toast Feedback Notification
+        toastOpen: false,
+        toastMessage: '',
+        toastType: 'success',
 
         languages: {
             id: {
@@ -257,37 +276,249 @@
             }
         },
 
+        get connectButtonLabel() {
+            if (this.connectState === 'connecting') {
+                return this.lang === 'id' ? 'Membuka autentikasi Google...' : 'Opening Google auth...';
+            }
+            if (this.connectState === 'error') {
+                return this.lang === 'id' ? 'Coba Hubungkan Lagi' : 'Try Connecting Again';
+            }
+            return this.lang === 'id' ? 'Hubungkan Google Meet' : 'Connect Google Meet';
+        },
+
+        validateMeetInput(val) {
+            const raw = (val || '').trim();
+            if (!raw) {
+                this.meetCodeClean = '';
+                this.isUrlValid = false;
+                return;
+            }
+            // Match Google Meet 10-character code pattern (xxx-yyyy-zzz)
+            const match = raw.match(/([a-z]{3}-[a-z]{4}-[a-z]{3})/i);
+            if (match) {
+                this.meetCodeClean = match[1].toLowerCase();
+                this.isUrlValid = true;
+            } else {
+                this.meetCodeClean = '';
+                this.isUrlValid = false;
+            }
+            this.$nextTick(() => lucide.createIcons());
+        },
+
+        showToast(msg, type = 'success') {
+            this.toastMessage = msg;
+            this.toastType = type;
+            this.toastOpen = true;
+            this.$nextTick(() => lucide.createIcons());
+            setTimeout(() => {
+                this.toastOpen = false;
+            }, 3500);
+        },
+
+        async pasteFromClipboard() {
+            let text = '';
+            if (navigator.clipboard && navigator.clipboard.readText) {
+                try {
+                    text = await navigator.clipboard.readText();
+                } catch (err) {
+                    // Fallback to manual paste prompt
+                }
+            }
+            if (text) {
+                this.meetUrlInput = text.trim();
+                this.validateMeetInput(this.meetUrlInput);
+                this.showToast(this.lang === 'id' ? 'Teks berhasil ditempel dari clipboard.' : 'Text pasted from clipboard.', 'info');
+            } else {
+                this.showToast(this.lang === 'id' ? 'Silakan tempel (Ctrl+V) langsung ke kolom input.' : 'Please paste (Ctrl+V) directly into the input field.', 'info');
+            }
+        },
+
+        async copyMeetLink() {
+            let urlToCopy = '';
+            if (this.isUrlValid && this.meetCodeClean) {
+                urlToCopy = `https://meet.google.com/${this.meetCodeClean}`;
+            } else if (this.meetUrlInput.trim().startsWith('http')) {
+                urlToCopy = this.meetUrlInput.trim();
+            } else {
+                this.showToast(this.lang === 'id' ? 'Masukkan link atau kode Google Meet yang valid terlebih dahulu.' : 'Please enter a valid Google Meet link or code first.', 'error');
+                return;
+            }
+
+            let success = false;
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                try {
+                    await navigator.clipboard.writeText(urlToCopy);
+                    success = true;
+                } catch (e) {
+                    // Fallback below
+                }
+            }
+
+            if (!success) {
+                try {
+                    const tempInput = document.createElement('textarea');
+                    tempInput.value = urlToCopy;
+                    tempInput.style.position = 'fixed';
+                    tempInput.style.left = '-9999px';
+                    tempInput.style.opacity = '0';
+                    document.body.appendChild(tempInput);
+                    tempInput.focus();
+                    tempInput.select();
+                    success = document.execCommand('copy');
+                    document.body.removeChild(tempInput);
+                } catch (e) {
+                    success = false;
+                }
+            }
+
+            if (success) {
+                this.showToast(this.lang === 'id' ? `Link disalin ke clipboard: ${urlToCopy}` : `Link copied: ${urlToCopy}`, 'success');
+            } else {
+                this.showToast(this.lang === 'id' ? `Salin manual: ${urlToCopy}` : `Copy manually: ${urlToCopy}`, 'info');
+            }
+        },
+
+        async connectMeetingLink() {
+            if (this.connectState === 'connected') {
+                this.showToast(this.lang === 'id' ? 'Akun Google sedang terhubung. Putuskan koneksi Akun Google terlebih dahulu.' : 'Google account is currently connected. Please disconnect it first.', 'error');
+                return;
+            }
+            if (!this.isUrlValid || !this.meetCodeClean) {
+                this.showToast(this.lang === 'id' ? 'Format link Google Meet belum valid.' : 'Google Meet link format is invalid.', 'error');
+                return;
+            }
+
+            const targetUrl = `https://meet.google.com/${this.meetCodeClean}`;
+            const linkData = {
+                code: this.meetCodeClean,
+                url: targetUrl,
+                connectedAt: new Date().toISOString()
+            };
+
+            // Optional background session initialization if authenticated
+            if (token) {
+                this.isCreatingSession = true;
+                try {
+                    fetch(`${apiOrigin}/api/meeting/create.php`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({
+                            meetCode: this.meetCodeClean,
+                            title: `Google Meet - ${this.meetCodeClean}`
+                        })
+                    }).catch(err => console.warn('[Sumrize] Background session create notice:', err));
+                } finally {
+                    this.isCreatingSession = false;
+                }
+            }
+
+            // Persist link connector
+            localStorage.setItem('sumrize_connected_link', JSON.stringify(linkData));
+            this.linkConnected = true;
+            this.connectedLinkData = linkData;
+
+            // Trigger visual bridge animation for connected link
+            window.dispatchEvent(new CustomEvent('update-visual-state', {
+                detail: { state: 'connected_link', details: { code: this.meetCodeClean } }
+            }));
+
+            window.open(targetUrl, '_blank', 'noopener,noreferrer');
+            this.showToast(this.lang === 'id' ? 'Konektor Tautan Google Meet berhasil dihubungkan!' : 'Google Meet link connector connected successfully!', 'success');
+            this.$nextTick(() => lucide.createIcons());
+        },
+
+        disconnectLinkConnector() {
+            localStorage.removeItem('sumrize_connected_link');
+            this.linkConnected = false;
+            this.connectedLinkData = null;
+            this.meetUrlInput = '';
+            this.meetCodeClean = '';
+            this.isUrlValid = false;
+            this.confirmDisconnectLinkOpen = false;
+
+            window.dispatchEvent(new CustomEvent('update-visual-state', {
+                detail: { state: 'disconnected' }
+            }));
+
+            this.showToast(this.lang === 'id' ? 'Konektor tautan berhasil diputuskan. Anda kini dapat menambahkan konektor kembali.' : 'Link connector disconnected. You can now add a connector again.', 'success');
+            this.$nextTick(() => lucide.createIcons());
+        },
+
+        openConnectedMeetLink() {
+            if (this.connectedLinkData?.url) {
+                window.open(this.connectedLinkData.url, '_blank', 'noopener,noreferrer');
+            }
+        },
+
+        async copyConnectedLink() {
+            if (!this.connectedLinkData?.url) return;
+            const urlToCopy = this.connectedLinkData.url;
+            let success = false;
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                try {
+                    await navigator.clipboard.writeText(urlToCopy);
+                    success = true;
+                } catch (e) {}
+            }
+            if (success) {
+                this.showToast(this.lang === 'id' ? `Link disalin: ${urlToCopy}` : `Link copied: ${urlToCopy}`, 'success');
+            } else {
+                this.showToast(this.lang === 'id' ? `Salin manual: ${urlToCopy}` : `Copy manually: ${urlToCopy}`, 'info');
+            }
+        },
+
+        createAndOpenNewMeeting() {
+            const newMeetUrl = 'https://meet.google.com/new';
+            window.open(newMeetUrl, '_blank', 'noopener,noreferrer');
+            this.showToast(this.lang === 'id' ? 'Ruang Google Meet baru dibuka di tab baru.' : 'New Google Meet room opened in a new tab.', 'info');
+        },
+
         init() {
 
-            this.darkMode =
-                JSON.parse(
-                    localStorage.getItem('darkMode') || 'false'
-                );
-
-            this.lang =
-                localStorage.getItem('lang') || 'id';
-
-            this.$watch(
-                'darkMode',
-                value => {
-                    localStorage.setItem(
-                        'darkMode',
-                        JSON.stringify(value)
-                    );
+            // Check if link was previously connected in localStorage
+            const savedLink = localStorage.getItem('sumrize_connected_link');
+            if (savedLink) {
+                try {
+                    this.connectedLinkData = JSON.parse(savedLink);
+                    this.linkConnected = true;
+                } catch (e) {
+                    localStorage.removeItem('sumrize_connected_link');
+                    this.linkConnected = false;
+                    this.connectedLinkData = null;
                 }
-            );
+            }
 
-            this.$watch(
-                'lang',
-                value => {
-                    localStorage.setItem(
-                        'lang',
-                        value
-                    );
-                }
-            );
+            // Auto-switch to OAuth tab if OAuth redirected back, default to 'oauth'
+            const params = new URLSearchParams(window.location.search);
+            if (params.has('google_connected') || params.has('google_oauth') || params.has('code')) {
+                this.activeTab = 'oauth';
+            } else {
+                this.activeTab = localStorage.getItem('gmeet_onboard_tab') || 'oauth';
+            }
+
+            this.$watch('darkMode', value => {
+                localStorage.setItem('darkMode', JSON.stringify(value));
+            });
+
+            this.$watch('lang', value => {
+                localStorage.setItem('lang', value);
+                this.$nextTick(() => lucide.createIcons());
+            });
+
+            this.$watch('activeTab', value => {
+                localStorage.setItem('gmeet_onboard_tab', value);
+                this.$nextTick(() => lucide.createIcons());
+            });
         }
-    }"
+    }" @close-disconnect-modal.window="confirmDisconnectOpen = false"
+    @close-disconnect-link-modal.window="confirmDisconnectLinkOpen = false"
+    @update-connect-state.window="connectState = $event.detail.state"
+    @sync-link-state.window="linkConnected = $event.detail.connected; if (!$event.detail.connected) connectedLinkData = null;"
+    :class="{ 'dark': darkMode }"
+    class="gmeet-canvas min-h-screen text-gray-200 antialiased selection:bg-sumrize selection:text-white">
 
     :class="{
         'dark bg-gray-900': darkMode
@@ -307,6 +538,11 @@
         </button>
     </header>
 
+    <!-- ==========================================
+         MAIN CONTENT STAGE
+    =========================================== -->
+    <main class="relative z-10 flex min-h-[calc(100vh-65px)] flex-col items-center justify-center px-4 py-8 sm:py-12">
+        <div class="w-full max-w-2xl">
 
     <!-- =========================
          MAIN
@@ -405,9 +641,10 @@
                 "
             >
 
-                <!-- Google Meet -->
-
-                <div class="flex flex-col items-center text-center">
+            <!-- ==========================================
+                 PRIMARY PANEL CARD
+            =========================================== -->
+            <section class="glass-panel overflow-hidden rounded-3xl p-4 sm:p-8 md:p-10">
 
                     <div
                         class="
@@ -455,445 +692,595 @@
                     >
                     </h1>
 
-
-                    <p
-                        class="
-                            mt-3
-                            max-w-md
-                            text-sm
-                            leading-6
-                            text-gray-500
-
-                            dark:text-gray-400
-                        "
-
-                        x-text="
-                            lang === 'id'
-                            ? 'Hubungkan akun Google Meet Anda ke Sumrize untuk menggunakan Meeting Assistant saat meeting berlangsung.'
-                            : 'Connect your Google Meet account to Sumrize and use Meeting Assistant during your meetings.'
-                        "
-                    >
+                    <p class="mx-auto mt-2.5 max-w-lg text-xs sm:text-sm leading-relaxed text-gray-400"
+                        x-text="lang === 'id'
+                ? 'Pilih metode onboarding untuk mengaktifkan Sumrize Meeting Assistant menangkap transkrip otomatis dan rekap cerdas.'
+                : 'Choose your onboarding method to enable Sumrize Meeting Assistant with automatic live transcription and smart summaries.'">
+                        Pilih metode onboarding untuk mengaktifkan Sumrize Meeting Assistant menangkap transkrip
+                        otomatis dan rekap cerdas.
                     </p>
 
-                    <div
-                        id="connection-status"
-                        class="mt-4 text-sm font-semibold text-gray-500 dark:text-gray-400"
-                    >
+                    <!-- Connection Status Text (Targeted by script for OAuth) -->
+                    <div id="connection-status" class="mt-2 text-sm font-semibold text-gray-400"
+                        x-show="activeTab === 'oauth'">
                         Memeriksa koneksi...
                     </div>
 
-                    <div
-                        id="connected-account"
-                        class="mt-1 text-xs text-gray-400 dark:text-gray-500"
-                    ></div>
-
-                </div>
-
-
-                <!-- =========================
-                     HOW IT WORKS
-                ========================== -->
-
-                <div class="gmeet-secondary mt-8">
-
-                    <p
-                        class="
-                            mb-3
-                            text-xs
-                            font-bold
-                            uppercase
-                            tracking-wider
-                            text-gray-400
-                        "
-
-                        x-text="
-                            lang === 'id'
-                            ? 'Cara kerja'
-                            : 'How it works'
-                        "
-                    >
-                    </p>
-
-
-                    <div class="space-y-3">
-
-
-                        <!-- STEP 1 -->
-
-                        <div
-                            class="
-                                flex
-                                items-start
-                                gap-3
-                                rounded-xl
-                                border
-                                border-gray-200
-                                p-4
-
-                                dark:border-gray-800
-                            "
-                        >
-
-                            <div
-                                class="
-                                    flex
-                                    h-9
-                                    w-9
-                                    flex-shrink-0
-                                    items-center
-                                    justify-center
-                                    rounded-full
-                                    bg-brand-50
-                                    text-sm
-                                    font-bold
-                                    text-brand-500
-
-                                    dark:bg-brand-500/[0.12]
-                                    dark:text-brand-400
-                                "
-                            >
-                                1
-                            </div>
-
-                            <div>
-
-                                <p
-                                    class="
-                                        text-sm
-                                        font-semibold
-                                        text-gray-900
-
-                                        dark:text-white
-                                    "
-                                    x-text="
-                                        lang === 'id'
-                                        ? 'Hubungkan akun Google'
-                                        : 'Connect your Google account'
-                                    "
-                                ></p>
-
-                                <p
-                                    class="
-                                        mt-1
-                                        text-xs
-                                        leading-5
-                                        text-gray-500
-
-                                        dark:text-gray-400
-                                    "
-                                    x-text="
-                                        lang === 'id'
-                                        ? 'Izinkan Sumrize terhubung dengan Google Meet Anda.'
-                                        : 'Allow Sumrize to connect with your Google Meet.'
-                                    "
-                                ></p>
-
-                            </div>
-
-                        </div>
-
-
-                        <!-- STEP 2 -->
-
-                        <div
-                            class="
-                                flex
-                                items-start
-                                gap-3
-                                rounded-xl
-                                border
-                                border-gray-200
-                                p-4
-
-                                dark:border-gray-800
-                            "
-                        >
-
-                            <div
-                                class="
-                                    flex
-                                    h-9
-                                    w-9
-                                    flex-shrink-0
-                                    items-center
-                                    justify-center
-                                    rounded-full
-                                    bg-brand-50
-                                    text-sm
-                                    font-bold
-                                    text-brand-500
-
-                                    dark:bg-brand-500/[0.12]
-                                    dark:text-brand-400
-                                "
-                            >
-                                2
-                            </div>
-
-                            <div>
-
-                                <p
-                                    class="
-                                        text-sm
-                                        font-semibold
-                                        text-gray-900
-
-                                        dark:text-white
-                                    "
-                                    x-text="
-                                        lang === 'id'
-                                        ? 'Mulai meeting di Google Meet'
-                                        : 'Start a meeting in Google Meet'
-                                    "
-                                ></p>
-
-                                <p
-                                    class="
-                                        mt-1
-                                        text-xs
-                                        leading-5
-                                        text-gray-500
-
-                                        dark:text-gray-400
-                                    "
-                                    x-text="
-                                        lang === 'id'
-                                        ? 'Masuk atau buat meeting seperti biasa.'
-                                        : 'Join or start a meeting as usual.'
-                                    "
-                                ></p>
-
-                            </div>
-
-                        </div>
-
-
-                        <!-- STEP 3 -->
-
-                        <div
-                            class="
-                                flex
-                                items-start
-                                gap-3
-                                rounded-xl
-                                border
-                                border-gray-200
-                                p-4
-
-                                dark:border-gray-800
-                            "
-                        >
-
-                            <div
-                                class="
-                                    flex
-                                    h-9
-                                    w-9
-                                    flex-shrink-0
-                                    items-center
-                                    justify-center
-                                    rounded-full
-                                    bg-brand-50
-                                    text-sm
-                                    font-bold
-                                    text-brand-500
-
-                                    dark:bg-brand-500/[0.12]
-                                    dark:text-brand-400
-                                "
-                            >
-                                3
-                            </div>
-
-                            <div>
-
-                                <p
-                                    class="
-                                        text-sm
-                                        font-semibold
-                                        text-gray-900
-
-                                        dark:text-white
-                                    "
-                                    x-text="
-                                        lang === 'id'
-                                        ? 'Nyalakan Sumrize Meeting Assistant'
-                                        : 'Turn on Sumrize Meeting Assistant'
-                                    "
-                                ></p>
-
-                                <p
-                                    class="
-                                        mt-1
-                                        text-xs
-                                        leading-5
-                                        text-gray-500
-
-                                        dark:text-gray-400
-                                    "
-                                    x-text="
-                                        lang === 'id'
-                                        ? 'Extension akan menangkap transcript meeting dan mengirimkannya ke Sumrize.'
-                                        : 'The extension captures the meeting transcript and sends it to Sumrize.'
-                                    "
-                                ></p>
-
-                            </div>
-
-                        </div>
-
+                    <!-- Connected Account Text (Targeted by script for OAuth) -->
+                    <div id="connected-account" class="mt-0.5 text-xs text-gray-400" x-show="activeTab === 'oauth'">
                     </div>
 
-                </div>
-
-
-                <!-- =========================
-                     PERMISSION INFO
-                ========================== -->
-
-                <div
-                    class="gmeet-secondary
-                        mt-6
-                        flex
-                        items-start
-                        gap-3
-                        rounded-xl
-                        bg-gray-50
-                        p-4
-
-                        dark:bg-white/[0.04]
-                    "
-                >
-
-                    <i
-                        data-lucide="shield-check"
-                        class="
-                            mt-0.5
-                            h-5
-                            w-5
-                            flex-shrink-0
-                            text-success-600
-
-                            dark:text-success-500
-                        "
-                    ></i>
-
-                    <div>
-
-                        <p
-                            class="
-                                text-sm
-                                font-semibold
-                                text-gray-900
-
-                                dark:text-white
-                            "
-                            x-text="
-                                lang === 'id'
-                                ? 'Koneksi aman'
-                                : 'Secure connection'
-                            "
-                        ></p>
-
-                        <p
-                            class="
-                                mt-1
-                                text-xs
-                                leading-5
-                                text-gray-500
-
-                                dark:text-gray-400
-                            "
-                            x-text="
-                                lang === 'id'
-                                ? 'Anda dapat memutuskan koneksi Google Meet kapan saja dari pengaturan Connector.'
-                                : 'You can disconnect Google Meet at any time from Connector settings.'
-                            "
-                        ></p>
-
-                    </div>
-
-                </div>
-
-
-                <!-- =========================
-                     CONNECT BUTTON
-                ========================== -->
-
-                <div class="gmeet-action mt-7">
-
-                    <button
-                        id="connect-button"
-                        type="button"
-
-                        class="
-                            flex
-                            w-full
-                            items-center
-                            justify-center
-                            gap-2
-                            rounded-full
-                            bg-sumrize
-                            px-5
-                            py-3
-                            text-sm
-                            font-semibold
-                            text-white
-                            shadow-theme-sm
-                            transition
-                            hover:bg-sumrize-hover
-                            focus:outline-none
-                            focus:ring-4
-                            focus:ring-sumrize/20
-                        "
-                    >
-
-                        <i
-                            data-lucide="link"
-                            class="h-4 w-4"
-                        ></i>
-
+                    <!-- Connection Status Text for Link -->
+                    <div id="link-connection-status"
+                        class="mt-2 text-sm font-semibold text-emerald-400 flex items-center justify-center gap-1.5"
+                        x-show="activeTab === 'link' && linkConnected" x-cloak>
+                        <i data-lucide="check-circle-2" class="h-4 w-4"></i>
                         <span
-                            id="connect-label"
-                            x-text="
-                                lang === 'id'
-                                ? 'Hubungkan Google Meet'
-                                : 'Connect Google Meet'
-                            "
-                        >
-                        </span>
-
-                    </button>
-
-                    <button
-                        id="disconnect-button"
-                        type="button"
-                        class="mt-3 hidden w-full items-center justify-center gap-2 rounded-full border border-gray-200 px-5 py-3 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-white/[0.04]"
-                    >
-                        <i data-lucide="unlink" class="h-4 w-4"></i>
-                        <span>Putuskan koneksi</span>
-                    </button>
-
+                            x-text="lang === 'id' ? '✓ Tautan Google Meet berhasil terhubung' : '✓ Google Meet link connected'">✓
+                            Tautan Google Meet berhasil terhubung</span>
+                    </div>
                 </div>
 
+                <!-- ==========================================
+         ONBOARDING METHOD SWITCHER TABS (PRD 2.1.2)
+         Diperbaiki: grid 2 kolom responsif + margin yang pas
+    =========================================== -->
+                <div class="mt-6 flex items-center justify-center px-1 sm:px-0">
+                    <div
+                        class="grid w-full max-w-md grid-cols-2 gap-1 rounded-2xl border border-white/10 bg-[#0d1018]/90 p-1 backdrop-blur-md shadow-inner">
 
-                <!-- Footer -->
+                        <!-- Tab 1: Akun Google OAuth -->
+                        <button type="button" @click="activeTab = 'oauth'"
+                            class="flex items-center justify-center gap-1.5 rounded-xl px-2 py-2 sm:px-4 sm:py-2.5 text-[11px] sm:text-xs font-bold transition-all duration-200 focus:outline-none"
+                            :class="activeTab === 'oauth'
+                    ? 'bg-sumrize text-white shadow-glow-sumrize'
+                    : 'text-gray-400 hover:text-white hover:bg-white/[0.04]'">
+                            <i data-lucide="shield-check" class="h-3.5 w-3.5 shrink-0"></i>
+                            <span class="truncate" x-text="lang === 'id' ? 'Akun Google' : 'Google Account'">Akun
+                                Google</span>
 
-                <p
-                    class="gmeet-footer
-                        mt-4
-                        text-center
-                        text-[11px]
-                        leading-5
-                        text-gray-400
-                    "
-                    x-text="
-                        lang === 'id'
-                            ? 'Kami akan meminta izin Google agar Sumrize dapat menggunakan Google Meet Anda. Anda dapat memutuskan koneksi kapan saja.'
-                            : 'We will ask Google for permission to connect your Google Meet. You can disconnect at any time.'
-                    "
-                >
-                </p>
+                            <!-- Badge OAuth (Desktop Only) -->
+                            <span class="hidden sm:inline-block rounded-full px-1.5 py-0.5 text-[10px] font-semibold"
+                                :class="connectState === 'connected' ? 'bg-emerald-500/20 text-emerald-300' : 'bg-emerald-500/20 text-emerald-400'"
+                                x-text="connectState === 'connected' ? (lang === 'id' ? 'Aktif' : 'Active') : 'OAuth'">OAuth</span>
+                        </button>
+
+                        <!-- Tab 2: Tautkan via Link Rapat -->
+                        <button type="button" @click="activeTab = 'link'"
+                            class="flex items-center justify-center gap-1.5 rounded-xl px-2 py-2 sm:px-4 sm:py-2.5 text-[11px] sm:text-xs font-bold transition-all duration-200 focus:outline-none"
+                            :class="activeTab === 'link'
+                    ? 'bg-sumrize text-white shadow-glow-sumrize'
+                    : 'text-gray-400 hover:text-white hover:bg-white/[0.04]'">
+                            <i data-lucide="link" class="h-3.5 w-3.5 shrink-0"></i>
+                            <span class="truncate" x-text="lang === 'id' ? 'Link Rapat' : 'Meeting Link'">Link
+                                Rapat</span>
+
+                            <!-- Badge Cepat (Desktop Only) -->
+                            <span
+                                class="hidden sm:inline-block rounded-full px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider"
+                                :class="linkConnected ? 'bg-emerald-500/20 text-emerald-300' : 'bg-white/20 text-white'"
+                                x-text="linkConnected ? (lang === 'id' ? 'Aktif' : 'Active') : (lang === 'id' ? 'Cepat' : 'Quick')">Cepat</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- =========================================================================
+         TAB 1: ONBOARDING VIA GOOGLE OAUTH CONNECTOR
+    ========================================================================== -->
+                <div x-show="activeTab === 'oauth'" x-transition:enter="transition ease-out duration-200"
+                    x-transition:enter-start="opacity-0 translate-y-2"
+                    x-transition:enter-end="opacity-100 translate-y-0" class="mt-6">
+
+                    <!-- Mutual Exclusivity Notice -->
+                    <div x-show="linkConnected" x-cloak
+                        class="mb-6 rounded-2xl border border-amber-500/30 bg-amber-950/20 p-4 sm:p-5 text-left">
+                        <div class="flex items-start gap-3">
+                            <div
+                                class="flex h-9 w-9 sm:h-10 sm:w-10 flex-shrink-0 items-center justify-center rounded-xl bg-amber-500/20 text-amber-400">
+                                <i data-lucide="alert-circle" class="h-5 w-5"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="text-sm font-bold text-amber-200"
+                                    x-text="lang === 'id' ? 'Konektor Tautan Rapat Sedang Aktif' : 'Meeting Link Connector is Active'">
+                                    Konektor Tautan Rapat Sedang Aktif
+                                </h4>
+                                <p class="mt-1 text-xs leading-relaxed text-amber-300/80"
+                                    x-text="lang === 'id'
+                            ? 'Anda saat ini telah menghubungkan Google Meet menggunakan metode Tautan Rapat (Kode: ' + (connectedLinkData?.code || '') + '). Hanya satu metode yang dapat aktif dalam satu waktu. Untuk menghubungkan Akun Google, lepaskan konektor tautan rapat terlebih dahulu.'
+                            : 'You are currently connected via Meeting Link (Code: ' + (connectedLinkData?.code || '') + '). Only one connector method can be active at a time. To connect your Google Account, please disconnect the active meeting link connector first.'">
+                                </p>
+                                <div class="mt-3.5 flex items-center gap-3">
+                                    <button type="button" @click="activeTab = 'link'"
+                                        class="inline-flex items-center gap-1.5 rounded-xl bg-amber-500 px-3.5 py-2 text-xs font-bold text-gray-950 transition hover:bg-amber-400">
+                                        <i data-lucide="link" class="h-3.5 w-3.5"></i>
+                                        <span
+                                            x-text="lang === 'id' ? 'Buka & Kelola Konektor Tautan' : 'Manage Link Connector'">Buka
+                                            & Kelola Konektor Tautan</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Connected State Card -->
+                    <div id="connected-account-card"
+                        class="hidden rounded-2xl border border-emerald-500/20 bg-emerald-950/20 p-4 transition-all duration-300">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div
+                                    class="flex h-10 w-10 items-center justify-center rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-400">
+                                    <i data-lucide="check-circle-2" class="h-5 w-5"></i>
+                                </div>
+                                <div class="text-left">
+                                    <p class="text-xs font-semibold uppercase tracking-wider text-emerald-400"
+                                        x-text="lang === 'id' ? 'Akun Google Terhubung' : 'Google Account Connected'">
+                                        Akun Google Terhubung
+                                    </p>
+                                    <p id="connected-email-display"
+                                        class="text-sm font-medium text-white truncate max-w-[180px] sm:max-w-xs">
+                                        -
+                                    </p>
+                                </div>
+                            </div>
+                            <span
+                                class="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1 text-xs font-semibold text-emerald-400">
+                                <span class="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+                                <span x-text="lang === 'id' ? 'Aktif' : 'Active'">Aktif</span>
+                            </span>
+                        </div>
+
+                        <div class="mt-4 pt-3 border-t border-emerald-500/15">
+                            <a href="https://meet.google.com/new" target="_blank" rel="noopener noreferrer"
+                                class="flex w-full items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.06] px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-white/[0.12] focus:outline-none">
+                                <i data-lucide="video" class="h-4 w-4 text-emerald-400"></i>
+                                <span x-text="lang === 'id' ? 'Mulai Google Meet Baru' : 'Start New Google Meet'">Mulai
+                                    Google Meet Baru</span>
+                                <i data-lucide="external-link" class="h-3 w-3 text-gray-400"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Error Banner -->
+                    <div id="error-alert-box"
+                        class="hidden rounded-2xl border border-rose-500/30 bg-rose-950/20 p-4 text-left">
+                        <div class="flex items-start gap-3">
+                            <div
+                                class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-rose-500/20 text-rose-400">
+                                <i data-lucide="alert-triangle" class="h-5 w-5"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="text-sm font-semibold text-rose-200"
+                                    x-text="lang === 'id' ? 'Koneksi Memerlukan Perhatian' : 'Connection Needs Attention'">
+                                    Koneksi Memerlukan Perhatian
+                                </h4>
+                                <p id="error-alert-message" class="mt-1 text-xs leading-relaxed text-rose-300/80">
+                                    Terjadi kendala saat menghubungkan akun.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Login Required Banner -->
+                    <div id="login-required-box"
+                        class="hidden rounded-2xl border border-amber-500/30 bg-amber-950/20 p-4 text-left">
+                        <div class="flex items-start gap-3">
+                            <div
+                                class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-amber-500/20 text-amber-400">
+                                <i data-lucide="lock" class="h-5 w-5"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="text-sm font-semibold text-amber-200"
+                                    x-text="lang === 'id' ? 'Autentikasi Diperlukan' : 'Authentication Required'">
+                                    Autentikasi Diperlukan
+                                </h4>
+                                <p class="mt-1 text-xs leading-relaxed text-amber-300/80"
+                                    x-text="lang === 'id' ? 'Anda perlu login ke akun Sumrize Anda terlebih dahulu untuk menautkan Google Meet.' : 'You need to sign in to your Sumrize account before linking Google Meet.'">
+                                    Anda perlu login ke akun Sumrize Anda terlebih dahulu untuk menautkan Google Meet.
+                                </p>
+                                <a href="login.html?redirect=onboard-gmeet.html"
+                                    class="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-amber-500 px-3 py-1.5 text-xs font-semibold text-gray-950 transition hover:bg-amber-400">
+                                    <span x-text="lang === 'id' ? 'Masuk ke Sumrize' : 'Sign in to Sumrize'">Masuk ke
+                                        Sumrize</span>
+                                    <i data-lucide="arrow-right" class="h-3 w-3"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="mt-6 flex flex-col gap-3">
+                        <button id="connect-button" type="button"
+                            x-show="connectState !== 'connected' && !linkConnected"
+                            class="btn-shine relative flex w-full items-center justify-center gap-2.5 rounded-2xl bg-sumrize px-6 py-3.5 sm:py-4 text-sm font-bold text-white shadow-glow-sumrize transition-all duration-200 hover:bg-sumrize-hover hover:scale-[1.01] active:scale-[0.99] focus:outline-none focus:ring-4 focus:ring-sumrize/30 disabled:opacity-60 disabled:pointer-events-none">
+                            <span id="connect-btn-icon-wrap" class="flex items-center justify-center">
+                                <i data-lucide="link" class="h-4 w-4"></i>
+                            </span>
+                            <span id="connect-label" x-text="connectButtonLabel">Hubungkan Google Meet</span>
+                        </button>
+
+                        <button id="disconnect-button" type="button" x-show="connectState === 'connected'" x-cloak
+                            @click="confirmDisconnectOpen = true"
+                            class="w-full inline-flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/[0.04] px-5 py-3 text-xs font-semibold text-gray-300 transition hover:border-rose-500/40 hover:bg-rose-500/10 hover:text-rose-300 focus:outline-none disabled:opacity-60">
+                            <span class="inline-flex items-center justify-center">
+                                <i data-lucide="unlink" class="h-4 w-4"></i>
+                            </span>
+                            <span x-text="lang === 'id' ? 'Putuskan Sambungan Google Meet' : 'Disconnect Google Meet'">
+                                Putuskan Sambungan Google Meet
+                            </span>
+                        </button>
+                    </div>
+
+                    <!-- Stepper: 3 Cards -->
+                    <div class="mt-8 border-t border-white/[0.08] pt-6">
+                        <div class="mb-4 flex items-center justify-between">
+                            <p class="text-xs font-bold uppercase tracking-widest text-gray-400"
+                                x-text="lang === 'id' ? 'Alur Kerja Otomatis' : 'Automated Workflow'">
+                                Alur Kerja Otomatis
+                            </p>
+                        </div>
+
+                        <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                            <div
+                                class="glass-card-hover flex flex-col rounded-2xl border border-white/[0.06] bg-white/[0.02] p-4 text-left">
+                                <div class="flex items-center justify-between">
+                                    <span
+                                        class="flex h-7 w-7 items-center justify-center rounded-xl bg-sumrize/20 text-xs font-extrabold text-sumrize">1</span>
+                                    <i data-lucide="key-round" class="h-4 w-4 text-gray-400"></i>
+                                </div>
+                                <h3 class="mt-3 text-xs font-bold text-white"
+                                    x-text="lang === 'id' ? '1. Berikan Izin' : '1. Grant Permission'">
+                                    1. Berikan Izin
+                                </h3>
+                                <p class="mt-1 text-[11px] leading-relaxed text-gray-400" x-text="lang === 'id'
+                            ? 'Otorisasikan akun Google Anda untuk membaca metadata ruang meeting.'
+                            : 'Authorize your Google account to read meeting space metadata.'">
+                                </p>
+                            </div>
+
+                            <div
+                                class="glass-card-hover flex flex-col rounded-2xl border border-white/[0.06] bg-white/[0.02] p-4 text-left">
+                                <div class="flex items-center justify-between">
+                                    <span
+                                        class="flex h-7 w-7 items-center justify-center rounded-xl bg-brand-400/20 text-xs font-extrabold text-brand-300">2</span>
+                                    <i data-lucide="video" class="h-4 w-4 text-gray-400"></i>
+                                </div>
+                                <h3 class="mt-3 text-xs font-bold text-white"
+                                    x-text="lang === 'id' ? '2. Mulai Meeting' : '2. Join Meeting'">
+                                    2. Mulai Meeting
+                                </h3>
+                                <p class="mt-1 text-[11px] leading-relaxed text-gray-400" x-text="lang === 'id'
+                            ? 'Buka atau gabung ke panggilan Google Meet seperti biasa di browser.'
+                            : 'Open or join your Google Meet call normally from any browser.'">
+                                </p>
+                            </div>
+
+                            <div
+                                class="glass-card-hover flex flex-col rounded-2xl border border-white/[0.06] bg-white/[0.02] p-4 text-left">
+                                <div class="flex items-center justify-between">
+                                    <span
+                                        class="flex h-7 w-7 items-center justify-center rounded-xl bg-emerald-500/20 text-xs font-extrabold text-emerald-400">3</span>
+                                    <i data-lucide="sparkles" class="h-4 w-4 text-gray-400"></i>
+                                </div>
+                                <h3 class="mt-3 text-xs font-bold text-white"
+                                    x-text="lang === 'id' ? '3. Rekap Otomatis' : '3. Auto Summary'">
+                                    3. Rekap Otomatis
+                                </h3>
+                                <p class="mt-1 text-[11px] leading-relaxed text-gray-400" x-text="lang === 'id'
+                            ? 'Assistant Sumrize mentranskrip percakapan dan menyusun action item realtime.'
+                            : 'Sumrize Assistant captures transcripts and generates actionable notes in realtime.'">
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- =========================================================================
+         TAB 2: ONBOARDING VIA LINK GOOGLE MEET
+    ========================================================================== -->
+                <div x-show="activeTab === 'link'" x-transition:enter="transition ease-out duration-200"
+                    x-transition:enter-start="opacity-0 translate-y-2"
+                    x-transition:enter-end="opacity-100 translate-y-0" class="mt-6">
+
+                    <div x-show="connectState === 'connected'" x-cloak
+                        class="mb-6 rounded-2xl border border-amber-500/30 bg-amber-950/20 p-4 sm:p-5 text-left">
+                        <div class="flex items-start gap-3.5">
+                            <div
+                                class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-amber-500/20 text-amber-400">
+                                <i data-lucide="shield-check" class="h-5 w-5"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="text-sm font-bold text-amber-200"
+                                    x-text="lang === 'id' ? 'Konektor Akun Google Sedang Aktif' : 'Google Account Connector is Active'">
+                                    Konektor Akun Google Sedang Aktif
+                                </h4>
+                                <p class="mt-1 text-xs leading-relaxed text-amber-300/80"
+                                    x-text="lang === 'id'
+                            ? 'Anda saat ini telah menghubungkan Google Meet menggunakan Akun Google (OAuth). Anda tidak dapat menghubungkan dengan link rapat kecuali konektor Akun Google dilepas terlebih dahulu.'
+                            : 'You are currently connected via Google Account (OAuth). You cannot connect via meeting link unless your Google Account connector is disconnected first.'">
+                                </p>
+                                <div class="mt-3.5 flex items-center gap-3">
+                                    <button type="button" @click="activeTab = 'oauth'"
+                                        class="inline-flex items-center gap-1.5 rounded-xl bg-amber-500 px-3.5 py-2 text-xs font-bold text-gray-950 transition hover:bg-amber-400">
+                                        <i data-lucide="shield-check" class="h-3.5 w-3.5"></i>
+                                        <span
+                                            x-text="lang === 'id' ? 'Buka & Kelola Akun Google' : 'Manage Google Account'">Buka
+                                            & Kelola Akun Google</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div x-show="linkConnected" x-cloak
+                        class="rounded-2xl border border-emerald-500/20 bg-emerald-950/20 p-4 sm:p-5 text-left transition-all duration-300">
+                        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                            <div class="flex items-center gap-3.5">
+                                <div
+                                    class="flex h-10 w-10 sm:h-11 sm:w-11 flex-shrink-0 items-center justify-center rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-400">
+                                    <i data-lucide="link-2" class="h-5 w-5 sm:h-6 sm:w-6"></i>
+                                </div>
+                                <div class="min-w-0 text-left">
+                                    <div class="flex items-center gap-2">
+                                        <p class="text-xs font-semibold uppercase tracking-wider text-emerald-400"
+                                            x-text="lang === 'id' ? 'Tautan Google Meet Terhubung' : 'Google Meet Link Connected'">
+                                            Tautan Google Meet Terhubung
+                                        </p>
+                                        <span
+                                            class="inline-flex items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold text-emerald-400">
+                                            <span class="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+                                            <span x-text="lang === 'id' ? 'Aktif' : 'Active'">Aktif</span>
+                                        </span>
+                                    </div>
+                                    <div class="mt-1.5 flex flex-wrap items-center gap-2">
+                                        <code
+                                            class="rounded bg-black/40 border border-emerald-500/30 px-2 py-0.5 font-mono text-xs sm:text-sm font-bold text-emerald-300"
+                                            x-text="connectedLinkData?.code || meetCodeClean || '-'"></code>
+                                        <span class="max-w-[150px] truncate text-xs text-gray-400 sm:max-w-xs"
+                                            x-text="connectedLinkData?.url || ''"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center gap-2">
+                                <button type="button" @click="openConnectedMeetLink()"
+                                    class="inline-flex w-full sm:w-auto items-center justify-center gap-1.5 rounded-xl bg-sumrize px-3.5 py-2.5 text-xs font-bold text-white shadow-glow-sumrize transition hover:bg-sumrize-hover">
+                                    <i data-lucide="external-link" class="h-3.5 w-3.5"></i>
+                                    <span x-text="lang === 'id' ? 'Buka Meet' : 'Open Meet'">Buka Meet</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div
+                            class="mt-4 flex flex-col gap-3 border-t border-emerald-500/15 pt-4 sm:flex-row sm:items-center sm:justify-between text-xs">
+                            <p class="flex items-center gap-1.5 text-gray-300">
+                                <i data-lucide="info" class="h-3.5 w-3.5 text-emerald-400 shrink-0"></i>
+                                <span
+                                    x-text="lang === 'id' ? 'Konektor tautan aktif. Putuskan konektor jika ingin mengganti link atau beralih ke Akun Google.' : 'Link connector active. Disconnect to change link or switch to Google Account.'">
+                                </span>
+                            </p>
+
+                            <button type="button" @click="confirmDisconnectLinkOpen = true"
+                                class="inline-flex items-center justify-center gap-2 rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-2 text-xs font-semibold text-rose-300 transition hover:bg-rose-500/20 hover:border-rose-500/50">
+                                <i data-lucide="unlink" class="h-3.5 w-3.5"></i>
+                                <span x-text="lang === 'id' ? 'Putuskan Konektor Tautan' : 'Disconnect Link Connector'">
+                                </span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- FORM INPUT LINK -->
+                    <div x-show="connectState !== 'connected' && !linkConnected">
+                        <div class="rounded-2xl border border-white/[0.08] bg-white/[0.02] p-4 text-left">
+                            <div class="flex items-start gap-3">
+                                <div
+                                    class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-sumrize/15 text-sumrize">
+                                    <i data-lucide="video" class="h-5 w-5"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <h3 class="text-xs font-bold uppercase tracking-wider text-white"
+                                        x-text="lang === 'id' ? 'Mulai Langsung Tanpa Login OAuth' : 'Start Instantly Without OAuth'">
+                                        Mulai Langsung Tanpa Login OAuth
+                                    </h3>
+                                    <p class="mt-1 text-xs leading-relaxed text-gray-400"
+                                        x-text="lang === 'id'
+                                ? 'Cukup masukkan atau salin tautan Google Meet Anda. Ekstensi Sumrize akan mendeteksi ruang meeting secara otomatis saat Anda masuk.'
+                                : 'Simply enter or copy your Google Meet link. The Sumrize Chrome Extension will automatically detect the room once you join.'">
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div
+                            class="mt-4 rounded-2xl border border-white/10 bg-white/[0.03] p-4 sm:p-5 text-left shadow-lg">
+                            <div class="flex items-center justify-between">
+                                <label for="input-meet-url"
+                                    class="text-xs font-bold uppercase tracking-wider text-gray-300 flex items-center gap-2">
+                                    <span
+                                        x-text="lang === 'id' ? 'Link atau Kode Rapat Google Meet' : 'Google Meet Link or Code'">Link
+                                        atau Kode Rapat Google Meet</span>
+                                </label>
+                            </div>
+
+                            <div class="relative mt-2 flex items-center">
+                                <div
+                                    class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-gray-400">
+                                    <i data-lucide="video" class="h-4 w-4 text-sumrize"></i>
+                                </div>
+                                <input type="text" id="input-meet-url" x-model="meetUrlInput"
+                                    @input="validateMeetInput($event.target.value)"
+                                    @keydown.enter.prevent="if (isUrlValid) connectMeetingLink()"
+                                    class="w-full rounded-xl border border-white/10 bg-[#0d1018] py-3 pl-10 pr-24 text-xs sm:text-sm text-white placeholder-gray-500 transition focus:border-sumrize focus:outline-none focus:ring-2 focus:ring-sumrize/30 font-mono"
+                                    :placeholder="lang === 'id' ? 'https://meet.google.com/abc-defg-hij atau abc-defg-hij' : 'https://meet.google.com/abc-defg-hij or abc-defg-hij'" />
+
+                                <div class="absolute inset-y-0 right-0 flex items-center gap-1 pr-2">
+                                    <button type="button" x-show="meetUrlInput.length > 0" x-cloak
+                                        @click="meetUrlInput = ''; validateMeetInput('');"
+                                        class="rounded-lg p-1.5 text-gray-400 hover:bg-white/10 hover:text-white transition"
+                                        title="Bersihkan input">
+                                        <i data-lucide="x" class="h-3.5 w-3.5"></i>
+                                    </button>
+                                    <button type="button" @click="pasteFromClipboard()"
+                                        class="inline-flex items-center gap-1 rounded-lg border border-white/10 bg-white/[0.06] px-2 py-1 text-xs font-semibold text-gray-300 hover:bg-white/15 hover:text-white transition">
+                                        <i data-lucide="clipboard" class="h-3 w-3"></i>
+                                        <span x-text="lang === 'id' ? 'Tempel' : 'Paste'">Tempel</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="mt-2.5 flex flex-wrap items-center justify-between gap-2 text-xs">
+                                <template x-if="isUrlValid && meetCodeClean">
+                                    <div class="flex items-center gap-2 text-emerald-400 font-semibold">
+                                        <span
+                                            class="flex h-4 w-4 items-center justify-center rounded-full bg-emerald-500/20">
+                                            <i data-lucide="check" class="h-3 w-3"></i>
+                                        </span>
+                                        <span>
+                                            <span x-text="lang === 'id' ? 'Kode Terdeteksi:' : 'Code Detected:'">Kode
+                                                Terdeteksi:</span>
+                                            <code
+                                                class="rounded bg-emerald-950/80 border border-emerald-500/30 px-1.5 py-0.5 font-bold font-mono text-emerald-300"
+                                                x-text="meetCodeClean"></code>
+                                        </span>
+                                    </div>
+                                </template>
+                                <template x-if="!isUrlValid && meetUrlInput.trim().length > 0">
+                                    <div class="flex items-center gap-1.5 text-amber-400 font-medium">
+                                        <i data-lucide="alert-circle" class="h-3.5 w-3.5"></i>
+                                        <span
+                                            x-text="lang === 'id' ? 'Format belum sesuai (gunakan pola xxx-yyyy-zzz)' : 'Invalid format (pattern xxx-yyyy-zzz)'"></span>
+                                    </div>
+                                </template>
+                                <template x-if="meetUrlInput.trim().length === 0">
+                                    <span class="text-gray-400 text-[11px]"
+                                        x-text="lang === 'id' ? 'Pola: meet.google.com/xxx-xxxx-xxx atau xxx-xxxx-xxx' : 'Pattern: meet.google.com/xxx-xxxx-xxx or xxx-xxxx-xxx'">
+                                    </span>
+                                </template>
+                            </div>
+                        </div>
+
+                        <div class="mt-4 grid grid-cols-1 gap-2.5">
+                            <button type="button" @click="connectMeetingLink()" :disabled="!isUrlValid"
+                                class="btn-shine relative flex items-center justify-center gap-2 rounded-2xl bg-sumrize px-5 py-3.5 sm:py-4 text-xs font-bold text-white shadow-glow-sumrize transition-all hover:bg-sumrize-hover hover:scale-[1.01] active:scale-[0.99] disabled:opacity-40 disabled:pointer-events-none">
+                                <i data-lucide="external-link" class="h-4 w-4"></i>
+                                <span
+                                    x-text="lang === 'id' ? 'Tautkan & Buka Google Meet' : 'Connect & Open Google Meet'">Tautkan
+                                    & Buka Google Meet</span>
+                            </button>
+                        </div>
+
+                        <div class="mt-3 flex items-center justify-center">
+                            <button type="button" @click="createAndOpenNewMeeting()"
+                                class="inline-flex items-center gap-2 rounded-xl px-3 py-1.5 text-xs font-semibold text-gray-400 transition hover:bg-white/[0.05] hover:text-white">
+                                <i data-lucide="video" class="h-3.5 w-3.5 text-emerald-400"></i>
+                                <span
+                                    x-text="lang === 'id' ? 'Belum punya link? Buat Google Meet Baru Instan ↗' : 'No meeting link yet? Create Instant Google Meet ↗'"></span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Stepper Guide -->
+                    <div class="mt-8 border-t border-white/[0.08] pt-6">
+                        <div class="mb-4 flex items-center justify-between">
+                            <p class="text-xs font-bold uppercase tracking-widest text-gray-400"
+                                x-text="lang === 'id' ? 'Alur Penggunaan Link' : 'Link Workflow'">
+                                Alur Penggunaan Link
+                            </p>
+                        </div>
+
+                        <div class="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-4">
+                            <div
+                                class="glass-card-hover flex flex-col rounded-2xl border border-white/[0.06] bg-white/[0.02] p-4 text-left">
+                                <div class="flex items-center justify-between">
+                                    <span
+                                        class="flex h-7 w-7 items-center justify-center rounded-xl bg-sumrize/20 text-xs font-extrabold text-sumrize">1</span>
+                                    <i data-lucide="link" class="h-4 w-4 text-gray-400"></i>
+                                </div>
+                                <h4 class="mt-3 text-xs font-bold text-white"
+                                    x-text="lang === 'id' ? '1. Siapkan Link' : '1. Prepare Link'">1. Siapkan Link</h4>
+                                <p class="mt-1 text-[11px] leading-relaxed text-gray-400"
+                                    x-text="lang === 'id' ? 'Masukkan kode rapat atau salin link Google Meet yang akan digunakan.' : 'Enter the meeting code or copy the Google Meet link to use.'">
+                                </p>
+                            </div>
+
+                            <div
+                                class="glass-card-hover flex flex-col rounded-2xl border border-white/[0.06] bg-white/[0.02] p-4 text-left">
+                                <div class="flex items-center justify-between">
+                                    <span
+                                        class="flex h-7 w-7 items-center justify-center rounded-xl bg-sky-500/20 text-xs font-extrabold text-sky-400">2</span>
+                                    <i data-lucide="puzzle" class="h-4 w-4 text-gray-400"></i>
+                                </div>
+                                <h4 class="mt-3 text-xs font-bold text-white"
+                                    x-text="lang === 'id' ? '2. Cek Ekstensi' : '2. Check Extension'">2. Cek Ekstensi
+                                </h4>
+                                <p class="mt-1 text-[11px] leading-relaxed text-gray-400"
+                                    x-text="lang === 'id' ? 'Pastikan Ekstensi Chrome Sumrize Meeting Assistant terpasang.' : 'Ensure Sumrize Chrome Extension is installed and active.'">
+                                </p>
+                            </div>
+
+                            <div
+                                class="glass-card-hover flex flex-col rounded-2xl border border-white/[0.06] bg-white/[0.02] p-4 text-left">
+                                <div class="flex items-center justify-between">
+                                    <span
+                                        class="flex h-7 w-7 items-center justify-center rounded-xl bg-amber-500/20 text-xs font-extrabold text-amber-400">3</span>
+                                    <i data-lucide="video" class="h-4 w-4 text-gray-400"></i>
+                                </div>
+                                <h4 class="mt-3 text-xs font-bold text-white"
+                                    x-text="lang === 'id' ? '3. Buka Meet' : '3. Open Meet'">3. Buka Meet</h4>
+                                <p class="mt-1 text-[11px] leading-relaxed text-gray-400"
+                                    x-text="lang === 'id' ? 'Buka ruang meeting di Google Meet. Ekstensi akan otomatis mendeteksi.' : 'Open Google Meet room. The extension detects the room automatically.'">
+                                </p>
+                            </div>
+
+                            <div
+                                class="glass-card-hover flex flex-col rounded-2xl border border-white/[0.06] bg-white/[0.02] p-4 text-left">
+                                <div class="flex items-center justify-between">
+                                    <span
+                                        class="flex h-7 w-7 items-center justify-center rounded-xl bg-emerald-500/20 text-xs font-extrabold text-emerald-400">4</span>
+                                    <i data-lucide="sparkles" class="h-4 w-4 text-gray-400"></i>
+                                </div>
+                                <h4 class="mt-3 text-xs font-bold text-white"
+                                    x-text="lang === 'id' ? '4. Transkripsi' : '4. Transcribe'">4. Transkripsi</h4>
+                                <p class="mt-1 text-[11px] leading-relaxed text-gray-400"
+                                    x-text="lang === 'id' ? 'Buka panel ekstensi dan klik Mulai Transkripsi untuk merekam sesi.' : 'Open extension panel and click Start Capture to record notes.'">
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECURITY & PRIVACY TRUST BADGE -->
+                <div
+                    class="mt-8 flex items-start gap-3.5 rounded-2xl border border-white/[0.06] bg-white/[0.02] p-4 text-left">
+                    <div
+                        class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-400">
+                        <i data-lucide="shield-check" class="h-4 w-4"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs font-bold text-white"
+                            x-text="lang === 'id' ? 'Privasi & Enkripsi Terjamin' : 'Guaranteed Privacy & Encryption'">
+                            Privasi & Enkripsi Terjamin
+                        </p>
+                        <p class="mt-0.5 text-[11px] leading-relaxed text-gray-400"
+                            x-text="lang === 'id'
+                    ? 'Sumrize hanya memproses transkrip saat capture diaktifkan dan tidak pernah merekam audio di luar sesi Anda.'
+                    : 'Sumrize only processes transcripts during active capture and never stores audio outside your session.'">
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Legal & Back -->
+                <div class="mt-6 flex flex-col items-center gap-2">
+                    <a href="index_local.html"
+                        class="inline-flex items-center gap-1.5 text-xs font-medium text-gray-400 transition hover:text-white">
+                        <i data-lucide="arrow-left" class="h-3 w-3"></i>
+                        <span x-text="lang === 'id' ? 'Kembali ke Dashboard' : 'Back to Dashboard'">Kembali ke
+                            Dashboard</span>
+                    </a>
+                    <p class="text-center text-[11px] leading-relaxed text-gray-400" x-text="lang === 'id'
+                ? 'Dengan menggunakan integrasi, Anda menyetujui kebijakan privasi dan integrasi Google Meet Sumrize.'
+                : 'By using this integration, you agree to Sumrize\'s privacy terms and Google Meet policies.'">
+                    </p>
+                </div>
 
             </section>
 
@@ -906,9 +1293,131 @@
          CONNECTION SCRIPT
     ========================== -->
 
-    <script>
+            <div class="flex items-center gap-3">
+                <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-rose-500/20 text-rose-400">
+                    <i data-lucide="alert-circle" class="h-6 w-6"></i>
+                </div>
+                <div>
+                    <h3 class="text-base font-bold text-white"
+                        x-text="lang === 'id' ? 'Putuskan Google Meet?' : 'Disconnect Google Meet?'">
+                        Putuskan Google Meet?
+                    </h3>
+                    <p class="text-xs text-gray-400"
+                        x-text="lang === 'id' ? 'Koneksi ke Sumrize akan dinonaktifkan.' : 'Connection to Sumrize will be revoked.'">
+                        Koneksi ke Sumrize akan dinonaktifkan.
+                    </p>
+                </div>
+            </div>
 
-        const apiOrigin = 'http://localhost/sumrize-beta';
+            <p class="mt-4 text-xs leading-relaxed text-gray-300"
+                x-text="lang === 'id'
+                    ? 'Setelah diputuskan, Sumrize tidak akan dapat mengidentifikasi ruang meeting Google Meet Anda secara otomatis melalui akun hingga Anda menghubungkannya kembali.'
+                    : 'Once disconnected, Sumrize will no longer identify your Google Meet rooms automatically via account until re-connected.'">
+                Setelah diputuskan, Sumrize tidak akan dapat mengidentifikasi ruang meeting Google Meet Anda secara
+                otomatis melalui akun hingga Anda menghubungkannya kembali.
+            </p>
+
+            <div class="mt-6 flex items-center justify-end gap-3">
+                <button type="button" @click="confirmDisconnectOpen = false"
+                    class="rounded-xl border border-white/10 bg-white/[0.05] px-4 py-2.5 text-xs font-semibold text-gray-300 transition hover:bg-white/10">
+                    <span x-text="lang === 'id' ? 'Batal' : 'Cancel'">Batal</span>
+                </button>
+                <button id="modal-confirm-disconnect-btn" type="button"
+                    class="inline-flex items-center gap-2 rounded-xl bg-rose-600 px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-rose-500">
+                    <i data-lucide="unlink" class="h-3.5 w-3.5"></i>
+                    <span x-text="lang === 'id' ? 'Ya, Putuskan' : 'Yes, Disconnect'">Ya, Putuskan</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         CONFIRMATION MODAL: DISCONNECT LINK CONNECTOR
+    =========================================== -->
+    <div x-show="confirmDisconnectLinkOpen" x-cloak
+        class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md"
+        x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0"
+        x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-150"
+        x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
+
+        <div class="glass-panel w-full max-w-md rounded-3xl p-6 shadow-2xl border border-white/10"
+            @click.outside="confirmDisconnectLinkOpen = false" x-transition:enter="transition ease-out duration-200"
+            x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100"
+            x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 scale-100"
+            x-transition:leave-end="opacity-0 scale-95">
+
+            <div class="flex items-center gap-3">
+                <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-rose-500/20 text-rose-400">
+                    <i data-lucide="unlink" class="h-6 w-6"></i>
+                </div>
+                <div>
+                    <h3 class="text-base font-bold text-white"
+                        x-text="lang === 'id' ? 'Putuskan Konektor Tautan?' : 'Disconnect Link Connector?'">
+                        Putuskan Konektor Tautan?
+                    </h3>
+                    <p class="text-xs text-gray-400"
+                        x-text="lang === 'id' ? 'Tautan rapat ini akan dilepas dari sistem.' : 'This meeting link will be disconnected.'">
+                        Tautan rapat ini akan dilepas dari sistem.
+                    </p>
+                </div>
+            </div>
+
+            <p class="mt-4 text-xs leading-relaxed text-gray-300"
+                x-text="lang === 'id'
+                    ? 'Setelah diputuskan, Sumrize tidak lagi menautkan sesi ke tautan ini. Anda akan dapat menambahkan konektor kembali, baik menggunakan link rapat baru maupun menghubungkan Akun Google.'
+                    : 'Once disconnected, Sumrize will no longer link sessions to this meeting. You will be able to reconnect with a new link or switch to Google Account.'">
+                Setelah diputuskan, Sumrize tidak lagi menautkan sesi ke tautan ini. Anda akan dapat menambahkan
+                konektor kembali, baik menggunakan link rapat baru maupun menghubungkan Akun Google.
+            </p>
+
+            <!-- Active meeting code display -->
+            <div
+                class="mt-3 flex items-center justify-between rounded-xl border border-white/10 bg-white/[0.03] px-3.5 py-2.5 text-xs font-mono text-gray-300">
+                <span class="text-gray-400 text-[11px]"
+                    x-text="lang === 'id' ? 'Kode Rapat Aktif:' : 'Active Meet Code:'">Kode Rapat Aktif:</span>
+                <span class="font-bold text-emerald-400" x-text="connectedLinkData?.code || '-'"></span>
+            </div>
+
+            <div class="mt-6 flex items-center justify-end gap-3">
+                <button type="button" @click="confirmDisconnectLinkOpen = false"
+                    class="rounded-xl border border-white/10 bg-white/[0.05] px-4 py-2.5 text-xs font-semibold text-gray-300 transition hover:bg-white/10">
+                    <span x-text="lang === 'id' ? 'Batal' : 'Cancel'">Batal</span>
+                </button>
+                <button type="button" @click="disconnectLinkConnector()"
+                    class="inline-flex items-center gap-2 rounded-xl bg-rose-600 px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-rose-500">
+                    <i data-lucide="unlink" class="h-3.5 w-3.5"></i>
+                    <span x-text="lang === 'id' ? 'Ya, Putuskan Konektor' : 'Yes, Disconnect'">Ya, Putuskan
+                        Konektor</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         FLOATING TOAST NOTIFICATION
+    =========================================== -->
+    <div x-show="toastOpen" x-cloak x-transition:enter="transition ease-out duration-200"
+        x-transition:enter-start="opacity-0 translate-y-4 scale-95"
+        x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+        x-transition:leave="transition ease-in duration-150"
+        x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+        x-transition:leave-end="opacity-0 translate-y-4 scale-95"
+        class="fixed bottom-6 left-1/2 z-50 -translate-x-1/2 flex items-center gap-2.5 rounded-full border border-white/15 bg-[#121622]/95 px-5 py-3 shadow-2xl backdrop-blur-xl">
+        <span class="flex h-5 w-5 items-center justify-center rounded-full"
+            :class="toastType === 'error' ? 'bg-rose-500/20 text-rose-400' : (toastType === 'info' ? 'bg-sky-500/20 text-sky-400' : 'bg-emerald-500/20 text-emerald-400')">
+            <i data-lucide="check-circle-2" class="h-3.5 w-3.5" x-show="toastType === 'success'"></i>
+            <i data-lucide="info" class="h-3.5 w-3.5" x-show="toastType === 'info'"></i>
+            <i data-lucide="alert-circle" class="h-3.5 w-3.5" x-show="toastType === 'error'"></i>
+        </span>
+        <span class="text-xs font-semibold text-white tracking-wide" x-text="toastMessage"></span>
+    </div>
+
+
+    <!-- ==========================================
+         CONNECTION SCRIPT & BUSINESS WORKFLOW
+    =========================================== -->
+    <script>
+        const apiOrigin = 'http://localhost:8000';
         const apiBase = `${apiOrigin}/api/connectors/google`;
         const token = localStorage.getItem('sumrize_auth_token');
         const connectButton = document.getElementById('connect-button');
@@ -945,11 +1454,90 @@
             }
         }
 
+        /**
+         * Update UI Visual & Animation State
+         * States: 'checking' | 'disconnected' | 'connecting' | 'connected' | 'error' | 'login_required'
+         */
+        function updateVisualState(state, details = {}) {
+            // Inform Alpine of state changes
+            window.dispatchEvent(new CustomEvent('update-connect-state', { detail: { state: state } }));
+
+            // Reset base classes
+            bridgeBeam.className = 'connector-beam h-1 w-full rounded-full transition-all duration-700';
+            bridgeIconContainer.className = 'absolute flex h-9 w-9 items-center justify-center rounded-full border bg-[#0d1018] shadow-lg transition-all duration-500';
+            statusLiveDot.className = 'h-2 w-2 rounded-full';
+            meetNodeRing.classList.add('hidden');
+            errorAlertBox.classList.add('hidden');
+            loginRequiredBox.classList.add('hidden');
+
+            if (state === 'connected') {
+                bridgeBeam.classList.add('connected');
+                bridgeIconContainer.className = 'absolute flex h-9 w-9 items-center justify-center rounded-full border border-emerald-500/50 bg-emerald-950 text-emerald-400 shadow-glow-success';
+                setBridgeIcon('check', 'text-emerald-400');
+                statusLiveDot.className = 'h-2 w-2 rounded-full bg-emerald-400 animate-pulse';
+                statusBadgeText.textContent = 'Terhubung (Akun Google)';
+                meetNodeBox.className = 'relative flex h-16 w-16 items-center justify-center rounded-2xl border border-emerald-500/40 bg-[#161a26] p-3.5 shadow-glow-success backdrop-blur-md transition-all duration-500';
+                meetNodeRing.classList.remove('hidden');
+                connectedAccountCard.classList.remove('hidden');
+
+                if (details.email) {
+                    connectedEmailDisplay.textContent = details.email;
+                }
+            } else if (state === 'connected_link') {
+                bridgeBeam.classList.add('connected');
+                bridgeIconContainer.className = 'absolute flex h-9 w-9 items-center justify-center rounded-full border border-emerald-500/50 bg-emerald-950 text-emerald-400 shadow-glow-success';
+                setBridgeIcon('link-2', 'text-emerald-400');
+                statusLiveDot.className = 'h-2 w-2 rounded-full bg-emerald-400 animate-pulse';
+                statusBadgeText.textContent = 'Terhubung (Tautan)';
+                meetNodeBox.className = 'relative flex h-16 w-16 items-center justify-center rounded-2xl border border-emerald-500/40 bg-[#161a26] p-3.5 shadow-glow-success backdrop-blur-md transition-all duration-500';
+                meetNodeRing.classList.remove('hidden');
+                connectedAccountCard.classList.add('hidden');
+            } else if (state === 'connecting') {
+                bridgeBeam.classList.add('active');
+                bridgeIconContainer.className = 'absolute flex h-9 w-9 items-center justify-center rounded-full border border-sumrize/50 bg-[#161a26] text-sumrize shadow-glow-sumrize';
+                setBridgeIcon('loader-2', 'animate-spin text-sumrize');
+                statusLiveDot.className = 'h-2 w-2 rounded-full bg-sumrize animate-ping';
+                statusBadgeText.textContent = 'Menghubungkan...';
+                connectedAccountCard.classList.add('hidden');
+            } else if (state === 'error') {
+                bridgeIconContainer.className = 'absolute flex h-9 w-9 items-center justify-center rounded-full border border-rose-500/50 bg-rose-950 text-rose-400';
+                setBridgeIcon('alert-triangle', 'text-rose-400');
+                statusLiveDot.className = 'h-2 w-2 rounded-full bg-rose-500';
+                statusBadgeText.textContent = 'Gagal';
+                errorAlertBox.classList.remove('hidden');
+                if (details.message) {
+                    errorAlertMessage.textContent = details.message;
+                }
+                connectedAccountCard.classList.add('hidden');
+            } else if (state === 'login_required') {
+                bridgeIconContainer.className = 'absolute flex h-9 w-9 items-center justify-center rounded-full border border-amber-500/50 bg-amber-950 text-amber-400';
+                setBridgeIcon('lock', 'text-amber-400');
+                statusLiveDot.className = 'h-2 w-2 rounded-full bg-amber-400';
+                statusBadgeText.textContent = 'Perlu Login';
+                loginRequiredBox.classList.remove('hidden');
+                connectedAccountCard.classList.add('hidden');
+            } else {
+                // Disconnected / Idle
+                setBridgeIcon('link-2', 'text-gray-400');
+                bridgeIconContainer.className = 'absolute flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-[#0d1018] text-gray-400 shadow-lg';
+                statusLiveDot.className = 'h-2 w-2 rounded-full bg-gray-500';
+                statusBadgeText.textContent = 'Belum Terhubung';
+                meetNodeBox.className = 'relative flex h-16 w-16 items-center justify-center rounded-2xl border border-white/15 bg-[#161a26] p-3.5 shadow-lg backdrop-blur-md transition-all duration-500';
+                connectedAccountCard.classList.add('hidden');
+            }
+        }
+
+        window.addEventListener('update-visual-state', (event) => {
+            if (event.detail?.state) {
+                updateVisualState(event.detail.state, event.detail.details);
+            }
+        });
+
         function setConnectionStatus(message, connected = false) {
             statusElement.textContent = message;
             statusElement.className = connected
-                ? 'mt-4 text-sm font-semibold text-success-600 dark:text-success-500'
-                : 'mt-4 text-sm font-semibold text-gray-500 dark:text-gray-400';
+                ? 'mt-2 text-sm font-semibold text-emerald-400 flex items-center justify-center gap-1.5'
+                : 'mt-2 text-sm font-semibold text-gray-400';
         }
 
         async function loadConnectionStatus() {
@@ -990,7 +1578,20 @@
             }
 
             if (!token) {
-                setConnectionStatus('Login Sumrize diperlukan.');
+                setConnectionStatus('Login Sumrize diperlukan untuk konektor otomatis.');
+                const savedLink = localStorage.getItem('sumrize_connected_link');
+                if (savedLink) {
+                    try {
+                        const parsed = JSON.parse(savedLink);
+                        window.dispatchEvent(new CustomEvent('sync-link-state', { detail: { connected: true, data: parsed } }));
+                        updateVisualState('connected_link', { code: parsed.code });
+                    } catch (e) {
+                        updateVisualState('disconnected');
+                    }
+                } else {
+                    updateVisualState('login_required');
+                }
+                connectButton.classList.add('hidden');
                 return;
             }
 
@@ -1007,6 +1608,11 @@
                 }
 
                 if (data.connected) {
+                    // Google OAuth is active: clear any link connector to maintain single connector rule
+                    localStorage.removeItem('sumrize_connected_link');
+                    window.dispatchEvent(new CustomEvent('sync-link-state', { detail: { connected: false } }));
+
+                    const email = data.account?.email || '';
                     setConnectionStatus('✓ Google Meet berhasil terhubung', true);
                     accountElement.textContent = data.account?.email
                         ? `Akun: ${data.account.email}`
@@ -1020,7 +1626,23 @@
                             : 'Google Meet belum terhubung.'
                     );
                     accountElement.textContent = '';
-                    connectLabel.textContent = 'Hubungkan Google Meet';
+                    setButtonIcon('link');
+                    disconnectButton.classList.add('hidden');
+                    connectButton.classList.remove('hidden');
+
+                    // Check if link connector is active
+                    const savedLink = localStorage.getItem('sumrize_connected_link');
+                    if (savedLink) {
+                        try {
+                            const parsed = JSON.parse(savedLink);
+                            window.dispatchEvent(new CustomEvent('sync-link-state', { detail: { connected: true, data: parsed } }));
+                            updateVisualState('connected_link', { code: parsed.code });
+                        } catch (e) {
+                            updateVisualState('disconnected');
+                        }
+                    } else {
+                        updateVisualState('disconnected');
+                    }
                 }
             } catch (error) {
                 setConnectionStatus(error.message);
@@ -1060,8 +1682,9 @@
             }
         }
 
-        connectButton.addEventListener('click', connectGoogleMeet);
-        disconnectButton.addEventListener('click', disconnectGoogleMeet);
+        if (connectButton) {
+            connectButton.addEventListener('click', connectGoogleMeet);
+        }
 
 
         document.addEventListener(

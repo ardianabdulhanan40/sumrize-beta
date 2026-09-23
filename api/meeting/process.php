@@ -84,7 +84,7 @@ try {
     sumrize_assert_owns_session(
         $pdo,
         $meetingSessionId,
-        (int) $user
+        (int) ($user['user_id'] ?? 1)
     );
 
 

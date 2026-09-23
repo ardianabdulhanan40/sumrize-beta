@@ -1,0 +1,30 @@
+{
+    "meeting_session_id": "ms_49c209c9c345c88730726bb9e9d52ecb",
+    "meet_code": "xyz-pqrs-tuv",
+    "title": "Google Meet - xyz-pqrs-tuv",
+    "status": "completed",
+    "started_at": "2026-09-23 05:44:24",
+    "last_updated": "2026-09-23 05:45:46",
+    "total_transcripts": 1,
+    "total_turns": 1,
+    "transcripts": [
+        {
+            "username": "Sumrize Tester",
+            "kalimat": "Halo, ini adalah pengujian transmisi transkrip Google Meet ke Sumrize.",
+            "timestamp_seconds": 3,
+            "sequence": 1,
+            "created_at": "2026-09-23 05:44:52"
+        }
+    ],
+    "dialog_tergabung": [
+        {
+            "username": "Sumrize Tester",
+            "kalimat": "Halo, ini adalah pengujian transmisi transkrip Google Meet ke Sumrize.",
+            "started_at": "2026-09-23 05:44:52",
+            "sequence": 1
+        }
+    ],
+    "percakapan_gabungan": [
+        "Sumrize Tester: Halo, ini adalah pengujian transmisi transkrip Google Meet ke Sumrize."
+    ]
+}

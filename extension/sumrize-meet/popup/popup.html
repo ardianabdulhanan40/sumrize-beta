@@ -45,12 +45,317 @@
         Stop Capture
     </button>
 
-    <button id="view">
-        View Captured
-    </button>
+        <div class="meet-status" id="box-meet-info">
+          <div class="meet-status__icon">📹</div>
+          <div class="meet-status__info" style="flex:1;">
+            <div class="meet-status__name" id="meet-title">Panggilan Google Meet</div>
+            <div style="display:flex; align-items:center; gap:8px; margin-top:2px;">
+              <span class="meet-status__code" id="meet-code">-</span>
+              <button class="btn-copy-meet-code hidden" id="btn-copy-meet-code" title="Salin Link Google Meet">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                </svg>
+                <span id="copy-btn-text">Salin Link</span>
+              </button>
+            </div>
+          </div>
+        </div>
 
-    <div id="status">
-        Status: Ready
+        <!-- Connector Auto-Detect Strip -->
+        <div class="connector-status-strip" id="box-connector-status"
+          style="display:flex; align-items:center; justify-content:space-between; padding:8px 10px; background:rgba(16, 185, 129, 0.08); border:1px solid rgba(16, 185, 129, 0.2); border-radius:8px; margin-top:8px;">
+          <div style="display:flex; align-items:center; gap:6px;">
+            <span style="font-size:13px;">🔗</span>
+            <div>
+              <div style="font-size:11px; font-weight:600; color:#34d399;" id="connector-strip-title">Konektor Google
+                Meet Terhubung</div>
+              <div style="font-size:10px; color:#94a3b8;" id="connector-strip-desc">Mendeteksi akun...</div>
+            </div>
+          </div>
+          <span class="badge badge--green" id="badge-connector-strip" style="font-size:10px;">Otomatis</span>
+        </div>
+
+        <!-- Tombol Buka Sidebar di Google Meet -->
+        <button class="btn btn--secondary btn--sm hidden" id="btn-toggle-sidebar-in-meet"
+          style="margin-top:8px; width:100%; border:1px solid rgba(255,68,56,0.3); color:#ff827a;">
+          <span>📱 Buka Sidebar di Google Meet</span>
+        </button>
+
+        <div class="notice notice--warning hidden" id="notice-not-on-meet">
+          <span>⚠️</span>
+          <div>
+            Buka atau masuk ke tab panggilan <strong>Google Meet</strong> untuk memulai transkripsi rapat.
+          </div>
+        </div>
+
+        <button class="btn btn--secondary btn--sm hidden" id="btn-open-meet">
+          <span>Buka Google Meet</span>
+          <span>↗</span>
+        </button>
+      </section>
+
+      <!-- Live Capturing & Controls Card -->
+      <section class="card card--highlight" id="card-capture">
+        <!-- <div class="card__header">
+          <div class="card__title">
+            <span class="status-dot pulse hidden" id="recording-pulse-dot"
+              style="background:#ef4444; width:8px; height:8px;"></span>
+            <span id="capture-status-title">Status Transkripsi</span>
+          </div>
+          <div class="audio-wave hidden" id="audio-wave-anim">
+            <span></span><span></span><span></span><span></span>
+          </div>
+          <span class="badge badge--neutral" id="badge-capture-state">Idle</span>
+        </div> -->
+
+        <!-- Live Metrics Grid -->
+        <!-- <div class="live-metrics">
+          <div class="metric-box">
+            <span class="metric-box__label">Durasi Sesi</span>
+            <span class="metric-box__val" id="metric-timer">00:00:00</span>
+          </div>
+          <div class="metric-box">
+            <span class="metric-box__label">Segmen Terkumpul</span>
+            <span class="metric-box__val" id="metric-segments">0 kalimat</span>
+          </div>
+        </div> -->
+
+        <!-- CC Warning Notice -->
+        <div class="notice notice--warning hidden" id="notice-cc-warning">
+          <span>💬</span>
+          <div style="flex:1;">
+            Live Captions Google Meet belum aktif. Tekan <strong>'c'</strong> di Google Meet atau klik:
+          </div>
+          <button class="btn--link" id="btn-toggle-cc-popup" style="color:#fbbf24; font-weight:600;">Aktifkan
+            CC</button>
+        </div>
+
+        <!-- Mic Muted Notice -->
+        <div class="notice notice--warning hidden" id="notice-mic-muted"
+          style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #fca5a5;">
+          <span>🔇</span>
+          <div style="flex:1;">
+            Mikrofon Google Meet dinonaktifkan (Muted) — Transkripsi suara Anda dijeda.
+          </div>
+        </div>
+
+        <!-- Live Snippet Preview Box -->
+        <div class="caption-preview-box" id="box-live-snippet">
+          <div class="caption-preview-box__speaker" id="snippet-speaker">
+            <span>🗣️</span>
+            <span>Menunggu pembicara...</span>
+          </div>
+          <div class="caption-preview-box__text" id="snippet-text">
+            Mulai transkripsi untuk menangkap percakapan dan ringkasan otomatis.
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div id="capture-actions" style="display:flex; flex-direction:column; gap:8px;">
+          <button class="btn btn--primary" id="btn-start-capture">
+            <span>▶</span>
+            <span>Mulai Transkripsi</span>
+          </button>
+
+          <button class="btn btn--danger hidden" id="btn-stop-capture">
+            <span>⏹</span>
+            <span>Selesai & Buat Notula (Stop)</span>
+          </button>
+        </div>
+
+        <!-- Post-Meeting Success Actions -->
+        <div class="hidden" id="box-post-actions" style="display:flex; flex-direction:column; gap:6px; margin-top:4px;">
+          <div class="notice notice--info" id="notice-meeting-finished">
+            <span>🎉</span>
+            <div>Meeting selesai! Notula AI sedang diproses di backend.</div>
+          </div>
+          <button class="btn btn--primary btn--sm" id="btn-open-dashboard-session">
+            <span>🚀</span>
+            <span>Buka Notula di Dashboard</span>
+          </button>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px;">
+            <button class="btn btn--secondary btn--sm" id="btn-copy-latest-transcript">
+              <span>📋</span>
+              <span>Salin Teks</span>
+            </button>
+            <button class="btn btn--secondary btn--sm" id="btn-download-latest-txt">
+              <span>💾</span>
+              <span>Unduh TXT</span>
+            </button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Tab 2: Hasil Terakhir Tab -->
+    <main class="tab-content" id="tab-preview">
+      <div class="card">
+        <div class="card__header">
+          <span class="card__title">
+            <span>📋</span> Transkrip Sesi Terakhir
+          </span>
+          <button class="btn btn--secondary btn--sm" id="btn-refresh-preview" style="width:auto;">
+            <span>🔄 Segarkan</span>
+          </button>
+        </div>
+
+        <div id="preview-meta"
+          style="font-size:11px; color:var(--text-secondary); display:flex; justify-content:space-between;">
+          <span id="preview-session-id">Sesi: -</span>
+          <span id="preview-segments-count">0 kalimat</span>
+        </div>
+
+        <!-- Scrollable Feed -->
+        <div class="transcript-feed" id="preview-feed">
+          <div class="empty-state">
+            <div class="empty-state__icon">📝</div>
+            <div>Belum ada transkrip rapat tersimpan.</div>
+            <div style="font-size:11px; color:var(--text-muted);">Mulai rapat di Google Meet untuk merekam transkrip
+              pertama Anda.</div>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-top:6px;">
+          <button class="btn btn--secondary btn--sm" id="btn-copy-all-preview">
+            <span>📋 Salin Semua</span>
+          </button>
+          <button class="btn btn--primary btn--sm" id="btn-open-detail-preview">
+            <span>↗ Dashboard</span>
+          </button>
+        </div>
+      </div>
+    </main>
+
+    <!-- Tab 3: Akun & Pengaturan Tab -->
+    <main class="tab-content" id="tab-settings">
+      <!-- Auto Connector Integration Card -->
+      <div class="card" id="card-connector-integration">
+        <div class="card__header">
+          <span class="card__title">
+            <span>⚡</span> Integrasi Konektor Google Meet
+          </span>
+          <span class="badge badge--green" id="badge-connector-state">Terhubung Otomatis</span>
+        </div>
+
+        <div id="connector-info-box"
+          style="padding:10px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:8px; display:flex; flex-direction:column; gap:6px;">
+          <div style="display:flex; justify-content:space-between; font-size:11px;">
+            <span style="color:var(--text-secondary);">Akun Google Meet:</span>
+            <strong id="connector-info-email" style="color:#60a5fa;">Mendeteksi...</strong>
+          </div>
+          <div style="display:flex; justify-content:space-between; font-size:11px;">
+            <span style="color:var(--text-secondary);">Pemilik Akun Sumrize:</span>
+            <strong id="connector-info-user" style="color:#f8fafc;">-</strong>
+          </div>
+          <div style="display:flex; justify-content:space-between; font-size:11px;">
+            <span style="color:var(--text-secondary);">Status Database:</span>
+            <span class="badge badge--green" style="font-size:10px;" id="connector-info-status">Terkoneksi</span>
+          </div>
+        </div>
+
+        <div class="notice notice--info" id="notice-connector-auto" style="margin-top:6px;">
+          <span>✨</span>
+          <div style="font-size:11px;">
+            Akun Meet Anda terhubung langsung dengan konektor database. Anda <strong>tidak perlu memasukkan
+              token</strong> manual.
+          </div>
+        </div>
+
+        <div style="display:flex; gap:6px; margin-top:8px;">
+          <button class="btn btn--secondary btn--sm" id="btn-recheck-connector" style="flex:1;">
+            <span>🔄 Deteksi Ulang Konektor</span>
+          </button>
+          <button class="btn btn--secondary btn--sm" id="btn-toggle-manual-token" style="width:auto;"
+            title="Pengaturan Lanjutan / Manual">
+            <span>⚙️ Opsi Manual</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Advanced / Manual Settings (Collapsible) -->
+      <div class="card hidden" id="card-manual-settings">
+        <div class="card__header">
+          <span class="card__title">
+            <span>🔐</span> Pengaturan API & Token Manual (Opsional)
+          </span>
+          <span class="badge badge--neutral" id="badge-auth-status">Manual</span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Backend API Base URL</label>
+          <input type="text" class="form-input" id="input-api-url" placeholder="http://localhost:8000/api/meeting">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Personal Access Token (Auth Token Manual)</label>
+          <input type="password" class="form-input" id="input-auth-token" placeholder="Otomatis diisi oleh konektor">
+          <span style="font-size:10px; color:var(--text-muted); margin-top:2px;">
+            Hanya diisi jika Anda ingin override token konektor secara manual.
+          </span>
+        </div>
+
+        <button class="btn btn--primary btn--sm" id="btn-save-settings">
+          <span>💾 Simpan & Uji Koneksi</span>
+        </button>
+
+        <div class="notice notice--info hidden" id="settings-status-notice">
+          <span>ℹ️</span>
+          <span id="settings-status-text">-</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card__header">
+          <span class="card__title">
+            <span>🚀</span> Navigasi Cepat
+          </span>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:6px;">
+          <button class="btn btn--secondary btn--sm" id="btn-goto-dashboard">
+            <span>📊 Buka Dashboard Sumrize</span>
+            <span>↗</span>
+          </button>
+          <button class="btn btn--secondary btn--sm" id="btn-goto-library">
+            <span>📚 Meeting Sessions Library</span>
+            <span>↗</span>
+          </button>
+          <button class="btn btn--secondary btn--sm" id="btn-reset-storage" style="color:#f87171;">
+            <span>🗑️ Reset Pengaturan Lokal</span>
+          </button>
+        </div>
+      </div>
+    </main>
+
+    <!-- Privacy Notice Modal Dialog -->
+    <div class="modal-overlay" id="modal-privacy">
+      <div class="modal">
+        <div class="modal__title">
+          <span>🔒</span>
+          <span>Privasi & Izin Transkripsi</span>
+        </div>
+        <div class="modal__body">
+          <p>
+            Sesuai standar keamanan Sumrize (PRD SUM-53):
+          </p>
+          <ul style="padding-left:18px; display:flex; flex-direction:column; gap:4px;">
+            <li>Transkripsi membaca <strong>Live Captions Google Meet</strong> pada tab ini secara lokal.</li>
+            <li>Tidak merekam pembicaraan latar belakang atau tab browser lain tanpa izin Anda.</li>
+            <li>Hasil transkrip dikirim terenkripsi ke akun Sumrize Anda untuk membuat ringkasan AI, Action Items, dan
+              Keputusan rapat.</li>
+          </ul>
+          <label
+            style="display:flex; align-items:center; gap:6px; margin-top:8px; cursor:pointer; font-size:11px; color:#fff;">
+            <input type="checkbox" id="checkbox-remember-privacy" checked>
+            <span>Ingat pilihan saya (Jangan tampilkan lagi)</span>
+          </label>
+        </div>
+        <div class="modal__footer">
+          <button class="btn btn--secondary btn--sm" id="btn-privacy-cancel">Batal</button>
+          <button class="btn btn--primary btn--sm" id="btn-privacy-agree">Setuju & Mulai</button>
+        </div>
+      </div>
     </div>
 
     <script src="popup.js"></script>

@@ -997,13 +997,25 @@
     }
 
     @keyframes sumrizeFadeIn {
-        from { opacity: 0; }
-        to { opacity: 1; }
+        from {
+            opacity: 0;
+        }
+
+        to {
+            opacity: 1;
+        }
     }
 
     @keyframes sumrizeModalSlide {
-        from { opacity: 0; transform: translateY(12px) scale(0.96); }
-        to { opacity: 1; transform: translateY(0) scale(1); }
+        from {
+            opacity: 0;
+            transform: translateY(12px) scale(0.96);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
     }
 
     /* Automation Page Specifics */
@@ -1645,17 +1657,21 @@
 
 <!-- MOBILE MENU DROPDOWN (Sesuai Desain Screenshot) -->
 <nav id="mobileDashboardDrawerV3" class="mobile-dashboard-drawer-v3 d-lg-none" aria-label="Menu Navigasi Mobile">
-    <a href="index.html" class="dashboard-sidebar-link-v3" onclick="closeMobileDrawer()">
+    <a href="/dashboard/index_local.html" class="dashboard-sidebar-link-v3" onclick="closeMobileDrawer()">
         <span class="left"><i class="fa-solid fa-house"></i> <span>Beranda</span></span>
     </a>
-    <a href="digest.html" class="dashboard-sidebar-link-v3" onclick="closeMobileDrawer()">
+    <a href="/dashboard/meeting.html" class="dashboard-sidebar-link-v3" onclick="closeMobileDrawer()">
+        <span class="left"><i class="fa-solid fa-calendar"></i> <span>Meeting</span></span>
+    </a>
+    <a href="/dashboard/digest_local.html" class="dashboard-sidebar-link-v3" onclick="closeMobileDrawer()">
         <span class="left"><i class="fa-solid fa-bell"></i> <span>Digest</span></span>
     </a>
-    <a href="automation.html" class="dashboard-sidebar-link-v3" data-requires="spark" onclick="closeMobileDrawer()">
+    <a href="/dashboard/automation_local.html" class="dashboard-sidebar-link-v3" data-requires="spark"
+        onclick="closeMobileDrawer()">
         <span class="left"><i class="fa-solid fa-bolt"></i> <span>Automation</span></span>
         <span class="badge-spark-lock lock-badge"><i class="fa-solid fa-lock"></i> Spark</span>
     </a>
-    <a href="keyword-trigger.html" class="dashboard-sidebar-link-v3" data-requires="spark"
+    <a href="/dashboard/keyword-trigger_local.html" class="dashboard-sidebar-link-v3" data-requires="spark"
         onclick="closeMobileDrawer()">
         <span class="left"><i class="fa-solid fa-bolt"></i> <span>Keyword Trigger</span></span>
         <span class="badge-spark-lock lock-badge"><i class="fa-solid fa-lock"></i> Spark</span>
@@ -1671,7 +1687,8 @@
     </a>
 
     <!-- Demo Mode Switcher Mobile -->
-    <div class="dashboard-demo-plan-box mobile-demo-box" id="demoPlanBoxMobile" style="margin-top: 10px; margin-bottom: 6px;">
+    <div class="dashboard-demo-plan-box mobile-demo-box" id="demoPlanBoxMobile"
+        style="margin-top: 10px; margin-bottom: 6px;">
         <div class="dashboard-demo-plan-header">
             <span class="dashboard-demo-plan-title"><i class="fa-solid fa-flask"></i> Status Demo</span>
             <span class="user-plan-badge badge-explore" id="demoActivePlanBadgeMobile">EXPLORE</span>
@@ -1679,12 +1696,13 @@
         <div class="dashboard-demo-switch-pills">
             <button type="button" class="dashboard-demo-plan-btn is-active" id="btnPlanExploreMobile"
                 data-demo-plan="explore"
-                onclick="window.setUserPlan ? window.setUserPlan('explore') : null; if(typeof window.closeMobileDrawer==='function') window.closeMobileDrawer();" title="Beralih ke status Explore">
+                onclick="window.setUserPlan ? window.setUserPlan('explore') : null; if(typeof window.closeMobileDrawer==='function') window.closeMobileDrawer();"
+                title="Beralih ke status Explore">
                 <i class="fa-regular fa-user"></i> <span>Explore</span>
             </button>
-            <button type="button" class="dashboard-demo-plan-btn" id="btnPlanSparkMobile"
-                data-demo-plan="spark"
-                onclick="window.setUserPlan ? window.setUserPlan('spark') : null; if(typeof window.closeMobileDrawer==='function') window.closeMobileDrawer();" title="Beralih ke status Spark">
+            <button type="button" class="dashboard-demo-plan-btn" id="btnPlanSparkMobile" data-demo-plan="spark"
+                onclick="window.setUserPlan ? window.setUserPlan('spark') : null; if(typeof window.closeMobileDrawer==='function') window.closeMobileDrawer();"
+                title="Beralih ke status Spark">
                 <i class="fa-solid fa-bolt"></i> <span>Spark</span>
             </button>
         </div>
@@ -1764,15 +1782,18 @@
             <div>
                 <div class="dashboard-sidebar-v3-label">Menu</div>
                 <div class="dashboard-sidebar-nav-v3">
-                    <a href="index.html" class="dashboard-sidebar-link-v3"><span class="left"><i
+                    <a href="/dashboard/index_local.html" class="dashboard-sidebar-link-v3"><span class="left"><i
                                 class="fa-solid fa-house"></i> Beranda</span></a>
-                    <a href="digest.html" class="dashboard-sidebar-link-v3"><span class="left"><i
+                    <a href="/dashboard/meeting.html" class="dashboard-sidebar-link-v3"><span class="left"><i
+                                class="fa-solid fa-calendar"></i> Meeting</span></a>
+                    <a href="/dashboard/digest_local.html" class="dashboard-sidebar-link-v3"><span class="left"><i
                                 class="fa-solid fa-bell"></i> Digest</span></a>
-                    <a href="automation.html" class="dashboard-sidebar-link-v3" data-requires="spark">
+                    <a href="/dashboard/automation_local.html" class="dashboard-sidebar-link-v3" data-requires="spark">
                         <span class="left"><i class="fa-solid fa-bolt"></i> Automation</span>
                         <span class="badge-spark-lock lock-badge"><i class="fa-solid fa-lock"></i> Spark</span>
                     </a>
-                    <a href="keyword-trigger.html" class="dashboard-sidebar-link-v3" data-requires="spark">
+                    <a href="/dashboard/keyword-trigger_local.html" class="dashboard-sidebar-link-v3"
+                        data-requires="spark">
                         <span class="left"><i class="fa-solid fa-bolt"></i> Keyword Trigger</span>
                         <span class="badge-spark-lock lock-badge"><i class="fa-solid fa-lock"></i> Spark</span>
                     </a>
@@ -1793,13 +1814,13 @@
                 </div>
                 <div class="dashboard-demo-switch-pills">
                     <button type="button" class="dashboard-demo-plan-btn is-active" id="btnPlanExploreDesktop"
-                        data-demo-plan="explore"
-                        onclick="window.setUserPlan ? window.setUserPlan('explore') : null" title="Beralih ke status Explore">
+                        data-demo-plan="explore" onclick="window.setUserPlan ? window.setUserPlan('explore') : null"
+                        title="Beralih ke status Explore">
                         <i class="fa-regular fa-user"></i> <span>Explore</span>
                     </button>
                     <button type="button" class="dashboard-demo-plan-btn" id="btnPlanSparkDesktop"
-                        data-demo-plan="spark"
-                        onclick="window.setUserPlan ? window.setUserPlan('spark') : null" title="Beralih ke status Spark">
+                        data-demo-plan="spark" onclick="window.setUserPlan ? window.setUserPlan('spark') : null"
+                        title="Beralih ke status Spark">
                         <i class="fa-solid fa-bolt"></i> <span>Spark</span>
                     </button>
                 </div>
@@ -1820,19 +1841,24 @@
 </aside>
 
 <!-- MODAL PERINGATAN AKSES SPARK (FALLBACK TANPA SWEETALERT) -->
-<div id="sumrizeSparkLockModal" class="sumrize-demo-modal-backdrop" style="display:none;" onclick="if(event.target===this) closeSparkLockModal();">
+<div id="sumrizeSparkLockModal" class="sumrize-demo-modal-backdrop" style="display:none;"
+    onclick="if(event.target===this) closeSparkLockModal();">
     <div class="sumrize-demo-modal-card">
         <button type="button" class="sumrize-modal-close-btn" onclick="closeSparkLockModal()">&times;</button>
         <div class="sumrize-demo-modal-icon"><i class="fa-solid fa-lock"></i></div>
         <h3 class="sumrize-demo-modal-title">Akses Khusus Paket Spark</h3>
-        <p class="sumrize-demo-modal-desc">Menu <strong id="lockedFeatureTitle">Automation</strong> hanya tersedia untuk pengguna dengan status <strong>Spark</strong>.</p>
+        <p class="sumrize-demo-modal-desc">Menu <strong id="lockedFeatureTitle">Automation</strong> hanya tersedia untuk
+            pengguna dengan status <strong>Spark</strong>.</p>
         <div class="sumrize-demo-modal-info">
             <i class="fa-solid fa-circle-info"></i>
-            <span>Untuk kebutuhan demonstrasi, Anda dapat langsung mengaktifkan status Spark untuk membuka menu ini.</span>
+            <span>Untuk kebutuhan demonstrasi, Anda dapat langsung mengaktifkan status Spark untuk membuka menu
+                ini.</span>
         </div>
         <div class="sumrize-demo-modal-actions">
-            <button type="button" class="sumrize-modal-btn btn-cancel" onclick="closeSparkLockModal()">Tetap di Explore</button>
-            <button type="button" class="sumrize-modal-btn btn-confirm" id="btnConfirmSwitchSpark"><i class="fa-solid fa-bolt"></i> Beralih ke Spark & Buka</button>
+            <button type="button" class="sumrize-modal-btn btn-cancel" onclick="closeSparkLockModal()">Tetap di
+                Explore</button>
+            <button type="button" class="sumrize-modal-btn btn-confirm" id="btnConfirmSwitchSpark"><i
+                    class="fa-solid fa-bolt"></i> Beralih ke Spark & Buka</button>
         </div>
     </div>
 </div>
